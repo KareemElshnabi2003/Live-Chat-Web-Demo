@@ -118,8 +118,9 @@ createChatFriend({required int friendID, required String requestStatus, required
           middleText:           S.of(Get.context!).msgIBlocked,
 
           titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.redColor),
-          textConfirm: "إلغاء الحظر",
-          textCancel: "تراجع",
+          textConfirm:          S.of(Get.context!).cancelBloc,
+          textCancel:           S.of(Get.context!).back,
+
           confirmTextColor: Colors.white,
           cancelTextColor: AppColors.primaryColor,
           buttonColor: AppColors.primaryColor,

@@ -131,6 +131,14 @@ class S {
       desc: '',
       args: [],
     );
+  } /// `الغاء الحظر`
+  String get cancelBloc {
+    return Intl.message(
+      'الغاء الحظر',
+      name: 'cancelBloc',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `انضم الآن`
