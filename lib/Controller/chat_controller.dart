@@ -1,0 +1,710 @@
+// ignore_for_file: avoid_print
+
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:live_chat/Controller/create_chat_controller.dart';
+import 'package:live_chat/Core/Class/api.dart';
+import 'package:live_chat/Core/Class/error_handler.dart';
+import 'package:live_chat/Core/class/status_request.dart';
+import 'package:live_chat/Core/function/handling_data.dart';
+import 'package:live_chat/Data/DataSource/chats_source.dart';
+import 'package:live_chat/Data/DataSource/radio_remote_data.dart';
+import 'package:live_chat/Data/Model/chat_message_model.dart';
+import 'package:live_chat/Data/Model/member_of_chat_model.dart';
+import 'package:live_chat/Data/Model/message_model.dart';
+import 'package:live_chat/Data/Model/radio_model.dart';
+import 'package:live_chat/Data/Model/token_call_model.dart';
+import 'package:live_chat/Data/Model/user_chat_model.dart';
+import 'package:live_chat/View/Screens/create%20chat/audio_call_view.dart';
+import 'package:live_chat/View/Screens/create%20chat/chat_view.dart';
+import 'package:live_chat/View/Screens/create%20chat/video_call_view.dart';
+import 'package:live_chat/View/Widget/PublicWidget/message_error.dart';
+import 'package:live_chat/generated/l10n.dart';
+import 'package:live_chat/main.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:image_picker/image_picker.dart';
+
+class ChatController extends GetxController {
+  final CreateChatController createChatController = Get.put(CreateChatController());
+  final ChatsRemoteData _chatsRemoteData = ChatsRemoteData(api: Get.find<Api>());
+  final RadioRemoteData _radioRemoteData = RadioRemoteData(api: Get.find<Api>());
+
+  bool isRecordingPaused = false;
+  late PusherChannelsFlutter pusher;
+  final Set<String> subscribedChannels = {};
+  FlutterSoundRecorder? _recorder;
+  bool isRecording = false;
+  static bool _pusherInitialized = false;
+  String? currentlyPlaying;
+  StatuesRequest statuesRequest = StatuesRequest.none;
+  MessageModel? messageModel;
+  List<MessageModel> messagesApi = [];
+  String chatId = '';
+  int currentPage = 1;
+  bool isLoadingMore = false;
+  bool hasMoreMessages = true;
+  bool audio = false;
+  TokenCallModel? tokenCallModel;
+
+  late final AudioPlayer audioPlayer;
+  bool music1 = false, music2 = false, music3 = false;
+  List<RadioModel> radios = [];
+  StatuesRequest radioStatusRequest = StatuesRequest.none;
+  int? currentRadioIndex;
+  bool isRadioPlaying = false;
+
+  final TextEditingController messageController = TextEditingController();
+  final RxList<ChatMessage> messages = <ChatMessage>[].obs;
+  bool answer = true;
+
+  @override
+  void onInit() {
+    super.onInit();
+    // 🌟 حماية من الكراش لو الـ Get.arguments فاضي بالصدفة
+    chatId = Get.arguments?['chatId']?.toString() ?? '';
+
+    if(chatId.isNotEmpty) {
+      getMemberToBlock();
+      initPusher();
+      getMessages();
+    }
+
+    getRadios();
+    audioPlayer = AudioPlayer();
+    _recorder = FlutterSoundRecorder();
+    _initRecorder(); // نقلناها لدالة منفصلة لأمان التهيئة
+  }
+
+  Future<void> _initRecorder() async {
+    try {
+      await _recorder!.openRecorder();
+    } catch (e) {
+      log("Error opening recorder: $e");
+    }
+  }
+
+  void initPusher() async {
+    pusher = PusherChannelsFlutter.getInstance();
+    if (!_pusherInitialized) {
+      try {
+        await pusher.init(
+          apiKey: "f63bff3d533540e54682",
+          cluster: "ap2",
+          onEvent: (event) async {
+            log("🎯 PUSHER EVENT: ${event.eventName}");
+
+            if (!Get.isRegistered<ChatController>()) return;
+            final ctrl = Get.find<ChatController>();
+
+            if (event.data.toString() == "{}" || event.data == null) return;
+
+            try {
+              var eventData = jsonDecode(event.data.toString());
+              if (eventData is String) eventData = jsonDecode(eventData);
+
+              if (event.eventName.contains("message-created")) {
+                final msgData = eventData;
+                final myId = sharedPreferences!.getString("id") ?? sharedPreferences!.getString("idGust") ?? "";
+
+                bool isMe = msgData['sender_id'].toString() == myId.toString();
+
+                if (!isMe) {
+                  String messageType = msgData['message_type'] ?? 'text';
+                  String messageContent = msgData['message'] ?? '';
+
+                  ChatMessage newMsg = ChatMessage(
+                    senderName: msgData['sender_name'] ?? 'Unknown',
+                    imageUrl: msgData['sender_image']?.toString(), // شيلنا كلمة "null" هنا وبنبعتها null صريحة
+                    reaction: [],
+                    message: messageContent,
+                    messageType: messageType,
+                    messageId: msgData['id'].toString(),
+                    isPending: false,
+                    isFromSender: false,
+                    timestamp: DateFormat('h:mm a').format(DateTime.now()),
+                  );
+
+                  // 🌟 تحسين الأداء: الإضافة والـ Refresh في خطوة واحدة
+                  ctrl.messages.insert(0, newMsg);
+                }
+              }
+            } catch (e) {
+              log("❌ Error parsing Pusher data: $e");
+            }
+          },
+        );
+      } catch (e) {
+        log("❌ Pusher init error: $e");
+      }
+      _pusherInitialized = true;
+    }
+
+    String targetChannel = "live-chat-ngoum-$chatId";
+    if (!subscribedChannels.contains(targetChannel)) {
+      await pusher.subscribe(channelName: targetChannel);
+      subscribedChannels.add(targetChannel);
+    }
+    await pusher.connect();
+  }
+
+  call({required bool isGroub, required type, required Map<int, String> groubUsersNames, required usernameFriend}) async {
+    statuesRequest = StatuesRequest.loading;
+    update();
+
+    var response = await _chatsRemoteData.getTokenCall(
+        callType: audio ? "audio" : "video",
+        isGroub: isGroub,
+        role: type,
+        chatId: int.parse(chatId));
+
+    statuesRequest = handlingData(response);
+
+    if (statuesRequest == StatuesRequest.success) {
+      final responseBody = response['data'];
+      if (responseBody != null) {
+        tokenCallModel = TokenCallModel.fromJson(responseBody);
+
+        final callArgs = {
+          "ChannelName": tokenCallModel!.channel,
+          "Token": tokenCallModel!.token,
+          "UId": tokenCallModel!.uid,
+          "IsGroupCall": isGroub,
+          "chatId": chatId,
+          "RemoteUserName": usernameFriend,
+          "UserNamesMap": groubUsersNames,
+          "LocalUserName": sharedPreferences!.getString("name")
+        };
+
+        audio ? Get.to(() => const AudioCallPage(), arguments: callArgs)
+            : Get.to(() => const VideoCallPage(), arguments: callArgs);
+      } else {
+        showUserFriendlyError(statuesRequest);
+      }
+    }
+    update();
+  }
+
+  checkCall({required bool isGroub, required Map<int, String>? groubUsersNames, required usernameFriend}) async {
+    statuesRequest = StatuesRequest.loading;
+    update();
+    var response = await _chatsRemoteData.checkCall(id: chatId);
+    statuesRequest = handlingData(response);
+
+    if (statuesRequest == StatuesRequest.success) {
+      final responseBody = response['data'];
+      if (responseBody != null) {
+        String type = response['data']['status'] == 0 ? 'publisher' : "subscriber";
+        call(isGroub: isGroub, type: type, groubUsersNames: groubUsersNames!, usernameFriend: usernameFriend);
+      } else {
+        showUserFriendlyError(statuesRequest);
+      }
+    }
+    update();
+  }
+
+  getTokenCall({required bool isGroub, required Map<int, String> groubUsersNames, required usernameFriend}) async {
+    await checkCall(isGroub: isGroub, groubUsersNames: groubUsersNames, usernameFriend: usernameFriend);
+  }
+
+  Future<void> getMessages({int page = 1}) async {
+    if (isLoadingMore || !hasMoreMessages) return;
+    if (page > 1) isLoadingMore = true;
+    update();
+
+    var response = await _chatsRemoteData.getMessages(
+
+      idChat: chatId,
+
+      page: page,
+    );
+
+    statuesRequest = handlingData(response);
+
+    if (statuesRequest == StatuesRequest.success) {
+      List responseBody = response['data'];
+      if (responseBody.isEmpty) {
+        hasMoreMessages = false;
+      } else {
+        List<MessageModel> newMessages = responseBody.map((e) => MessageModel.fromJson(e)).toList();
+        if (page == 1) messagesApi.clear();
+        messagesApi.addAll(newMessages);
+
+        final myIdStr = sharedPreferences!.getString("id");
+        List answers = messagesApi.where((element) => element.senderId.toString() == myIdStr).toList();
+        answer = answers.isNotEmpty;
+
+        List<ChatMessage> newChatMessages = newMessages.map((e) {
+          String messageType = e.messageType ?? 'text';
+          bool isMe = myIdStr == "null"
+              ? "${e.senderId}" == sharedPreferences!.getString("idGust").toString()
+              : "${e.senderId}" == myIdStr.toString();
+
+          return ChatMessage(
+            senderName: e.senderName ?? 'Unknown',
+            imageUrl: e.senderImage, // خليتها null صريحة من غير "null"
+            reaction: e.messageReactions ?? [],
+            message: e.message ?? '',
+            messageType: messageType,
+            messageId: e.id.toString(),
+            isPending: false,
+            isFromSender: isMe,
+            timestamp: DateFormat('h:mm a').format(DateTime.parse(e.createdAt!)),
+          );
+        }).toList();
+
+        if (page == 1) {
+          messages.assignAll(newChatMessages); // 🌟 أسرع بكتير من clear ثم addAll
+        } else {
+          messages.addAll(newChatMessages);
+        }
+        currentPage = page;
+      }
+    } else {
+      hasMoreMessages = false;
+      showUserFriendlyError(statuesRequest);
+    }
+    isLoadingMore = false;
+    update();
+  }
+
+  Future<void> loadMoreMessages() async {
+    if (!hasMoreMessages || isLoadingMore) return;
+    await getMessages(page: currentPage + 1);
+  }
+
+  Future<void> sendMessage({String? text, File? imgFile, File? audioFile, required String messageType, String? tempId}) async {
+    var response;
+    if (imgFile != null || audioFile != null) {
+      response = await _chatsRemoteData.sendMessagesWithFile(
+        chatId: chatId,
+        audio: audioFile,
+        image: imgFile,
+
+
+      );
+    } else {
+      response = await _chatsRemoteData.sendMessages(
+        chatId: chatId,
+        message: text ?? '',
+
+
+      );
+    }
+
+    statuesRequest = handlingData(response);
+    if (statuesRequest == StatuesRequest.success) {
+      if (response['code'] == 403) {
+        messageError(S.of(Get.context!).warning, S.of(Get.context!).waitForAccept);
+      } else {
+        // تحديث بيانات الـ Gust لو فاضية
+        if (sharedPreferences!.getString("id").toString() == "null" && sharedPreferences!.getString("idGust").toString() == "null") {
+          sharedPreferences!.setString("idGust", response['data']['sender_id'].toString());
+        }
+        if (sharedPreferences!.getString("username").toString() == "null" && sharedPreferences!.getString("usernameGust").toString() == "null") {
+          sharedPreferences!.setString("usernameGust", response['data']['sender_name'].toString());
+        }
+
+        int indexToUpdate = messages.indexWhere((msg) => msg.messageId == tempId);
+        if (indexToUpdate != -1) {
+          messages[indexToUpdate] = ChatMessage(
+            imageUrl: messages[indexToUpdate].imageUrl ?? response['data']['sender_image'],
+            senderName: messages[indexToUpdate].senderName!.isEmpty ? response['data']['sender_name'] : messages[indexToUpdate].senderName,
+            reaction: messages[indexToUpdate].reaction,
+            message: response['data']['message'] ?? '',
+            messageType: response['data']['message_type'] ?? messageType,
+            messageId: response['data']['id'].toString(),
+            isFromSender: true,
+            isPending: false,
+            timestamp: messages[indexToUpdate].timestamp,
+          );
+        }
+      }
+    } else if (statuesRequest == StatuesRequest.forbiddenException) {
+      messageError(S.of(Get.context!).warning, S.of(Get.context!).waitAccept);
+      messages.removeWhere((msg) => msg.messageId == tempId);
+    } else {
+      messages.removeWhere((msg) => msg.messageId == tempId);
+      showUserFriendlyError(statuesRequest);
+    }
+    update();
+  }
+
+  Future<void> sendTextMessage() async {
+    final text = messageController.text.trim();
+    if (text.isNotEmpty) {
+      final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+      messageController.clear();
+
+      messages.insert(0, ChatMessage(
+        imageUrl: null,
+        reaction: [],
+        senderName: sharedPreferences!.getString("username") ?? sharedPreferences!.getString("usernameGust") ?? "",
+        message: text,
+        messageType: 'text',
+        messageId: tempId,
+        isFromSender: true,
+        isPending: true, // خلينا الـ text كمان Pending لحد ما يتبعت عشان الـ UI
+        timestamp: DateFormat('h:mm a').format(DateTime.now()),
+      ));
+
+      await sendMessage(text: text, messageType: 'text', tempId: tempId);
+    }
+  }
+
+  Future<void> sendImageMessage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70); // 🌟 ضغطنا الصورة لـ 70% للسرعة
+    if (pickedFile != null) {
+      File file = File(pickedFile.path);
+      final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+
+      messages.insert(0, ChatMessage(
+        imageUrl: null,
+        reaction: [],
+        senderName: sharedPreferences!.getString("username") ?? sharedPreferences!.getString("usernameGust") ?? "",
+        message: file.path,
+        messageType: 'image',
+        messageId: tempId,
+        isFromSender: true,
+        isPending: true,
+        timestamp: DateFormat('h:mm a').format(DateTime.now()),
+      ));
+
+      await sendMessage(imgFile: file, messageType: 'image', tempId: tempId);
+    }
+  }
+
+  String? path;
+
+  Future<void> startRecording() async {
+    if (await Permission.microphone.request().isGranted) {
+      final tempDir = await getTemporaryDirectory();
+      path = '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.aac';
+      await _recorder!.startRecorder(toFile: path);
+      isRecording = true;
+      isRecordingPaused = false;
+      update();
+    }
+  }
+
+  Future<void> pauseRecording() async {
+    try {
+      await _recorder!.pauseRecorder();
+      isRecordingPaused = true;
+      update();
+    } catch (e) { log("Pause error: $e"); }
+  }
+
+  Future<void> resumeRecording() async {
+    try {
+      await _recorder!.resumeRecorder();
+      isRecordingPaused = false;
+      update();
+    } catch (e) { log("Resume error: $e"); }
+  }
+
+  Future<void> cancelRecording() async {
+    try {
+      await _recorder!.stopRecorder();
+      isRecording = false;
+      isRecordingPaused = false;
+      if (path != null && await File(path!).exists()) {
+        await File(path!).delete();
+      }
+      path = null;
+      update();
+    } catch (e) { debugPrint('Error canceling recording: $e'); }
+  }
+
+  Future<void> stopRecording() async {
+    String? recordPath = await _recorder!.stopRecorder();
+    isRecording = false;
+    isRecordingPaused = false;
+    update();
+
+    if (recordPath == null || recordPath.isEmpty) return;
+    File file = File(recordPath);
+    if (!await file.exists()) return;
+
+    final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+    messages.insert(0, ChatMessage(
+      imageUrl: null,
+      reaction: [],
+      senderName: sharedPreferences!.getString("username") ?? sharedPreferences!.getString("usernameGust") ?? "",
+      message: recordPath,
+      messageType: 'voice',
+      messageId: tempId,
+      isFromSender: true,
+      isPending: true,
+      timestamp: DateFormat('h:mm a').format(DateTime.now()),
+    ));
+
+    await sendMessage(audioFile: file, messageType: 'audio', tempId: tempId);
+  }
+
+  reactMessage({required String messageId, required String react}) async {
+    var response = await _chatsRemoteData.sendReactMessages(
+        messageId: int.parse(messageId),
+        react: react,
+
+       );
+
+    statuesRequest = handlingData(response);
+    if (statuesRequest == StatuesRequest.success) {
+      final messageIndex = messages.indexWhere((msg) => msg.messageId == messageId);
+      if (messageIndex != -1) {
+        final reactionIndex = messages[messageIndex].reaction.indexWhere((reaction) => reaction.id == null);
+        if (reactionIndex != -1) {
+          messages[messageIndex].reaction[reactionIndex].id = response['data']['id'];
+          messages[messageIndex].reaction[reactionIndex].user!.id = response['data']['user']['id'];
+          messages[messageIndex].reaction[reactionIndex].user!.username = response['data']['user']['username'];
+        }
+        messages.refresh();
+      }
+    } else {
+      showUserFriendlyError(statuesRequest);
+    }
+    update();
+  }
+
+  void addReactionToMessage(int messageIndex, String reaction, String messageId) {
+    if (messageIndex >= 0 && messageIndex < messages.length) {
+      final currentUserId = int.tryParse(sharedPreferences!.getString("id") ?? sharedPreferences!.getString("idGust") ?? "0") ?? 0;
+
+      final existingReactionIndex = messages[messageIndex].reaction.indexWhere((r) => r.user!.id == currentUserId);
+
+      if (existingReactionIndex != -1) {
+        if (messages[messageIndex].reaction[existingReactionIndex].react == reaction) {
+          messages[messageIndex].reaction.removeAt(existingReactionIndex);
+        } else {
+          messages[messageIndex].reaction[existingReactionIndex].react = reaction;
+        }
+      } else {
+        messages[messageIndex].reaction.add(MessageReactions(
+          react: reaction,
+          id: null,
+          user: User(
+            id: currentUserId,
+            username: sharedPreferences!.getString("username") ?? sharedPreferences!.getString("usernameGust") ?? "",
+            image: sharedPreferences!.getString("img"),
+          ),
+        ));
+      }
+
+      reactMessage(messageId: messageId, react: reaction);
+      messages.refresh();
+    }
+  }
+
+  bool memberClick = true;
+  changeClick(member) {
+    memberClick = member;
+    if (memberClick && members.isEmpty) getMembers();
+    if (!memberClick && memmbersRequests.isEmpty) getMembers();
+    update();
+  }
+
+  StatuesRequest statuesRequestMembers = StatuesRequest.none;
+  List<MemberOfChatModel> members = [];
+  List<MemberOfChatModel> memmbersRequests = [];
+  int currentMembersPage = 1;
+  bool isLoadingMoreMembers = false;
+  bool hasMoreMembers = true;
+  int currentRequestsPage = 1;
+  bool isLoadingMoreRequests = false;
+  bool hasMoreRequests = true;
+  List<MemberOfChatModel> memberIdToBlock = [];
+
+  getMemberToBlock() async {
+    memberIdToBlock.clear();
+    var response = await _chatsRemoteData.getMemberOfChat(perPage: 10, page: 1, chatId: int.parse(chatId),);
+    if (handlingData(response) == StatuesRequest.success) {
+      List responseBody = response['data'];
+      final myId = sharedPreferences!.getString("id");
+      memberIdToBlock.addAll(responseBody.map((e) => MemberOfChatModel.fromJson(e)).where((e) => e.id.toString() != myId));
+    }
+  }
+
+  getMembers({int page = 1, bool loadMore = false}) async {
+    if (!loadMore) {
+      members.clear(); memmbersRequests.clear();
+      currentMembersPage = 1; currentRequestsPage = 1;
+      hasMoreMembers = true; hasMoreRequests = true;
+    }
+
+    if (memberClick && (isLoadingMoreMembers || !hasMoreMembers)) return;
+    if (!memberClick && (isLoadingMoreRequests || !hasMoreRequests)) return;
+
+    if (loadMore) {
+      memberClick ? isLoadingMoreMembers = true : isLoadingMoreRequests = true;
+    } else {
+      statuesRequestMembers = StatuesRequest.loading;
+    }
+    update();
+
+    var response = await _chatsRemoteData.getMemberOfChat(
+      perPage: 10,
+      page: memberClick ? currentMembersPage : currentRequestsPage,
+      chatId: int.parse(chatId),
+
+    );
+
+    statuesRequestMembers = handlingData(response);
+    if (statuesRequestMembers == StatuesRequest.success) {
+      List responseBody = response['data'];
+      if (responseBody.isEmpty) {
+        memberClick ? hasMoreMembers = false : hasMoreRequests = false;
+      } else {
+        List<MemberOfChatModel> newMembers = responseBody.map((e) => MemberOfChatModel.fromJson(e)).toList();
+        var accepted = newMembers.where((e) => e.memberStatus != "Waiting_for_acceptance").toList();
+        var pending = newMembers.where((e) => e.memberStatus == "Waiting_for_acceptance").toList();
+
+        members.addAll(accepted);
+        memmbersRequests.addAll(pending);
+
+        if (memberClick && accepted.isNotEmpty) currentMembersPage++;
+        if (!memberClick && pending.isNotEmpty) currentRequestsPage++;
+
+        createChatController.members = members;
+        createChatController.chatAdmin.clear();
+        for (var member in members) {
+          if (member.isAdmin == 1) createChatController.chatAdmin.add({"chat_admin_id": member.id.toString()});
+        }
+      }
+    } else {
+      memberClick ? hasMoreMembers = false : hasMoreRequests = false;
+    }
+
+    isLoadingMoreMembers = false;
+    isLoadingMoreRequests = false;
+    update();
+  }
+
+  Future<void> loadMoreMembers() async {
+    if (memberClick && (!hasMoreMembers || isLoadingMoreMembers)) return;
+    if (!memberClick && (!hasMoreRequests || isLoadingMoreRequests)) return;
+    await getMembers(page: memberClick ? currentMembersPage : currentRequestsPage, loadMore: true);
+  }
+
+  sendFriendRequest({required friendID}) async {
+    var response = await _chatsRemoteData.sendFriendRequest(friendId: friendID,);
+    statuesRequestMembers = handlingData(response);
+    update();
+  }
+
+  blockOrUnBlock({required friendID, required bool status}) async {
+    var response = await _chatsRemoteData.blockOrUnBlock(status: status, id: friendID,);
+    if (handlingData(response) == StatuesRequest.success) update();
+  }
+
+  createChatFriend({required friendID}) async {
+    statuesRequest = StatuesRequest.loading;
+    update();
+    var response = await _chatsRemoteData.createChatFriend(friendId: friendID,);
+    statuesRequest = handlingData(response);
+
+    if (statuesRequest == StatuesRequest.success) {
+      navigateToChats(userchat: UserChatModel.fromJson(response['data']));
+    } else {
+      showUserFriendlyError(statuesRequest);
+    }
+    update();
+  }
+
+  void navigateToChats({UserChatModel? userchat}) {
+    chatId = '';
+    messages.clear();
+    Get.to(
+          () => ChatView(isGust: false, isPin: false, userChatModel: userchat),
+      arguments: {"chatId": userchat!.id.toString()},
+      transition: Transition.leftToRight,
+      duration: const Duration(milliseconds: 400),
+    );
+  }
+
+  acceptNeedTochat({required int membeerId}) async {
+    statuesRequest = StatuesRequest.loading;
+    update(); // تحديث عشان لو عامل Loading يظهر
+
+    var response = await _chatsRemoteData.acceptMemberToChat(
+
+        chatID: chatId,
+        idUSer: membeerId,
+      );
+
+
+    statuesRequest = handlingData(response);
+
+    if (statuesRequest == StatuesRequest.success) {
+      memmbersRequests.removeWhere((member) => member.id == membeerId);
+
+
+      update();
+    } else {
+      showUserFriendlyError(statuesRequest);
+    }
+    update();
+  }
+
+  Future<void> getRadios() async {
+    radioStatusRequest = StatuesRequest.loading;
+    update();
+    try {
+      radios = await _radioRemoteData.getRadios();
+      radioStatusRequest = StatuesRequest.success;
+    } catch (e) {
+      radioStatusRequest = StatuesRequest.serverException;
+    }
+    update();
+  }
+
+  Future<void> playRadio(int radioIndex) async {
+    if (radioIndex < 0 || radioIndex >= radios.length) return;
+    try {
+      await audioPlayer.stop();
+      currentRadioIndex = radioIndex;
+      isRadioPlaying = true;
+      update();
+
+      await audioPlayer.setUrl(radios[radioIndex].radioUrl);
+      await audioPlayer.play();
+    } catch (e) {
+      isRadioPlaying = false;
+      currentRadioIndex = null;
+      update();
+      if (Get.context != null) {
+        Get.snackbar('Error', 'Unable to play radio.', backgroundColor: Colors.red, colorText: Colors.white, duration: const Duration(seconds: 3));
+      }
+    }
+  }
+
+  Future<void> stopRadio() async {
+    isRadioPlaying = false;
+    currentRadioIndex = null;
+    update();
+    await audioPlayer.stop();
+  }
+
+  shareChat({required String link}) {
+    SharePlus.instance.share(ShareParams(uri: Uri.parse(link)));
+  }
+
+  @override
+  void onClose() {
+    audioPlayer.dispose();
+    messageController.dispose();
+    _recorder?.closeRecorder();
+    for (var channel in subscribedChannels) pusher.unsubscribe(channelName: channel);
+    pusher.disconnect();
+    super.onClose();
+  }
+}
