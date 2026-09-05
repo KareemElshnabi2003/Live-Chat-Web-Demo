@@ -182,9 +182,7 @@ class HomeNavigationController extends GetxController {
               (element) {
             if (element['conversation'] == null) return false;
 
-            // تحويل توقيت جرينتش (UTC) للتوقيت المحلي بتاع الموبايل
             DateTime parsedDate = DateTime.parse(element['pin_date'].toString()).toLocal();
-            // تكوين التاريخ بالشكل الصحيح للمقارنة
             String pinDate = "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";
             List pinHours = element['pin_hours'] ?? [];
             bool isTimeValid = pinHours.any((hourObj) {
@@ -266,7 +264,6 @@ class HomeNavigationController extends GetxController {
         )
             .toList();
 
-        // 🌟 تحديث عداد المحادثات الخاصة
         totalPrivateChatsCount = newChats.length;
 
         if (newChats.isNotEmpty) {
@@ -274,7 +271,7 @@ class HomeNavigationController extends GetxController {
         }
       } else {
         log("No chats found in response['data']");
-        totalPrivateChatsCount = 0; // 🌟 تصفير العداد
+        totalPrivateChatsCount = 0;
         userMyChatModel = null;
       }
     } else {
@@ -296,7 +293,6 @@ class HomeNavigationController extends GetxController {
     if (statuesRequest == StatuesRequest.success) {
       List responseBody = response['data'] ?? [];
 
-      // 🌟 تحديث عداد الأصدقاء
       var friendsOnly = responseBody.where((element) => element['request_status'] == "friends").toList();
       totalFriendsCount = friendsOnly.length;
 
@@ -390,25 +386,110 @@ class HomeNavigationController extends GetxController {
     update();
   }
 
-  createChatFriend({required friendID}) async {
+  createChatFriend({required int friendID, required String requestStatus, required int index}) async {
     statuesRequest = StatuesRequest.loading;
     update();
-    var response = await _chatsRemoteData.createChatFriend(
-      friendId: friendID,
-    );
+
+    if (requestStatus == "none") {
+      var requestResponse = await _chatsRemoteData.sendFriendRequest(friendId: friendID);
+      if (requestResponse['code'] == 403 || requestResponse['code'] == "403") {
+        String msg = requestResponse['message']?.toString() ?? "";
+        if (msg.contains("blocked by")) {
+          Get.snackbar(
+            S.of(Get.context!).warning ?? "تنبيه",
+            S.of(Get.context!).msgYouBlocked,
+            backgroundColor: Colors.orange.shade600,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          statuesRequest = StatuesRequest.none;
+          update();
+          return;
+        }
+      }
+
+      if (handlingData(requestResponse) == StatuesRequest.success) {
+        friendsSuggestion[index].requestStatus = "request_sent";
+      }
+    }
+    else if (requestStatus == "request_received") {
+      var acceptResponse = await _chatsRemoteData.acceptOrRejectRequestFriend(status: 1, friendId: friendID);
+      if (handlingData(acceptResponse) == StatuesRequest.success) {
+        friendsSuggestion[index].requestStatus = "friends";
+      }
+    }
+
+    var response = await _chatsRemoteData.createChatFriend(friendId: friendID);
     statuesRequest = handlingData(response);
 
     if (statuesRequest == StatuesRequest.success) {
       final responseBody = response['data'];
-      if (responseBody != null) {
-        navigateToChats(userchat: UserChatModel.fromJson(responseBody));
+      navigateToChats(userchat: UserChatModel.fromJson(responseBody));
+    }
+    else if (statuesRequest == StatuesRequest.forbiddenException || response['code'] == 403 || response['code'] == "403") {
+
+
+      String msg = response['message']?.toString() ?? "";
+
+
+      if (msg.contains("blocked by")) {
+        Get.snackbar(
+          S.of(Get.context!).warning ?? "تنبيه",
+          S.of(Get.context!).msgYouBlocked,
+          backgroundColor: Colors.orange.shade600,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
-    } else {
+
+      else if (msg.contains("you blocked") || msg.contains("محظور")) {
+        Get.defaultDialog(
+          title: S.of(Get.context!).warning ?? "تنبيه",
+          middleText:           S.of(Get.context!).msgIBlocked,
+
+          titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.redColor),
+          textConfirm: "إلغاء الحظر",
+          textCancel: "تراجع",
+          confirmTextColor: Colors.white,
+          cancelTextColor: AppColors.primaryColor,
+          buttonColor: AppColors.primaryColor,
+          onConfirm: () {
+            unblockUser(friendID, index, requestStatus);
+          },
+        );
+      }
+
+      else {
+        Get.snackbar(
+          S.of(Get.context!).warning ?? "تنبيه",
+          S.of(Get.context!).msgNotHasPermission,
+          backgroundColor: AppColors.redColor,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    }
+    else {
+
       showUserFriendlyError(statuesRequest);
     }
     update();
   }
+  Future<void> unblockUser(int friendID, int index, String requestStatus) async {
+    statuesRequest = StatuesRequest.loading;
+    update();
 
+    var response = await _chatsRemoteData.blockOrUnBlock(status: false, id: friendID);
+
+    if (handlingData(response) == StatuesRequest.success) {
+      Get.back();
+      createChatFriend(friendID: friendID, requestStatus: requestStatus, index: index);
+    } else {
+      statuesRequest = handlingData(response);
+      showUserFriendlyError(statuesRequest);
+      update();
+    }
+  }
   final RxInt _currentPageIndex = 0.obs;
   int get currentPageIndex => _currentPageIndex.value;
 

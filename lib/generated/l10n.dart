@@ -76,6 +76,32 @@ class S {
       args: [],
     );
   }
+  /// `عذراً، لا يمكنك التواصل مع هذا المستخدم حالياً.`
+  String get msgYouBlocked {
+    return Intl.message(
+      'عذراً، لا يمكنك التواصل مع هذا المستخدم حالياً.',
+      name: 'msgYouBlocked',
+      desc: '',
+      args: [],
+    );
+  }
+  /// `لقد قمت بحظر هذا المستخدم مسبقاً. هل ترغب في إلغاء الحظر للتواصل معه؟`
+  String get msgIBlocked {
+    return Intl.message(
+      'لقد قمت بحظر هذا المستخدم مسبقاً. هل ترغب في إلغاء الحظر للتواصل معه؟',
+      name: 'msgIBlocked',
+      desc: '',
+      args: [],
+    );
+  }  /// `غير مصرح لك بإجراء هذه العملية حالياً.`
+  String get msgNotHasPermission {
+    return Intl.message(
+      'غير مصرح لك بإجراء هذه العملية حالياً.',
+      name: 'msgNotHasPermission',
+      desc: '',
+      args: [],
+    );
+  }
 
   /// `قيد المراجعة`
   String get underReview {

@@ -935,7 +935,9 @@ class HomeView extends StatelessWidget {
                       if (controller.friends[index].requestStatus ==
                           "friends") {
                         controller.createChatFriend(
-                            friendID: controller.friends[index].id);
+                          index: index,
+                            requestStatus: controller.friends[index].requestStatus!,
+                            friendID: controller.friends[index].id!);
                       } else {}
                     });
               },
@@ -952,7 +954,9 @@ class HomeView extends StatelessWidget {
               onPressJoin: () {
                 if (controller.friends[index].requestStatus == "friends") {
                   controller.createChatFriend(
-                      friendID: controller.friends[index].id);
+                    requestStatus: controller.friends[index].requestStatus! ,
+                      index: index,
+                      friendID: controller.friends[index].id!);
                 } else {
                   controller.sendFriendRequest(
                       index: index, friendID: controller.friends[index].id);
@@ -965,7 +969,9 @@ class HomeView extends StatelessWidget {
               ontap: () {
                 if (controller.friends[index].requestStatus == "friends") {
                   controller.createChatFriend(
-                      friendID: controller.friends[index].id);
+                    index: index,
+                      requestStatus:  controller.friends[index].requestStatus!,
+                      friendID: controller.friends[index].id!);
                 } else {
                   controller.sendFriendRequest(
                       index: index, friendID: controller.friends[index].id);
@@ -1006,12 +1012,16 @@ class HomeView extends StatelessWidget {
                   userChatModel: null,
                   onPressChat: () {
                     controller.createChatFriend(
-                        friendID: controller.friendsSuggestion[index].id);
+                      requestStatus: controller.friends[index].requestStatus! ,
+                        index: index,
+                        friendID: controller.friendsSuggestion[index].id!);
                   });
             },
             chat: () {
               controller.createChatFriend(
-                  friendID: controller.friendsSuggestion[index].id);
+                index: index,
+                  requestStatus:  controller.friends[index].requestStatus!,
+                  friendID: controller.friendsSuggestion[index].id!);
             },
             removeRequest: () {
               controller.sendFriendRequest(

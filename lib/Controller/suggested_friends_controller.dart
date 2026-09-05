@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:live_chat/Core/Class/api.dart';
@@ -13,7 +12,6 @@ import 'package:live_chat/Data/Model/friend_suggest_model.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
 import 'package:live_chat/View/Screens/create%20chat/chat_view.dart';
 import 'package:live_chat/generated/l10n.dart';
-import 'package:live_chat/main.dart';
 
 class SuggessionChatController extends GetxController {
   StatuesRequest statuesRequest = StatuesRequest.none;
@@ -58,17 +56,32 @@ class SuggessionChatController extends GetxController {
       update();
     }
   }
-
-  createChatFriend({required int friendID, required String requestStatus, required int index}) async {
+createChatFriend({required int friendID, required String requestStatus, required int index}) async {
     statuesRequest = StatuesRequest.loading;
     update();
 
     if (requestStatus == "none") {
       var requestResponse = await _chatsRemoteData.sendFriendRequest(friendId: friendID);
+      if (requestResponse['code'] == 403 || requestResponse['code'] == "403") {
+        String msg = requestResponse['message']?.toString() ?? "";
+        if (msg.contains("blocked by")) {
+          Get.snackbar(
+            S.of(Get.context!).warning ?? "تنبيه",
+          S.of(Get.context!).msgYouBlocked,
+            backgroundColor: Colors.orange.shade600,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          statuesRequest = StatuesRequest.none;
+          update();
+          return;
+        }
+      }
+      
       if (handlingData(requestResponse) == StatuesRequest.success) {
         friendsSuggestion[index].requestStatus = "request_sent";
       }
-    }
+    } 
     else if (requestStatus == "request_received") {
       var acceptResponse = await _chatsRemoteData.acceptOrRejectRequestFriend(status: 1, friendId: friendID);
       if (handlingData(acceptResponse) == StatuesRequest.success) {
@@ -82,28 +95,57 @@ class SuggessionChatController extends GetxController {
     if (statuesRequest == StatuesRequest.success) {
       final responseBody = response['data'];
       navigateToChats(userchat: UserChatModel.fromJson(responseBody));
-    }
+    } 
     else if (statuesRequest == StatuesRequest.forbiddenException || response['code'] == 403 || response['code'] == "403") {
 
-      Get.defaultDialog(
-        title: S.of(Get.context!).warning ?? "تنبيه",
-        middleText: "لا يمكنك التواصل مع هذا المستخدم حالياً. هل ترغب في التأكد من قائمة المحظورين لديك وإلغاء الحظر؟",
-        titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.redColor),
-        textConfirm: "إلغاء الحظر",
-        textCancel: "تراجع",
-        confirmTextColor: Colors.white,
-        cancelTextColor: AppColors.primaryColor,
-        buttonColor: AppColors.primaryColor,
-        onConfirm: () {
-          unblockUser(friendID, index, requestStatus);
-        },
-      );
-    }
+
+      String msg = response['message']?.toString() ?? "";
+
+
+      if (msg.contains("blocked by")) {
+        Get.snackbar(
+          S.of(Get.context!).warning ?? "تنبيه",
+          S.of(Get.context!).msgYouBlocked,
+          backgroundColor: Colors.orange.shade600,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } 
+
+      else if (msg.contains("you blocked") || msg.contains("محظور")) {
+        Get.defaultDialog(
+          title: S.of(Get.context!).warning ?? "تنبيه",
+          middleText:           S.of(Get.context!).msgIBlocked,
+
+          titleStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.redColor),
+          textConfirm: "إلغاء الحظر",
+          textCancel: "تراجع",
+          confirmTextColor: Colors.white,
+          cancelTextColor: AppColors.primaryColor,
+          buttonColor: AppColors.primaryColor,
+          onConfirm: () {
+            unblockUser(friendID, index, requestStatus);
+          },
+        );
+      } 
+
+      else {
+        Get.snackbar(
+          S.of(Get.context!).warning ?? "تنبيه",
+          S.of(Get.context!).msgNotHasPermission,
+          backgroundColor: AppColors.redColor,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } 
     else {
+
       showUserFriendlyError(statuesRequest);
     }
     update();
-  } @override
+  }
+  
   void dispose() {
     scrollController.dispose();
     super.dispose();

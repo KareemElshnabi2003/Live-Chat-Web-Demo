@@ -378,6 +378,9 @@
 "general_chat":"General Chat,
 "underReview":"Under Review,
 
+"msgYouBlocked": "Our strategy is that you cannot postpone with this 7 user until now.",
+"msgIBlocked":"You have previously blocked this user. Would you like to unblock him for contacting him?",
+"msgNotHasPermission":"غير مصرح لك بإجراء هذه العملية حالياً."
 
 
 }
