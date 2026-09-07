@@ -8,7 +8,6 @@ import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:screen_go/extensions/responsive_nums.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PinnedAdWidget extends StatelessWidget {
@@ -51,10 +50,10 @@ class PinnedAdWidget extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 1.h, horizontal: 2.w),
         decoration: BoxDecoration(
-          color: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+          color: pref ? AppColors.darkcolor : AppColors.whiteColor,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
-            if (!pref!)
+            if (!pref)
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
                 blurRadius: 10,
@@ -62,7 +61,7 @@ class PinnedAdWidget extends StatelessWidget {
               ),
           ],
           border: Border.all(
-            color: AppColors.primaryColor.withOpacity(pref! ? 0.3 : 0.15),
+            color: AppColors.primaryColor.withOpacity(pref ? 0.3 : 0.15),
             width: 1.5,
           ),
         ),
@@ -142,7 +141,7 @@ class PinnedAdWidget extends StatelessWidget {
                           Expanded(
                             child: textNormal(
                               adTitle!,
-                              pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                              pref ? AppColors.whiteColor : AppColors.blackTextColor,
                               3.8.w,
                               FontWeight.w700,
                               maxLines: 2,
@@ -185,8 +184,8 @@ class PinnedAdWidget extends StatelessWidget {
                                 ),
                                 SizedBox(height: 0.2.h),
                                 textNormal(
-                                  S.of(context).clickHereToVisit ?? "اضغط هنا للزيارة",
-                                  pref! ? AppColors.inActiveColor : Colors.grey.shade600,
+                                  S.of(context).clickHereToVisit,
+                                  pref ? AppColors.inActiveColor : Colors.grey.shade600,
                                   2.8.w,
                                   FontWeight.w400,
                                 ),

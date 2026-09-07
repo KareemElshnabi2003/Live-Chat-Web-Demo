@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:live_chat/Core/Class/api.dart';
@@ -79,10 +78,33 @@ abstract class BaseChatsController extends GetxController {
         chatsList.addAll(newChats);
       }
 
-      if (newChats.length < perPage) {
+      // Sort chatsList by last message date (descending)
+      chatsList.sort((a, b) {
+        String? dateAStr = a.lastMessage?.createdAt ?? a.updatedAt ?? a.createdAt;
+        String? dateBStr = b.lastMessage?.createdAt ?? b.updatedAt ?? b.createdAt;
+        
+        if (dateAStr == null && dateBStr == null) return 0;
+        if (dateAStr == null) return 1;
+        if (dateBStr == null) return -1;
+        
+        try {
+          DateTime dateA = DateTime.parse(dateAStr);
+          DateTime dateB = DateTime.parse(dateBStr);
+          return dateB.compareTo(dateA);
+        } catch (e) {
+          return 0;
+        }
+      });
+
+      if (response['pagination'] != null) {
+        int currentPageMeta = response['pagination']['current_page'] ?? 1;
+        int lastPageMeta = response['pagination']['last_page'] ?? 1;
+        if (currentPageMeta >= lastPageMeta) {
+          hasMoreData = false;
+        }
+      } else if (newChats.length < perPage) {
         hasMoreData = false;
       }
-
       isInitialLoad = false;
     } else {
       showUserFriendlyError(statuesRequest);
@@ -111,7 +133,13 @@ abstract class BaseChatsController extends GetxController {
 
       chatsList.addAll(newChats);
 
-      if (newChats.length < perPage) {
+      if (response['pagination'] != null) {
+        int currentPageMeta = response['pagination']['current_page'] ?? 1;
+        int lastPageMeta = response['pagination']['last_page'] ?? 1;
+        if (currentPageMeta >= lastPageMeta) {
+          hasMoreData = false;
+        }
+      } else if (newChats.length < perPage) {
         hasMoreData = false;
       }
     } else {

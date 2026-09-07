@@ -8,12 +8,12 @@ import 'package:live_chat/Data/DataSource/chats_source.dart';
 import 'package:live_chat/Data/Model/friend_suggest_model.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
 import 'package:live_chat/View/Screens/create%20chat/chat_view.dart';
-import 'package:live_chat/main.dart';
 
 class RequestsController extends GetxController {
   StatuesRequest statuesRequest = StatuesRequest.none;
   final ChatsRemoteData _chatsRemoteData = ChatsRemoteData(api: Get.put(Api()));
   final RxList<SuggestFreindModel> friends = <SuggestFreindModel>[].obs;
+  final RxList<SuggestFreindModel> sentRequests = <SuggestFreindModel>[].obs;
   int currentPage = 1;
   RxBool hasMoreData = true.obs;
   ScrollController scrollController = ScrollController();
@@ -36,16 +36,18 @@ class RequestsController extends GetxController {
   }
 
   // 🌟 دالة إنشاء الشات (بعد قبول الطلب لو لسه متقبلش)
-  createChatFriend({required int friendID}) async {
+  createChatFriend({required int friendID, bool isSentRequest = false}) async {
     statuesRequest = StatuesRequest.loading;
     update();
 
-    // 1. بما إن ده طلب مبعوتلي (request_received)، فـ لازم أقبله الأول صامت في الخلفية قبل ما افتح الشات
-    var acceptResponse = await _chatsRemoteData.acceptOrRejectRequestFriend(status: 1, friendId: friendID);
+    if (!isSentRequest) {
+      // 1. بما إن ده طلب مبعوتلي (request_received)، فـ لازم أقبله الأول صامت في الخلفية قبل ما افتح الشات
+      var acceptResponse = await _chatsRemoteData.acceptOrRejectRequestFriend(status: 1, friendId: friendID);
 
-    // 2. بعد ما يتوافق عليه، بنمسحه من لستة "طلبات الصداقة" اللي في الشاشة
-    if (handlingData(acceptResponse) == StatuesRequest.success) {
-      friends.removeWhere((friend) => friend.id == friendID);
+      // 2. بعد ما يتوافق عليه، بنمسحه من لستة "طلبات الصداقة" اللي في الشاشة
+      if (handlingData(acceptResponse) == StatuesRequest.success) {
+        friends.removeWhere((friend) => friend.id == friendID);
+      }
     }
 
     // 3. بننادي على دالة فتح الشات وبنحول اليوزر لشاشة الشات
@@ -81,6 +83,7 @@ class RequestsController extends GetxController {
 
     if (page == 1) {
       friends.clear();
+      sentRequests.clear();
       hasMoreData.value = true;
     }
 
@@ -95,16 +98,22 @@ class RequestsController extends GetxController {
       if (responseBody.isEmpty) {
         hasMoreData.value = false;
       } else {
-        var newRequests = responseBody
+        var received = responseBody
             .map((e) => SuggestFreindModel.fromJson(e))
             .where((element) => element.requestStatus == "request_received")
+            .toList();
+        var sent = responseBody
+            .map((e) => SuggestFreindModel.fromJson(e))
+            .where((element) => element.requestStatus == "request_sent")
             .toList();
 
         // 🌟 حل مشكلة الـ Pagination
         if (page == 1) {
-          friends.assignAll(newRequests);
+          friends.assignAll(received);
+          sentRequests.assignAll(sent);
         } else {
-          friends.addAll(newRequests);
+          friends.addAll(received);
+          sentRequests.addAll(sent);
         }
         currentPage = page;
       }
@@ -137,6 +146,20 @@ class RequestsController extends GetxController {
 
     if (statuesRequest == StatuesRequest.success) {
       friends.removeWhere((friend) => friend.id == friendID);
+    } else {
+      showUserFriendlyError(statuesRequest);
+    }
+    update();
+  }
+
+  Future<void> cancelRequest({required int friendID}) async {
+    statuesRequest = StatuesRequest.loading;
+    update();
+    var response = await _chatsRemoteData.acceptOrRejectRequestFriend(status: 0, friendId: friendID);
+    statuesRequest = handlingData(response);
+
+    if (statuesRequest == StatuesRequest.success) {
+      sentRequests.removeWhere((friend) => friend.id == friendID);
     } else {
       showUserFriendlyError(statuesRequest);
     }

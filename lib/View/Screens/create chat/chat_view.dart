@@ -42,6 +42,10 @@ class _ChatViewState extends State<ChatView> {
   void initState() {
     super.initState();
     final controller = Get.put(ChatController());
+    
+    // 🌟 تحديد نوع الشات عشان نمنع الـ APIs اللي ملهاش لازمة في الشات الخاص (بين شخصين)
+    // غرف الدردشة بيبقى الـ status بتاعها Public أو Private، أما شات الأصدقاء مبيكونش كده
+    controller.isPublicChat = widget.userChatModel?.status == 'Public' || widget.userChatModel?.status == 'Private';
 
     _scrollController.addListener(() {
       if (_scrollController.offset > 200) {
@@ -68,7 +72,12 @@ class _ChatViewState extends State<ChatView> {
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) { widget.isGust ? Get.back() : Get.offAll(() => const HomeView()); },
+      onPopInvoked: (didPop) { 
+        if (didPop) return;
+        Future.microtask(() {
+          widget.isGust ? Get.back() : Get.offAll(() => const HomeView()); 
+        });
+      },
       child: Scaffold(
         backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
         body: SafeArea(
@@ -117,6 +126,7 @@ class _ChatViewState extends State<ChatView> {
                                 final isFirstInGroup = index == controller.messages.length - 1 || controller.messages[index].senderName != controller.messages[index + 1].senderName;
 
                                 return ChatBubbleWidget(
+                                  key: ValueKey(message.messageId),
                                   pref: pref!,
                                   name: message.senderName?.toString() ?? '',
                                   img: message.imageUrl,

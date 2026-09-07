@@ -135,6 +135,7 @@
   "error": "خطأ",
   "fillAllFields": "يرجى ملء جميع الحقول",
   "success": "نجاح",
+  "msgUnblockedSuccessfully": "تم فك الحظر بنجاح",
   "linkCopied": "تم نسخ الرابط",
   "httpFaraena": "Http/faraena.com",
   "male": "ذكر",
@@ -387,7 +388,8 @@
 "msgIBlocked":"لقد قمت بحظر هذا المستخدم مسبقاً. هل ترغب في إلغاء الحظر للتواصل معه؟",
 
 "msgNotHasPermission":"غير مصرح لك بإجراء هذه العملية حالياً.",
-"cancelBlock":"الغاء الحظر"
+"cancelBlock":"الغاء الحظر",
+"youSendRequest":"تم إرسال طلب الصداقة"
 
 
 

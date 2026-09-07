@@ -8,7 +8,6 @@ import 'package:live_chat/Data/DataSource/chats_source.dart';
 import 'package:live_chat/Data/Model/friend_suggest_model.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
 import 'package:live_chat/View/Screens/create%20chat/chat_view.dart';
-import 'package:live_chat/main.dart';
 
 class FriendsChatContoller extends GetxController {
   final ChatsRemoteData _chatsRemoteData = ChatsRemoteData(api: Get.put(Api()));
@@ -79,18 +78,31 @@ class FriendsChatContoller extends GetxController {
             .toList();
 
         // 🌟 حساب الطلبات المعلقة عشان العداد (Badge)
-        var pending = allItems
+        var pendingReceived = allItems
             .where((element) => element.requestStatus == "request_received")
+            .toList();
+        var pendingSent = allItems
+            .where((element) => element.requestStatus == "request_sent")
             .toList();
 
         if (page == 1) {
           friends.assignAll(newFriends);
-          pendingRequestsCount.value = pending.length; // تخزين عدد الطلبات
+          pendingRequestsCount.value = pendingReceived.length + pendingSent.length; // تخزين عدد الطلبات
         } else {
           friends.addAll(newFriends);
-          pendingRequestsCount.value += pending.length; // زيادة العداد لو نزلنا لصفحة جديدة
+          pendingRequestsCount.value += pendingReceived.length + pendingSent.length; // زيادة العداد لو نزلنا لصفحة جديدة
         }
         currentPage = page;
+
+        if (response['pagination'] != null) {
+          int currentPageMeta = response['pagination']['current_page'] ?? 1;
+          int lastPageMeta = response['pagination']['last_page'] ?? 1;
+          if (currentPageMeta >= lastPageMeta) {
+            hasMoreData.value = false;
+          }
+        } else if (responseBody.length < 15) {
+          hasMoreData.value = false;
+        }
       }
     } else {
       showUserFriendlyError(statuesRequest);

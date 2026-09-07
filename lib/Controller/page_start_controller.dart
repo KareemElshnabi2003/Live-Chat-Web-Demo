@@ -30,7 +30,6 @@ import 'package:live_chat/View/Screens/settings/privacy.dart';
 import 'package:live_chat/View/Screens/settings/term_condation.dart';
 
 import 'package:live_chat/View/Screens/suggession%20friends/suggession%20friends.dart';
-import 'package:live_chat/View/Widget/PublicWidget/message_error.dart';
 import 'package:live_chat/View/Widget/PublicWidget/show_bottom_sheet.dart';
 import 'package:live_chat/View/Widget/shared_chats_screen.dart';
 import 'package:live_chat/generated/l10n.dart';
@@ -47,7 +46,7 @@ class PageStartController extends GetxController {
   void navigateToPrivateChats() {
     Get.put(PrivateChatsController());
     Get.to(
-          () => SharedChatsScreen<PrivateChatsController>(
+      () => SharedChatsScreen<PrivateChatsController>(
           title: S.of(Get.context!).yourPrivateChats),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
@@ -56,7 +55,7 @@ class PageStartController extends GetxController {
 
   void navigateToFriends() {
     Get.to(
-          () => Friends(),
+      () => Friends(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -65,7 +64,7 @@ class PageStartController extends GetxController {
 
   void navigateToNotification() {
     Get.to(
-          () => NotificationView(),
+      () => NotificationView(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -74,7 +73,7 @@ class PageStartController extends GetxController {
 
   void navigateToLangauge() {
     Get.to(
-          () => LanguageView(),
+      () => LanguageView(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -83,7 +82,7 @@ class PageStartController extends GetxController {
 
   void navigateToNightMode() {
     Get.to(
-          () => NightModeView(),
+      () => NightModeView(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -92,7 +91,7 @@ class PageStartController extends GetxController {
 
   void navigateToMyaccount() {
     Get.to(
-          () => MyAccountView(),
+      () => MyAccountView(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -101,7 +100,7 @@ class PageStartController extends GetxController {
 
   void navigateToCapapiltes() {
     Get.to(
-          () => const Capabilities(),
+      () => const Capabilities(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -110,7 +109,7 @@ class PageStartController extends GetxController {
 
   void navigateToChats({UserChatModel? userchat}) {
     Get.to(
-          () => ChatView(
+      () => ChatView(
         isGust: false,
         isPin: false,
         userChatModel: userchat,
@@ -124,7 +123,7 @@ class PageStartController extends GetxController {
 
   void navigateToTerm() {
     Get.to(
-          () => const TermCondation(),
+      () => const TermCondation(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -133,7 +132,7 @@ class PageStartController extends GetxController {
 
   void navigateToprivacy() {
     Get.to(
-          () => const Privacy(),
+      () => const Privacy(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -142,7 +141,7 @@ class PageStartController extends GetxController {
 
   void navigateToSuggestedFriends() {
     Get.to(
-          () => SuggessionChat(),
+      () => SuggessionChat(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -152,7 +151,7 @@ class PageStartController extends GetxController {
   void navigateToUpdatedChat() {
     Get.put(UpdatedChatsController());
     Get.to(
-          () => SharedChatsScreen<UpdatedChatsController>(
+      () => SharedChatsScreen<UpdatedChatsController>(
         title: S.of(Get.context!).updated_chats,
       ),
       transition: Transition.leftToRight,
@@ -163,7 +162,7 @@ class PageStartController extends GetxController {
   void navigateToAnotherChats() {
     Get.put(AnotherChatsController());
     Get.to(
-          () => SharedChatsScreen<AnotherChatsController>(
+      () => SharedChatsScreen<AnotherChatsController>(
         title: S.of(Get.context!).another_chats,
       ),
       transition: Transition.leftToRight,
@@ -173,7 +172,7 @@ class PageStartController extends GetxController {
 
   void navigateTocreatechat() {
     Get.to(
-          () => CreateChat(),
+      () => CreateChat(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
@@ -182,19 +181,19 @@ class PageStartController extends GetxController {
 
   onPressCreateChat() {
     Get.to(
-          () => CreateChat(),
+      () => CreateChat(),
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
     );
   }
+
   Future<bool> joinToChat({required chatId}) async {
     statuesRequest = StatuesRequest.loading;
     update();
 
     var response = await _chatsRemoteData.joinToCgat(
       chatId: chatId,
-
     );
 
     statuesRequest = handlingData(response);
@@ -203,11 +202,10 @@ class PageStartController extends GetxController {
     if (statuesRequest == StatuesRequest.success) {
       update();
       return true;
-    }
-    else if (statuesRequest == StatuesRequest.forbiddenException) {
+    } else if (statuesRequest == StatuesRequest.forbiddenException) {
       Get.snackbar(
         S.of(Get.context!).underReview,
-        S.of(Get.context!).waitForAccept ?? "الرجاء الانتظار حتى يتم السماح لك بالدخول",
+        S.of(Get.context!).waitForAccept,
         backgroundColor: Colors.orange.shade600,
         colorText: Colors.white,
         icon: const Icon(
@@ -222,8 +220,7 @@ class PageStartController extends GetxController {
       );
       update();
       return false;
-    }
-    else {
+    } else {
       showUserFriendlyError(statuesRequest);
       update();
       return false;
@@ -231,11 +228,12 @@ class PageStartController extends GetxController {
   }
 
   onPressPinChat(
-      {required UserChatModel chatModel, required bool isGust, required id}) async {
-
+      {required UserChatModel chatModel,
+      required bool isGust,
+      required id}) async {
     if (chatModel.status == "Public" || chatModel.status == "Private") {
       bool canEnter = await joinToChat(
-          chatId: id,
+        chatId: id,
       );
 
       if (!canEnter) return;
@@ -243,7 +241,7 @@ class PageStartController extends GetxController {
 
     print("id >>$id");
     Get.to(
-          () => ChatView(
+      () => ChatView(
         userChatModel: chatModel,
         isPin: true,
         isGust: isGust,
@@ -256,18 +254,19 @@ class PageStartController extends GetxController {
   }
 
   onPressGroubChat(
-      {required UserChatModel chatModel, required bool isGust, required id}) async {
-
+      {required UserChatModel chatModel,
+      required bool isGust,
+      required id}) async {
     if (chatModel.status == "Public" || chatModel.status == "Private") {
       bool canEnter = await joinToChat(
-          chatId: id,
+        chatId: id,
       );
 
       if (!canEnter) return;
     }
 
     Get.to(
-          () => ChatView(
+      () => ChatView(
         userChatModel: chatModel,
         isPin: false,
         isGust: isGust,
@@ -495,6 +494,23 @@ class PageStartController extends GetxController {
         if (response['code'] == "404") {
           snackBarError(message: S.of(Get.context!).otpError);
         } else {
+          sharedPreferences!.remove("deviceId");
+           try {
+      String? deviceId = sharedPreferences!.getString("deviceId");
+
+      if (deviceId == null || deviceId.isEmpty) {
+        const uuid = Uuid();
+        deviceId = uuid.v4();
+
+        await sharedPreferences!.setString("deviceId", deviceId);
+
+        log("✅ تم إنشاء وحفظ UUID جديد: ${sharedPreferences!.getString("deviceId")}");
+      } else {
+        log("⚡ الـ UUID موجود بالفعل: $deviceId");
+      }
+    } catch (e) {
+      log("❌ Error generating/saving UUID: $e");
+    }
           Map<String, dynamic> responseBody = response;
           log("loginnn >> $responseBody");
 
@@ -516,10 +532,15 @@ class PageStartController extends GetxController {
           log("power?>>>>>>>>> ${responseBody['data']['user_power']}");
           log("power?>>>>>>>>> ${sharedPreferences!.getString("powermodel")!}");
           sharedPreferences!.setString("page", "Home");
+          
+          // Clear Guest Session Data upon successful login
+          sharedPreferences!.remove("idGust");
+          sharedPreferences!.remove("usernameGust");
+          
           sheetName = "Login";
 
           Get.offAll(
-                () => const HomeView(),
+            () => const HomeView(),
             transition: Transition.downToUp,
             duration: const Duration(milliseconds: 800),
             curve: Curves.easeOut,
@@ -553,9 +574,10 @@ class PageStartController extends GetxController {
           sharedPreferences!
               .setString("bio", responseBody['data']['bio'] ?? "");
           sharedPreferences!
-              .setString("id", responseBody['data']['id'].toString() ?? "");
+              .setString("id", responseBody['data']['id'].toString());
           sharedPreferences!.setString("name", responseBody['data']['name']);
-          sharedPreferences!.setString("img", responseBody['data']['image'] ?? "");
+          sharedPreferences!
+              .setString("img", responseBody['data']['image'] ?? "");
           sharedPreferences!
               .setString("username", responseBody['data']['username']);
           sharedPreferences!.setString("email", responseBody['data']['email']);
@@ -569,7 +591,7 @@ class PageStartController extends GetxController {
           log("power?>>>>>>>>> ${responseBody['data']['user_power']}");
           log("power?>>>>>>>>> ${sharedPreferences!.getString("powermodel")!}");
           Get.offAll(
-                () => const HomeView(),
+            () => const HomeView(),
             transition: Transition.downToUp,
             duration: const Duration(milliseconds: 800),
             curve: Curves.easeOut,
@@ -583,7 +605,8 @@ class PageStartController extends GetxController {
   }
 
   StatuesRequest statuesRequestGetData = StatuesRequest.none;
-  final ChatsRemoteData _chatsRemoteData = ChatsRemoteData(api: Get.find<Api>());
+  final ChatsRemoteData _chatsRemoteData =
+      ChatsRemoteData(api: Get.find<Api>());
 
   PinChatModel? pinChatModel;
   List<UserChatModel> recentChats = [];
@@ -603,18 +626,33 @@ class PageStartController extends GetxController {
         final List responseBody = response['data'];
 
         DateTime now = DateTime.now();
-        String todayString = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+        String todayString =
+            "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
 
-        int currentHour12 = now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
+        int currentHour12 =
+            now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour);
         String currentPeriod = now.hour >= 12 ? "PM" : "AM";
 
         var validPin = responseBody.firstWhere(
-              (element) {
+          (element) {
             if (element['conversation'] == null) return false;
 
-                DateTime parsedDate = DateTime.parse(element['pin_date'].toString()).toLocal();
-                String pinDate = "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";
-            List pinHours = element['pin_hours'] ?? [];
+            DateTime parsedDate =
+                DateTime.parse(element['pin_date'].toString()).toLocal();
+            String pinDate =
+                "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";
+            List pinHours = [];
+            if (element['pin_hours'] != null) {
+              if (element['pin_hours'] is String) {
+                try {
+                  pinHours = jsonDecode(element['pin_hours']);
+                } catch (e) {
+                  log("❌ Error decoding pin_hours string: $e");
+                }
+              } else if (element['pin_hours'] is List) {
+                pinHours = element['pin_hours'];
+              }
+            }
             bool isTimeValid = pinHours.any((hourObj) {
               int h = int.parse(hourObj['hour'].toString());
               String p = hourObj['period'].toString().toUpperCase();
@@ -639,8 +677,7 @@ class PageStartController extends GetxController {
         log("🔍 $stacktrace");
       }
     } else {
-      showUserFriendlyError(statuesRequest); // لو موجودة في الـ PageStartController
-      // showUserFriendlyError(statuesRequestGetData); // لو موجودة في הـ HomeNavigationController خليها statuesRequest
+      showUserFriendlyError(statuesRequestGetData);
     }
 
     update();
@@ -659,11 +696,11 @@ class PageStartController extends GetxController {
       List responseBody = response['data'] ?? [];
 
       recentChats.addAll(responseBody.map(
-            (e) => UserChatModel.fromJson(e),
+        (e) => UserChatModel.fromJson(e),
       ));
       log("Recent chats loaded: ${recentChats.length} items");
     } else {
-      showUserFriendlyError(statuesRequest);
+      showUserFriendlyError(statuesRequestGetData);
     }
     update();
   }
@@ -681,11 +718,11 @@ class PageStartController extends GetxController {
       List responseBody = response['data'] ?? [];
 
       systemChats.addAll(responseBody.map(
-            (e) => UserChatModel.fromJson(e),
+        (e) => UserChatModel.fromJson(e),
       ));
       log("System chats loaded: ${systemChats.length} items");
     } else {
-      showUserFriendlyError(statuesRequest);
+      showUserFriendlyError(statuesRequestGetData);
     }
     update();
   }

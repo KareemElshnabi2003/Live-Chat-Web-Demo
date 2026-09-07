@@ -21,6 +21,7 @@ import 'package:live_chat/Data/Model/message_model.dart';
 import 'package:live_chat/Data/Model/radio_model.dart';
 import 'package:live_chat/Data/Model/token_call_model.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
+import 'package:live_chat/Core/Class/dynamic_link_service.dart';
 import 'package:live_chat/View/Screens/create%20chat/audio_call_view.dart';
 import 'package:live_chat/View/Screens/create%20chat/chat_view.dart';
 import 'package:live_chat/View/Screens/create%20chat/video_call_view.dart';
@@ -34,9 +35,11 @@ import 'package:share_plus/share_plus.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ChatController extends GetxController {
-  final CreateChatController createChatController = Get.put(CreateChatController());
-  final ChatsRemoteData _chatsRemoteData = ChatsRemoteData(api: Get.find<Api>());
-  final RadioRemoteData _radioRemoteData = RadioRemoteData(api: Get.find<Api>());
+  CreateChatController get createChatController => Get.put(CreateChatController());
+  final ChatsRemoteData _chatsRemoteData =
+      ChatsRemoteData(api: Get.find<Api>());
+  final RadioRemoteData _radioRemoteData =
+      RadioRemoteData(api: Get.find<Api>());
 
   bool isRecordingPaused = false;
   late PusherChannelsFlutter pusher;
@@ -53,7 +56,10 @@ class ChatController extends GetxController {
   bool isLoadingMore = false;
   bool hasMoreMessages = true;
   bool audio = false;
+  bool isImagePickerActive = false;
   TokenCallModel? tokenCallModel;
+
+  bool isPublicChat = true; // 🌟 هيتحدد من الشاشة
 
   late final AudioPlayer audioPlayer;
   bool music1 = false, music2 = false, music3 = false;
@@ -66,19 +72,37 @@ class ChatController extends GetxController {
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   bool answer = true;
 
+  ChatMessage? replyingToMessage;
+
+  void setReply(ChatMessage message) {
+    replyingToMessage = message;
+    update();
+  }
+
+  void cancelReply() {
+    replyingToMessage = null;
+    update();
+  }
+
   @override
   void onInit() {
     super.onInit();
     // 🌟 حماية من الكراش لو الـ Get.arguments فاضي بالصدفة
     chatId = Get.arguments?['chatId']?.toString() ?? '';
 
-    if(chatId.isNotEmpty) {
-      getMemberToBlock();
+    if (chatId.isNotEmpty) {
       initPusher();
-      getMessages();
+      getMessages(); // تحميل الرسائل فوراً لسرعة العرض
+
+      // تأخير طلبات الـ API غير الأساسية لتسريع فتح الشاشة
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (isPublicChat) { // 🌟 منع استدعاء الـ APIs دي في الشات الخاص
+          getMemberToBlock();
+          getRadios();
+        }
+      });
     }
 
-    getRadios();
     audioPlayer = AudioPlayer();
     _recorder = FlutterSoundRecorder();
     _initRecorder(); // نقلناها لدالة منفصلة لأمان التهيئة
@@ -113,7 +137,9 @@ class ChatController extends GetxController {
 
               if (event.eventName.contains("message-created")) {
                 final msgData = eventData;
-                final myId = sharedPreferences!.getString("id") ?? sharedPreferences!.getString("idGust") ?? "";
+                final myId = sharedPreferences!.getString("id") ??
+                    sharedPreferences!.getString("idGust") ??
+                    "";
 
                 bool isMe = msgData['sender_id'].toString() == myId.toString();
 
@@ -123,7 +149,8 @@ class ChatController extends GetxController {
 
                   ChatMessage newMsg = ChatMessage(
                     senderName: msgData['sender_name'] ?? 'Unknown',
-                    imageUrl: msgData['sender_image']?.toString(), // شيلنا كلمة "null" هنا وبنبعتها null صريحة
+                    imageUrl: msgData['sender_image']
+                        ?.toString(), // شيلنا كلمة "null" هنا وبنبعتها null صريحة
                     reaction: [],
                     message: messageContent,
                     messageType: messageType,
@@ -156,7 +183,11 @@ class ChatController extends GetxController {
     await pusher.connect();
   }
 
-  call({required bool isGroub, required type, required Map<int, String> groubUsersNames, required usernameFriend}) async {
+  call(
+      {required bool isGroub,
+      required type,
+      required Map<int, String> groubUsersNames,
+      required usernameFriend}) async {
     statuesRequest = StatuesRequest.loading;
     update();
 
@@ -184,7 +215,21 @@ class ChatController extends GetxController {
           "LocalUserName": sharedPreferences!.getString("name")
         };
 
-        audio ? Get.to(() => const AudioCallPage(), arguments: callArgs)
+        // 🌟 إرسال رسائل التتبع للمكالمات (جماعية أو فردية)
+        if (type == 'publisher') {
+          if (isGroub) {
+            messageController.text =
+                "|||GROUP_CALL_START|||${audio ? 'audio' : 'video'}";
+            sendTextMessage();
+          } else {
+            messageController.text =
+                "|||PRIVATE_CALL_START|||${audio ? 'audio' : 'video'}";
+            sendTextMessage();
+          }
+        }
+
+        audio
+            ? Get.to(() => const AudioCallPage(), arguments: callArgs)
             : Get.to(() => const VideoCallPage(), arguments: callArgs);
       } else {
         showUserFriendlyError(statuesRequest);
@@ -193,7 +238,10 @@ class ChatController extends GetxController {
     update();
   }
 
-  checkCall({required bool isGroub, required Map<int, String>? groubUsersNames, required usernameFriend}) async {
+  checkCall(
+      {required bool isGroub,
+      required Map<int, String>? groubUsersNames,
+      required usernameFriend}) async {
     statuesRequest = StatuesRequest.loading;
     update();
     var response = await _chatsRemoteData.checkCall(id: chatId);
@@ -202,8 +250,32 @@ class ChatController extends GetxController {
     if (statuesRequest == StatuesRequest.success) {
       final responseBody = response['data'];
       if (responseBody != null) {
-        String type = response['data']['status'] == 0 ? 'publisher' : "subscriber";
-        call(isGroub: isGroub, type: type, groubUsersNames: groubUsersNames!, usernameFriend: usernameFriend);
+        int status = responseBody['status'];
+        String type = status == 0 ? 'publisher' : "subscriber";
+        
+        // Check if there is an active call of a different type
+        if (status != 0 && responseBody['call_type'] != null) {
+           String activeCallType = responseBody['call_type'];
+           bool activeIsAudio = activeCallType == 'audio' || activeCallType == 'voice';
+           
+           if (audio != activeIsAudio) {
+              // Different call type is active!
+              Get.snackbar(
+                "تنبيه",
+                "يوجد بالفعل مكالمة ${activeIsAudio ? 'صوتية' : 'فيديو'} جارية الآن. يرجى الانضمام إليها.",
+                backgroundColor: Colors.orange,
+                colorText: Colors.white,
+              );
+              // Force the correct mode to match the active call
+              audio = activeIsAudio;
+           }
+        }
+        
+        call(
+            isGroub: isGroub,
+            type: type,
+            groubUsersNames: groubUsersNames!,
+            usernameFriend: usernameFriend);
       } else {
         showUserFriendlyError(statuesRequest);
       }
@@ -211,8 +283,14 @@ class ChatController extends GetxController {
     update();
   }
 
-  getTokenCall({required bool isGroub, required Map<int, String> groubUsersNames, required usernameFriend}) async {
-    await checkCall(isGroub: isGroub, groubUsersNames: groubUsersNames, usernameFriend: usernameFriend);
+  getTokenCall(
+      {required bool isGroub,
+      required Map<int, String> groubUsersNames,
+      required usernameFriend}) async {
+    await checkCall(
+        isGroub: isGroub,
+        groubUsersNames: groubUsersNames,
+        usernameFriend: usernameFriend);
   }
 
   Future<void> getMessages({int page = 1}) async {
@@ -221,9 +299,7 @@ class ChatController extends GetxController {
     update();
 
     var response = await _chatsRemoteData.getMessages(
-
       idChat: chatId,
-
       page: page,
     );
 
@@ -234,18 +310,22 @@ class ChatController extends GetxController {
       if (responseBody.isEmpty) {
         hasMoreMessages = false;
       } else {
-        List<MessageModel> newMessages = responseBody.map((e) => MessageModel.fromJson(e)).toList();
+        List<MessageModel> newMessages =
+            responseBody.map((e) => MessageModel.fromJson(e)).toList();
         if (page == 1) messagesApi.clear();
         messagesApi.addAll(newMessages);
 
         final myIdStr = sharedPreferences!.getString("id");
-        List answers = messagesApi.where((element) => element.senderId.toString() == myIdStr).toList();
+        List answers = messagesApi
+            .where((element) => element.senderId.toString() == myIdStr)
+            .toList();
         answer = answers.isNotEmpty;
 
         List<ChatMessage> newChatMessages = newMessages.map((e) {
           String messageType = e.messageType ?? 'text';
           bool isMe = myIdStr == "null"
-              ? "${e.senderId}" == sharedPreferences!.getString("idGust").toString()
+              ? "${e.senderId}" ==
+                  sharedPreferences!.getString("idGust").toString()
               : "${e.senderId}" == myIdStr.toString();
 
           return ChatMessage(
@@ -257,12 +337,14 @@ class ChatController extends GetxController {
             messageId: e.id.toString(),
             isPending: false,
             isFromSender: isMe,
-            timestamp: DateFormat('h:mm a').format(DateTime.parse(e.createdAt!)),
+            timestamp:
+                DateFormat('h:mm a').format(DateTime.parse(e.createdAt!)),
           );
         }).toList();
 
         if (page == 1) {
-          messages.assignAll(newChatMessages); // 🌟 أسرع بكتير من clear ثم addAll
+          messages
+              .assignAll(newChatMessages); // 🌟 أسرع بكتير من clear ثم addAll
         } else {
           messages.addAll(newChatMessages);
         }
@@ -281,43 +363,53 @@ class ChatController extends GetxController {
     await getMessages(page: currentPage + 1);
   }
 
-  Future<void> sendMessage({String? text, File? imgFile, File? audioFile, required String messageType, String? tempId}) async {
+  Future<void> sendMessage(
+      {String? text,
+      File? imgFile,
+      File? audioFile,
+      required String messageType,
+      String? tempId}) async {
     var response;
     if (imgFile != null || audioFile != null) {
       response = await _chatsRemoteData.sendMessagesWithFile(
         chatId: chatId,
         audio: audioFile,
         image: imgFile,
-
-
       );
     } else {
       response = await _chatsRemoteData.sendMessages(
         chatId: chatId,
         message: text ?? '',
-
-
       );
     }
 
     statuesRequest = handlingData(response);
     if (statuesRequest == StatuesRequest.success) {
       if (response['code'] == 403) {
-        messageError(S.of(Get.context!).warning, S.of(Get.context!).waitForAccept);
+        messageError(
+            S.of(Get.context!).warning, S.of(Get.context!).waitForAccept);
       } else {
         // تحديث بيانات الـ Gust لو فاضية
-        if (sharedPreferences!.getString("id").toString() == "null" && sharedPreferences!.getString("idGust").toString() == "null") {
-          sharedPreferences!.setString("idGust", response['data']['sender_id'].toString());
+        if (sharedPreferences!.getString("id").toString() == "null" &&
+            sharedPreferences!.getString("idGust").toString() == "null") {
+          sharedPreferences!
+              .setString("idGust", response['data']['sender_id'].toString());
         }
-        if (sharedPreferences!.getString("username").toString() == "null" && sharedPreferences!.getString("usernameGust").toString() == "null") {
-          sharedPreferences!.setString("usernameGust", response['data']['sender_name'].toString());
+        if (sharedPreferences!.getString("username").toString() == "null" &&
+            sharedPreferences!.getString("usernameGust").toString() == "null") {
+          sharedPreferences!.setString(
+              "usernameGust", response['data']['sender_name'].toString());
         }
 
-        int indexToUpdate = messages.indexWhere((msg) => msg.messageId == tempId);
+        int indexToUpdate =
+            messages.indexWhere((msg) => msg.messageId == tempId);
         if (indexToUpdate != -1) {
           messages[indexToUpdate] = ChatMessage(
-            imageUrl: messages[indexToUpdate].imageUrl ?? response['data']['sender_image'],
-            senderName: messages[indexToUpdate].senderName!.isEmpty ? response['data']['sender_name'] : messages[indexToUpdate].senderName,
+            imageUrl: messages[indexToUpdate].imageUrl ??
+                response['data']['sender_image'],
+            senderName: messages[indexToUpdate].senderName!.isEmpty
+                ? response['data']['sender_name']
+                : messages[indexToUpdate].senderName,
             reaction: messages[indexToUpdate].reaction,
             message: response['data']['message'] ?? '',
             messageType: response['data']['message_type'] ?? messageType,
@@ -338,48 +430,138 @@ class ChatController extends GetxController {
     update();
   }
 
+  Future<void> sendSystemMessage(String finalMessage) async {
+    final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    messages.insert(
+        0,
+        ChatMessage(
+          imageUrl: null,
+          reaction: [],
+          senderName: sharedPreferences!.getString("username") ??
+              sharedPreferences!.getString("usernameGust") ??
+              "",
+          message: finalMessage,
+          messageType: 'text',
+          messageId: tempId,
+          isFromSender: true,
+          isPending: true,
+          timestamp: DateFormat('h:mm a').format(DateTime.now()),
+        ));
+    update();
+
+    statuesRequest = StatuesRequest.loading;
+    var response = await _chatsRemoteData.sendMessages(
+        chatId: chatId, message: finalMessage);
+
+    statuesRequest = handlingData(response);
+
+    if (statuesRequest == StatuesRequest.success) {
+      log('✅ System message sent: $finalMessage');
+      int indexToUpdate = messages.indexWhere((msg) => msg.messageId == tempId);
+      if (indexToUpdate != -1) {
+        messages[indexToUpdate] = ChatMessage(
+          imageUrl: messages[indexToUpdate].imageUrl,
+          senderName: messages[indexToUpdate].senderName,
+          reaction: messages[indexToUpdate].reaction,
+          message: messages[indexToUpdate].message,
+          messageType: messages[indexToUpdate].messageType,
+          messageId: response['data']['id']?.toString() ?? tempId,
+          isFromSender: true,
+          isPending: false,
+          timestamp: messages[indexToUpdate].timestamp,
+        );
+      }
+    } else {
+      messages.removeWhere((msg) => msg.messageId == tempId);
+    }
+    update();
+  }
+
   Future<void> sendTextMessage() async {
     final text = messageController.text.trim();
     if (text.isNotEmpty) {
+      String finalMessage = text;
+      if (replyingToMessage != null) {
+        String msgContent = replyingToMessage!.message;
+        String msgType = replyingToMessage!.messageType;
+        
+        if (msgContent.contains('|||REPLY|||')) {
+           msgContent = msgContent.split('|||REPLY|||').last;
+        }
+        final myName = sharedPreferences!.getString("username") ?? sharedPreferences!.getString("usernameGust") ?? "";
+        String senderNameForReply = replyingToMessage!.senderName == myName ? (S.of(Get.context!).you) : (replyingToMessage!.senderName ?? "Unknown");
+        
+        String tag = 'MSG';
+        if (msgType == 'image') tag = 'IMG';
+        if (msgType == 'voice' || msgType == 'audio') tag = 'VOICE';
+        if (msgType == 'text' && (msgContent.startsWith('|||GROUP_CALL_START|||') || msgContent.startsWith('|||PRIVATE_CALL_START|||'))) tag = 'CALL';
+        
+        finalMessage = "$senderNameForReply|||$tag|||$msgContent|||REPLY|||$text";
+      }
+
       final tempId = DateTime.now().millisecondsSinceEpoch.toString();
       messageController.clear();
+      cancelReply();
 
-      messages.insert(0, ChatMessage(
-        imageUrl: null,
-        reaction: [],
-        senderName: sharedPreferences!.getString("username") ?? sharedPreferences!.getString("usernameGust") ?? "",
-        message: text,
-        messageType: 'text',
-        messageId: tempId,
-        isFromSender: true,
-        isPending: true, // خلينا الـ text كمان Pending لحد ما يتبعت عشان الـ UI
-        timestamp: DateFormat('h:mm a').format(DateTime.now()),
-      ));
+      messages.insert(
+          0,
+          ChatMessage(
+            imageUrl: null,
+            reaction: [],
+            senderName: sharedPreferences!.getString("username") ??
+                sharedPreferences!.getString("usernameGust") ??
+                "",
+            message: finalMessage,
+            messageType: 'text',
+            messageId: tempId,
+            isFromSender: true,
+            isPending:
+                true, // خلينا الـ text كمان Pending لحد ما يتبعت عشان الـ UI
+            timestamp: DateFormat('h:mm a').format(DateTime.now()),
+          ));
 
-      await sendMessage(text: text, messageType: 'text', tempId: tempId);
+      await sendMessage(
+          text: finalMessage, messageType: 'text', tempId: tempId);
     }
   }
 
   Future<void> sendImageMessage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70); // 🌟 ضغطنا الصورة لـ 70% للسرعة
-    if (pickedFile != null) {
-      File file = File(pickedFile.path);
-      final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+    if (isImagePickerActive) return;
+    isImagePickerActive = true;
+    update();
 
-      messages.insert(0, ChatMessage(
-        imageUrl: null,
-        reaction: [],
-        senderName: sharedPreferences!.getString("username") ?? sharedPreferences!.getString("usernameGust") ?? "",
-        message: file.path,
-        messageType: 'image',
-        messageId: tempId,
-        isFromSender: true,
-        isPending: true,
-        timestamp: DateFormat('h:mm a').format(DateTime.now()),
-      ));
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+          source: ImageSource.gallery,
+          imageQuality: 70);
+          
+      if (pickedFile != null) {
+        File file = File(pickedFile.path);
+        final tempId = DateTime.now().millisecondsSinceEpoch.toString();
 
-      await sendMessage(imgFile: file, messageType: 'image', tempId: tempId);
+        messages.insert(
+            0,
+            ChatMessage(
+              imageUrl: null,
+              reaction: [],
+              senderName: sharedPreferences!.getString("username") ??
+                  sharedPreferences!.getString("usernameGust") ??
+                  "",
+              message: file.path,
+              messageType: 'image',
+              messageId: tempId,
+              isFromSender: true,
+              isPending: true,
+              timestamp: DateFormat('h:mm a').format(DateTime.now()),
+            ));
+
+        await sendMessage(imgFile: file, messageType: 'image', tempId: tempId);
+      }
+    } finally {
+      isImagePickerActive = false;
+      update();
     }
   }
 
@@ -388,7 +570,8 @@ class ChatController extends GetxController {
   Future<void> startRecording() async {
     if (await Permission.microphone.request().isGranted) {
       final tempDir = await getTemporaryDirectory();
-      path = '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.aac';
+      path =
+          '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.aac';
       await _recorder!.startRecorder(toFile: path);
       isRecording = true;
       isRecordingPaused = false;
@@ -401,7 +584,9 @@ class ChatController extends GetxController {
       await _recorder!.pauseRecorder();
       isRecordingPaused = true;
       update();
-    } catch (e) { log("Pause error: $e"); }
+    } catch (e) {
+      log("Pause error: $e");
+    }
   }
 
   Future<void> resumeRecording() async {
@@ -409,7 +594,9 @@ class ChatController extends GetxController {
       await _recorder!.resumeRecorder();
       isRecordingPaused = false;
       update();
-    } catch (e) { log("Resume error: $e"); }
+    } catch (e) {
+      log("Resume error: $e");
+    }
   }
 
   Future<void> cancelRecording() async {
@@ -422,7 +609,9 @@ class ChatController extends GetxController {
       }
       path = null;
       update();
-    } catch (e) { debugPrint('Error canceling recording: $e'); }
+    } catch (e) {
+      debugPrint('Error canceling recording: $e');
+    }
   }
 
   Future<void> stopRecording() async {
@@ -436,37 +625,46 @@ class ChatController extends GetxController {
     if (!await file.exists()) return;
 
     final tempId = DateTime.now().millisecondsSinceEpoch.toString();
-    messages.insert(0, ChatMessage(
-      imageUrl: null,
-      reaction: [],
-      senderName: sharedPreferences!.getString("username") ?? sharedPreferences!.getString("usernameGust") ?? "",
-      message: recordPath,
-      messageType: 'voice',
-      messageId: tempId,
-      isFromSender: true,
-      isPending: true,
-      timestamp: DateFormat('h:mm a').format(DateTime.now()),
-    ));
+    messages.insert(
+        0,
+        ChatMessage(
+          imageUrl: null,
+          reaction: [],
+          senderName: sharedPreferences!.getString("username") ??
+              sharedPreferences!.getString("usernameGust") ??
+              "",
+          message: recordPath,
+          messageType: 'voice',
+          messageId: tempId,
+          isFromSender: true,
+          isPending: true,
+          timestamp: DateFormat('h:mm a').format(DateTime.now()),
+        ));
 
     await sendMessage(audioFile: file, messageType: 'audio', tempId: tempId);
   }
 
   reactMessage({required String messageId, required String react}) async {
     var response = await _chatsRemoteData.sendReactMessages(
-        messageId: int.parse(messageId),
-        react: react,
-
-       );
+      messageId: int.parse(messageId),
+      react: react,
+    );
 
     statuesRequest = handlingData(response);
     if (statuesRequest == StatuesRequest.success) {
-      final messageIndex = messages.indexWhere((msg) => msg.messageId == messageId);
+      final messageIndex =
+          messages.indexWhere((msg) => msg.messageId == messageId);
       if (messageIndex != -1) {
-        final reactionIndex = messages[messageIndex].reaction.indexWhere((reaction) => reaction.id == null);
+        final reactionIndex = messages[messageIndex]
+            .reaction
+            .indexWhere((reaction) => reaction.id == null);
         if (reactionIndex != -1) {
-          messages[messageIndex].reaction[reactionIndex].id = response['data']['id'];
-          messages[messageIndex].reaction[reactionIndex].user!.id = response['data']['user']['id'];
-          messages[messageIndex].reaction[reactionIndex].user!.username = response['data']['user']['username'];
+          messages[messageIndex].reaction[reactionIndex].id =
+              response['data']['id'];
+          messages[messageIndex].reaction[reactionIndex].user!.id =
+              response['data']['user']['id'];
+          messages[messageIndex].reaction[reactionIndex].user!.username =
+              response['data']['user']['username'];
         }
         messages.refresh();
       }
@@ -476,28 +674,38 @@ class ChatController extends GetxController {
     update();
   }
 
-  void addReactionToMessage(int messageIndex, String reaction, String messageId) {
+  void addReactionToMessage(
+      int messageIndex, String reaction, String messageId) {
     if (messageIndex >= 0 && messageIndex < messages.length) {
-      final currentUserId = int.tryParse(sharedPreferences!.getString("id") ?? sharedPreferences!.getString("idGust") ?? "0") ?? 0;
+      final currentUserId = int.tryParse(sharedPreferences!.getString("id") ??
+              sharedPreferences!.getString("idGust") ??
+              "0") ??
+          0;
 
-      final existingReactionIndex = messages[messageIndex].reaction.indexWhere((r) => r.user!.id == currentUserId);
+      final existingReactionIndex = messages[messageIndex]
+          .reaction
+          .indexWhere((r) => r.user!.id == currentUserId);
 
       if (existingReactionIndex != -1) {
-        if (messages[messageIndex].reaction[existingReactionIndex].react == reaction) {
+        if (messages[messageIndex].reaction[existingReactionIndex].react ==
+            reaction) {
           messages[messageIndex].reaction.removeAt(existingReactionIndex);
         } else {
-          messages[messageIndex].reaction[existingReactionIndex].react = reaction;
+          messages[messageIndex].reaction[existingReactionIndex].react =
+              reaction;
         }
       } else {
         messages[messageIndex].reaction.add(MessageReactions(
-          react: reaction,
-          id: null,
-          user: User(
-            id: currentUserId,
-            username: sharedPreferences!.getString("username") ?? sharedPreferences!.getString("usernameGust") ?? "",
-            image: sharedPreferences!.getString("img"),
-          ),
-        ));
+              react: reaction,
+              id: null,
+              user: User(
+                id: currentUserId,
+                username: sharedPreferences!.getString("username") ??
+                    sharedPreferences!.getString("usernameGust") ??
+                    "",
+                image: sharedPreferences!.getString("img"),
+              ),
+            ));
       }
 
       reactMessage(messageId: messageId, react: reaction);
@@ -526,19 +734,28 @@ class ChatController extends GetxController {
 
   getMemberToBlock() async {
     memberIdToBlock.clear();
-    var response = await _chatsRemoteData.getMemberOfChat(perPage: 10, page: 1, chatId: int.parse(chatId),);
+    var response = await _chatsRemoteData.getMemberOfChat(
+      perPage: 10,
+      page: 1,
+      chatId: int.parse(chatId),
+    );
     if (handlingData(response) == StatuesRequest.success) {
       List responseBody = response['data'];
       final myId = sharedPreferences!.getString("id");
-      memberIdToBlock.addAll(responseBody.map((e) => MemberOfChatModel.fromJson(e)).where((e) => e.id.toString() != myId));
+      memberIdToBlock.addAll(responseBody
+          .map((e) => MemberOfChatModel.fromJson(e))
+          .where((e) => e.id.toString() != myId));
     }
   }
 
   getMembers({int page = 1, bool loadMore = false}) async {
     if (!loadMore) {
-      members.clear(); memmbersRequests.clear();
-      currentMembersPage = 1; currentRequestsPage = 1;
-      hasMoreMembers = true; hasMoreRequests = true;
+      members.clear();
+      memmbersRequests.clear();
+      currentMembersPage = 1;
+      currentRequestsPage = 1;
+      hasMoreMembers = true;
+      hasMoreRequests = true;
     }
 
     if (memberClick && (isLoadingMoreMembers || !hasMoreMembers)) return;
@@ -555,7 +772,6 @@ class ChatController extends GetxController {
       perPage: 10,
       page: memberClick ? currentMembersPage : currentRequestsPage,
       chatId: int.parse(chatId),
-
     );
 
     statuesRequestMembers = handlingData(response);
@@ -564,9 +780,14 @@ class ChatController extends GetxController {
       if (responseBody.isEmpty) {
         memberClick ? hasMoreMembers = false : hasMoreRequests = false;
       } else {
-        List<MemberOfChatModel> newMembers = responseBody.map((e) => MemberOfChatModel.fromJson(e)).toList();
-        var accepted = newMembers.where((e) => e.memberStatus != "Waiting_for_acceptance").toList();
-        var pending = newMembers.where((e) => e.memberStatus == "Waiting_for_acceptance").toList();
+        List<MemberOfChatModel> newMembers =
+            responseBody.map((e) => MemberOfChatModel.fromJson(e)).toList();
+        var accepted = newMembers
+            .where((e) => e.memberStatus != "Waiting_for_acceptance")
+            .toList();
+        var pending = newMembers
+            .where((e) => e.memberStatus == "Waiting_for_acceptance")
+            .toList();
 
         members.addAll(accepted);
         memmbersRequests.addAll(pending);
@@ -577,7 +798,10 @@ class ChatController extends GetxController {
         createChatController.members = members;
         createChatController.chatAdmin.clear();
         for (var member in members) {
-          if (member.isAdmin == 1) createChatController.chatAdmin.add({"chat_admin_id": member.id.toString()});
+          if (member.isAdmin == 1) {
+            createChatController.chatAdmin
+                .add({"chat_admin_id": member.id.toString()});
+          }
         }
       }
     } else {
@@ -592,24 +816,33 @@ class ChatController extends GetxController {
   Future<void> loadMoreMembers() async {
     if (memberClick && (!hasMoreMembers || isLoadingMoreMembers)) return;
     if (!memberClick && (!hasMoreRequests || isLoadingMoreRequests)) return;
-    await getMembers(page: memberClick ? currentMembersPage : currentRequestsPage, loadMore: true);
+    await getMembers(
+        page: memberClick ? currentMembersPage : currentRequestsPage,
+        loadMore: true);
   }
 
   sendFriendRequest({required friendID}) async {
-    var response = await _chatsRemoteData.sendFriendRequest(friendId: friendID,);
+    var response = await _chatsRemoteData.sendFriendRequest(
+      friendId: friendID,
+    );
     statuesRequestMembers = handlingData(response);
     update();
   }
 
-  blockOrUnBlock({required friendID, required bool status}) async {
-    var response = await _chatsRemoteData.blockOrUnBlock(status: status, id: friendID,);
+  blockOrUnBlock({required friendID, required int status}) async {
+    var response = await _chatsRemoteData.blockOrUnBlock(
+      status: status,
+      id: friendID,
+    );
     if (handlingData(response) == StatuesRequest.success) update();
   }
 
   createChatFriend({required friendID}) async {
     statuesRequest = StatuesRequest.loading;
     update();
-    var response = await _chatsRemoteData.createChatFriend(friendId: friendID,);
+    var response = await _chatsRemoteData.createChatFriend(
+      friendId: friendID,
+    );
     statuesRequest = handlingData(response);
 
     if (statuesRequest == StatuesRequest.success) {
@@ -624,7 +857,7 @@ class ChatController extends GetxController {
     chatId = '';
     messages.clear();
     Get.to(
-          () => ChatView(isGust: false, isPin: false, userChatModel: userchat),
+      () => ChatView(isGust: false, isPin: false, userChatModel: userchat),
       arguments: {"chatId": userchat!.id.toString()},
       transition: Transition.leftToRight,
       duration: const Duration(milliseconds: 400),
@@ -636,17 +869,14 @@ class ChatController extends GetxController {
     update(); // تحديث عشان لو عامل Loading يظهر
 
     var response = await _chatsRemoteData.acceptMemberToChat(
-
-        chatID: chatId,
-        idUSer: membeerId,
-      );
-
+      chatID: chatId,
+      idUSer: membeerId,
+    );
 
     statuesRequest = handlingData(response);
 
     if (statuesRequest == StatuesRequest.success) {
       memmbersRequests.removeWhere((member) => member.id == membeerId);
-
 
       update();
     } else {
@@ -682,7 +912,10 @@ class ChatController extends GetxController {
       currentRadioIndex = null;
       update();
       if (Get.context != null) {
-        Get.snackbar('Error', 'Unable to play radio.', backgroundColor: Colors.red, colorText: Colors.white, duration: const Duration(seconds: 3));
+        Get.snackbar('Error', 'Unable to play radio.',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3));
       }
     }
   }
@@ -694,8 +927,12 @@ class ChatController extends GetxController {
     await audioPlayer.stop();
   }
 
-  shareChat({required String link}) {
-    SharePlus.instance.share(ShareParams(uri: Uri.parse(link)));
+  shareChat({required String link}) async {
+    // Generate a deep link instead of sharing the raw ID/url if needed
+    // Assuming 'link' here was the raw URL or just ID. If it's ID, we pass it.
+    // I will extract ID if it's a URL, or just use chatId.
+    String dynamicLink = DynamicLinkService.createDynamicLink(chatId);
+    SharePlus.instance.share(ShareParams(uri: Uri.parse(dynamicLink)));
   }
 
   @override
@@ -703,7 +940,9 @@ class ChatController extends GetxController {
     audioPlayer.dispose();
     messageController.dispose();
     _recorder?.closeRecorder();
-    for (var channel in subscribedChannels) pusher.unsubscribe(channelName: channel);
+    for (var channel in subscribedChannels) {
+      pusher.unsubscribe(channelName: channel);
+    }
     pusher.disconnect();
     super.onClose();
   }

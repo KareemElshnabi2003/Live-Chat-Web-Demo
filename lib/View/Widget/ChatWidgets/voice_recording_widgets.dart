@@ -139,7 +139,7 @@ class _EnhancedVoiceRecordingState extends State<EnhancedVoiceRecording> with Si
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(color: AppColors.primaryColor.withOpacity(0.1), shape: BoxShape.circle),
-          child: Icon(Icons.mic, color: AppColors.primaryColor, size: 24),
+          child: const Icon(Icons.mic, color: AppColors.primaryColor, size: 24),
         ),
       );
     }

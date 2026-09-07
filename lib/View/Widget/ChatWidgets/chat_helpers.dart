@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/Controller/chat_controller.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
-import 'package:live_chat/Data/Model/chat_message_model.dart'; // مسار الـ ChatMessage
 import 'package:live_chat/Data/Model/user_chat_model.dart';
-import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:screen_go/extensions/responsive_nums.dart';
@@ -13,9 +11,9 @@ import 'package:screen_go/extensions/responsive_nums.dart';
 class ChatHelpers {
   // 🌟 استخراج الخلفية
   static DecorationImage? getBackgroundImage(UserChatModel model) {
-    if (model.userTheme.toString() != "null") {
+    if (model.userTheme != null && model.userTheme.toString().trim() != "null" && model.userTheme.toString().trim().isNotEmpty) {
       return DecorationImage(image: CachedNetworkImageProvider("${model.userTheme}"), fit: BoxFit.cover);
-    } else if (model.themeId?.toString() != "null") {
+    } else if (model.themeId != null && model.themeId?.theme != null && model.themeId!.theme.toString().trim() != "null" && model.themeId!.theme.toString().trim().isNotEmpty) {
       return DecorationImage(image: CachedNetworkImageProvider("${model.themeId?.theme}"), fit: BoxFit.cover);
     }
     return null;

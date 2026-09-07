@@ -142,14 +142,14 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget> {
                       ),
                     ),
                     SliderTheme(
-                      data: SliderThemeData(
+                      data: const SliderThemeData(
                         trackHeight: 30,
                         activeTrackColor: Colors.transparent,
                         inactiveTrackColor: Colors.transparent,
                         thumbColor: Colors.transparent,
                         overlayColor: Colors.transparent,
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0),
-                        overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
+                        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0),
+                        overlayShape: RoundSliderOverlayShape(overlayRadius: 0),
                       ),
                       child: Slider(
                         value: position.inSeconds.toDouble(),

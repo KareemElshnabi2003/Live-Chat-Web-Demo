@@ -135,6 +135,7 @@
   "error": "Error",
   "fillAllFields": "Please fill all fields",
   "success": "Success",
+  "msgUnblockedSuccessfully": "Unblocked successfully",
   "linkCopied": "Link copied",
   "httpFaraena": "Http/faraena.com",
   "male": "Male",
@@ -381,7 +382,8 @@
 "msgYouBlocked": "Our strategy is that you cannot postpone with this 7 user until now.",
 "msgIBlocked":"You have previously blocked this user. Would you like to unblock him for contacting him?",
 "msgNotHasPermission":"غير مصرح لك بإجراء هذه العملية حالياً.",
-"cancelBlock":"UnBlock"
+"cancelBlock":"UnBlock",
+"youSendRequest":"Friend request sent"
 
 
 

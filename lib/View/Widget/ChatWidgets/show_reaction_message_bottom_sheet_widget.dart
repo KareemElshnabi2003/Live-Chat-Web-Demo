@@ -59,7 +59,7 @@ void ShowReactionMessageBottomSheet(
                             sharedPreferences!.getString("username")
                         ? S.of(context).you
                         : chatMessage.reaction[index].user!.username,
-                    AppColors.blackTextColor,
+                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
                     3.5.w,
                     FontWeight.w500,
                   )

@@ -11,7 +11,7 @@ class UpdatedChatsController extends BaseChatsController {
 class AnotherChatsController extends BaseChatsController {
   @override
   Future<dynamic> fetchChatsFromApi(int page, int perPage, String token) {
-    return chatsRemoteData.getSystemChatsGust( perPage: perPage, page: page);
+    return chatsRemoteData.getSystemChatsGust( perPage: perPage, page: page == 1 ? null : page);
   }
 }
 
@@ -32,9 +32,8 @@ class OtherChatsUserController extends BaseChatsController {
   @override
   Future<dynamic> fetchChatsFromApi(int page, int perPage, String token) {
     return chatsRemoteData.getSystemChatsGust(
-
         perPage: perPage,
-        page: page
+        page: page == 1 ? null : page
     );
   }
 }

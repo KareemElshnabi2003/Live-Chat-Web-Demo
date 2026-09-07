@@ -23,11 +23,16 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 class SuggessionChat extends StatelessWidget {
   SuggessionChat({super.key});
 
-  final SuggessionChatController controller = Get.put(SuggessionChatController());
-  final HomeNavigationController homeController = Get.put(HomeNavigationController());
+  final SuggessionChatController controller =
+      Get.put(SuggessionChatController());
+  final HomeNavigationController homeController =
+      Get.put(HomeNavigationController());
 
   bool _isValidImage(String? url) {
-    return url != null && url.trim().isNotEmpty && url.trim() != "null" && url.trim() != "image";
+    return url != null &&
+        url.trim().isNotEmpty &&
+        url.trim() != "null" &&
+        url.trim() != "image";
   }
 
   @override
@@ -36,7 +41,11 @@ class SuggessionChat extends StatelessWidget {
     return Scaffold(
       backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
       body: Padding(
-        padding: EdgeInsets.only(left: isRtl ? 0.w : 4.w, right: isRtl ? 4.w : 0.w, top: 3.h, bottom: 2.h),
+        padding: EdgeInsets.only(
+            left: isRtl ? 0.w : 4.w,
+            right: isRtl ? 4.w : 0.w,
+            top: 3.h,
+            bottom: 2.h),
         child: GetBuilder<SuggessionChatController>(
           builder: (controller) => _buildChatList(controller),
         ),
@@ -52,7 +61,9 @@ class SuggessionChat extends StatelessWidget {
         GestureDetector(
           onTap: () => Get.offAll(() => const HomeView()),
           child: Icon(
-            isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
+            isRtl
+                ? IconsaxPlusLinear.arrow_right_3
+                : IconsaxPlusLinear.arrow_left_1,
             size: 5.5.w,
             color: pref! ? AppColors.whiteColor : AppColors.blackColor,
           ),
@@ -71,7 +82,8 @@ class SuggessionChat extends StatelessWidget {
   Widget _buildChatList(SuggessionChatController controller) {
     final isRtl = Directionality.of(Get.context!) == TextDirection.rtl;
 
-    if (controller.statuesRequest == StatuesRequest.loading) {
+    if (controller.statuesRequest == StatuesRequest.loading &&
+        controller.friendsSuggestion.isEmpty) {
       return Column(
         children: [
           _buildHeader(Get.context!),
@@ -101,12 +113,18 @@ class SuggessionChat extends StatelessWidget {
           itemCount: controller.friendsSuggestion.length + 2,
           itemBuilder: (context, index) {
             if (index == 0) {
-              return Column(children: [_buildHeader(context), SizedBox(height: 6.h)]);
+              return Column(
+                  children: [_buildHeader(context), SizedBox(height: 6.h)]);
             } else if (index <= controller.friendsSuggestion.length) {
               final friendIndex = index - 1;
               final friend = controller.friendsSuggestion[friendIndex];
-              final hasValidImage = _isValidImage(friend.image); // 🌟 فحص الصورة
+              final hasValidImage =
+                  _isValidImage(friend.image); // 🌟 فحص الصورة
 
+              print("valid Image >> $hasValidImage");
+              print("Image >> ${friend.image}");
+              print("friendname >> ${friend.name}");
+              print("friend >> ${friend.toJson()}");
               return Padding(
                 padding: EdgeInsets.only(bottom: 2.h),
                 child: SuggestedFriends(
@@ -120,27 +138,33 @@ class SuggessionChat extends StatelessWidget {
                       onPressChat: () => controller.createChatFriend(
                           friendID: friend.id!,
                           requestStatus: friend.requestStatus!,
-                          index: friendIndex
-                      ),
+                          index: friendIndex),
                     );
                   },
                   chat: () => controller.createChatFriend(
                       friendID: friend.id!,
                       requestStatus: friend.requestStatus!,
-                      index: friendIndex
-                  ),                  removeRequest: () => controller.sendFriendRequest(index: friendIndex, friendID: friend.id),
+                      index: friendIndex),
+                  removeRequest: () => controller.sendFriendRequest(
+                      index: friendIndex, friendID: friend.id),
                   requestSend: friend.requestStatus != "none",
-                  sendRequest: () => controller.sendFriendRequest(index: friendIndex, friendID: friend.id),
+                  sendRequest: () => controller.sendFriendRequest(
+                      index: friendIndex, friendID: friend.id),
                   img: hasValidImage
                       ? CachedNetworkImageProvider(friend.image!.trim())
                       : const AssetImage(AppImages.noChatImg),
-                  body: friend.requestStatus == "none" ? S.of(context).notFriend : S.of(context).requestWaiting,
+                  body: friend.requestStatus == "none"
+                      ? S.of(context).notFriend
+                      : S.of(context).requestWaiting,
                   ttitle: friend.username ?? "",
                 ),
               );
             } else {
-              return controller.statuesRequest == StatuesRequest.loading && controller.friendsSuggestion.isNotEmpty
-                  ? Padding(padding: EdgeInsets.symmetric(vertical: 2.h), child: loading(10.h))
+              return controller.statuesRequest == StatuesRequest.loading &&
+                      controller.friendsSuggestion.isNotEmpty
+                  ? Padding(
+                      padding: EdgeInsets.symmetric(vertical: 2.h),
+                      child: loading(10.h))
                   : const SizedBox.shrink();
             }
           },
@@ -158,24 +182,48 @@ class SuggessionChat extends StatelessWidget {
           children: [
             Container(
               padding: EdgeInsets.all(6.w),
-              decoration: BoxDecoration(color: AppColors.secondaryColor.withOpacity(0.1), shape: BoxShape.circle),
-              child: Icon(LucideIcons.wifiOff, size: 20.w, color: AppColors.secondaryColor),
+              decoration: BoxDecoration(
+                  color: AppColors.secondaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle),
+              child: Icon(LucideIcons.wifiOff,
+                  size: 20.w, color: AppColors.secondaryColor),
             ),
             SizedBox(height: 3.h),
-            textNormal(isRtl ? "لا يوجد اتصال بالإنترنت" : "No Internet Connection", pref! ? AppColors.whiteColor : AppColors.blackColor, 4.5.w, FontWeight.w700),
+            textNormal(
+                isRtl ? "لا يوجد اتصال بالإنترنت" : "No Internet Connection",
+                pref! ? AppColors.whiteColor : AppColors.blackColor,
+                4.5.w,
+                FontWeight.w700),
             SizedBox(height: 2.h),
-            textNormal(isRtl ? "يرجى التحقق من اتصالك بالإنترنت" : "Please check your internet connection", pref! ? AppColors.inActiveColor : AppColors.blackColor.withOpacity(0.6), 3.5.w, FontWeight.w600),
+            textNormal(
+                isRtl
+                    ? "يرجى التحقق من اتصالك بالإنترنت"
+                    : "Please check your internet connection",
+                pref!
+                    ? AppColors.inActiveColor
+                    : AppColors.blackColor.withOpacity(0.6),
+                3.5.w,
+                FontWeight.w600),
             SizedBox(height: 4.h),
             ElevatedButton.icon(
-              onPressed: () async => await controller.getfriendesSuggestion(page: 1),
+              onPressed: () async =>
+                  await controller.getfriendesSuggestion(page: 1),
               style: ElevatedButton.styleFrom(
-                backgroundColor: pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+                backgroundColor:
+                    pref! ? AppColors.secondaryColor : AppColors.primaryColor,
                 padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 1.5.h),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
                 elevation: 2,
               ),
-              icon: Icon(LucideIcons.refreshCw, size: 5.w, color: pref! ? AppColors.blackColor : AppColors.whiteColor),
-              label: textNormal(isRtl ? "إعادة المحاولة" : "Try Again", pref! ? AppColors.blackColor : AppColors.whiteColor, 3.5.w, FontWeight.w600),
+              icon: Icon(LucideIcons.refreshCw,
+                  size: 5.w,
+                  color: pref! ? AppColors.blackColor : AppColors.whiteColor),
+              label: textNormal(
+                  isRtl ? "إعادة المحاولة" : "Try Again",
+                  pref! ? AppColors.blackColor : AppColors.whiteColor,
+                  3.5.w,
+                  FontWeight.w600),
             ),
           ],
         ),

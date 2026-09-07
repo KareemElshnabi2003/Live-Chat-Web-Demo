@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:live_chat/Core/Class/api.dart';
+import 'package:live_chat/Core/Class/error_handler.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
 import 'package:live_chat/Core/class/status_request.dart';
 import 'package:live_chat/Core/function/handling_data.dart';
@@ -50,9 +51,7 @@ class CapabilitiesController extends GetxController {
   }
 
   void _handleError(StatuesRequest status) {
-    if (status == StatuesRequest.unprocessableException) {
-    } else if (status == StatuesRequest.unauthorizedException) {
-    } else if (status == StatuesRequest.timeoutException) {}
+    showUserFriendlyError(status);
   }
 
   @override

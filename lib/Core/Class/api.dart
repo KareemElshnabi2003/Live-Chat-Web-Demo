@@ -68,11 +68,17 @@ class Api extends GetxService {
       final data = jsonDecode(response.body);
       return right(data);
     }
+    
+    if (response.statusCode == 204) {
+      log('204 No Content (Success): ${response.body}');
+      return right({"status": "success"}); // إرجاع نجاح بدون محاولة فك تشفير JSON لأن البودي فاضي
+    }
 
-    if ([400, 403, 404, 409, 422].contains(response.statusCode)) {
+    if ([400, 402, 403, 404, 409, 422].contains(response.statusCode)) {
       _extractServerMessage(response.body);
     }
 
+   
     switch (response.statusCode) {
       case 400:
         log('400 Bad Request: ${response.body}');

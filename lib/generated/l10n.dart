@@ -76,6 +76,46 @@ class S {
       args: [],
     );
   }
+/// `طلبات الصداقة`
+  String get frindsRequests {
+    return Intl.message(
+      'طلبات الصداقة',
+      name: 'frindsRequests',
+      desc: '',
+      args: [],
+    );
+  }
+/// `المرسلة`
+  String get sentRequests {
+    return Intl.message(
+      'المرسلة',
+      name: 'sentRequests',
+      desc: '',
+      args: [],
+    );
+  }
+
+
+  /// `إلغاء`
+  String get cancel {
+    return Intl.message(
+      'إلغاء',
+      name: 'cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+/// `تم إرسال طلب الصداقة`
+  String get youSendRequest {
+    return Intl.message(
+      'تم إرسال طلب الصداقة',
+      name: 'youSendRequest',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `عذراً، لا يمكنك التواصل مع هذا المستخدم حالياً.`
   String get msgYouBlocked {
     return Intl.message(
@@ -824,10 +864,8 @@ class S {
     return Intl.message('تأكيد', name: 'confirm', desc: '', args: []);
   }
 
-  /// `إلغاء`
-  String get cancel {
-    return Intl.message('إلغاء', name: 'cancel', desc: '', args: []);
-  }
+
+
 
   /// `تم الدفع بنجاح!`
   String get paymentSuccessful {
@@ -838,6 +876,7 @@ class S {
       args: [],
     );
   }
+
 
   /// `الدفع قيد المراجعة من قبل المسؤولين.`
   String get paymentUnderReview {
@@ -1137,6 +1176,12 @@ class S {
   /// `نجاح`
   String get success {
     return Intl.message('نجاح', name: 'success', desc: '', args: []);
+  }
+
+  /// `تم فك الحظر بنجاح`
+  String get msgUnblockedSuccessfully {
+    return Intl.message('تم فك الحظر بنجاح',
+        name: 'msgUnblockedSuccessfully', desc: '', args: []);
   }
 
   /// `تم نسخ الرابط`
@@ -2907,10 +2952,15 @@ class S {
     );
   }
 
+
+
   /// `موافق`
   String get ok {
     return Intl.message('موافق', name: 'ok', desc: '', args: []);
   }
+
+
+
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

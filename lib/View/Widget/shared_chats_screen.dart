@@ -15,6 +15,7 @@ import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:screen_go/extensions/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
+import 'package:live_chat/Core/function/format_last_message.dart';
 
 // شاشة ذكية تستقبل أي كونترولر يورث من BaseChatsController
 class SharedChatsScreen<T extends BaseChatsController> extends StatelessWidget {
@@ -32,7 +33,6 @@ class SharedChatsScreen<T extends BaseChatsController> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final controller = Get.find<T>(); // استدعاء الكونترولر الممرر
 
     return Scaffold(
       backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
@@ -70,7 +70,7 @@ class SharedChatsScreen<T extends BaseChatsController> extends StatelessWidget {
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       children: [
         GestureDetector(
-          onTap: () => Navigator.pop(context),
+          onTap: () => Get.back(),
           child: Icon(
             isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
             size: 5.5.w,
@@ -115,7 +115,7 @@ class SharedChatsScreen<T extends BaseChatsController> extends StatelessWidget {
               img: hasValidImg
                   ? CachedNetworkImageProvider(chat.image!.trim())
                   : const AssetImage(AppImages.noChatImg),
-              body: "${chat.membersCount} ${S.of(context).engaged_people}",
+              body: formatLastMessage(context, chat),
               ttitle: chat.name!,
               action: S.of(context).joinNow,
               onPressJoin: () => homeController.onPressGroubChat(chatModel: chat, isGust: true, id: chat.id),

@@ -251,7 +251,7 @@ class ChatsRemoteData {
     return response.fold((l) => l, (r) => r);
   }
 
-  blockOrUnBlock({ required bool status, required id}) async {
+  blockOrUnBlock({ required int status, required id}) async {
     var response =
         await api.postData("${AppApi.blockUrl}/$id/block?device_id=$deviceId", {"block": status});
     return response.fold((l) => l, (r) => r);

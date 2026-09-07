@@ -52,9 +52,9 @@ class PinChatModel {
         try {
           var decoded = jsonDecode(json['pin_hours']);
           if (decoded is List) {
-            decoded.forEach((v) {
+            for (var v in decoded) {
               pinHours!.add(PinHour.fromJson(v));
-            });
+            }
           }
         } catch (e) {
           print("Error parsing pin_hours string: $e");

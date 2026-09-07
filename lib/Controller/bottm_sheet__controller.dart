@@ -95,7 +95,7 @@ class BottomSheetController extends GetxController {
       statuesRequestChats = StatuesRequest.loading;
       update();
 
-      String? token = sharedPreferences!.getString("token");
+      sharedPreferences!.getString("token");
       var response = await _chatsRemoteData.getuserChats(
           page: currentPage, perPage: perPage);
 

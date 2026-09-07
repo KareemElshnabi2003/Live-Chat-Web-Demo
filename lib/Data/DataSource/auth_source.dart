@@ -9,6 +9,8 @@ class AuthRemoteData {
   AuthRemoteData({required this.api});
 
 
+
+
   final String deviceId=sharedPreferences!.getString("deviceId")??"";
   String _getMobileTheme() {
     return (sharedPreferences?.getBool("isDarkMode") ?? false)
@@ -86,8 +88,9 @@ class AuthRemoteData {
       if (phone != null && phone.isNotEmpty) data['phone'] = phone;
       if (age != null && age.isNotEmpty) data['age'] = age;
       if (gender != null && gender.isNotEmpty) data['gender'] = gender;
-      if (countryId != null && countryId.isNotEmpty)
+      if (countryId != null && countryId.isNotEmpty) {
         data['country_id'] = countryId;
+      }
 
       var response = await api.postRequestwithfile(
           "${AppApi.updateProfileUrl}?device_id=$deviceId", data, image, null);

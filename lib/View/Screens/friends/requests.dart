@@ -31,12 +31,14 @@ Widget FriendsRequestCard({
   required ImageProvider img,
   required PowerModel? power,
   required VoidCallback onPressImg,
-  required VoidCallback onPressChat, // خليتها مطلوبة ومش nullable عشان لازم يفتح شات
+  required VoidCallback onPressChat,
   required bool imgUrl,
   required String ttitle,
   required String body,
-  required VoidCallback onPressAccept,
-  required VoidCallback onPressReject,
+  VoidCallback? onPressAccept,
+  VoidCallback? onPressReject,
+  VoidCallback? onPressCancel,
+  bool isSentRequest = false,
 }) {
   final isRtl = Directionality.of(Get.context!) == TextDirection.rtl;
   return Padding(
@@ -77,9 +79,23 @@ Widget FriendsRequestCard({
           Row(
             children: [
               if (!isRtl) SizedBox(width: 4.w),
-              InkWell(onTap: onPressAccept, child: Container(height: 12.w, width: 12.w, decoration: ShapeDecoration(shape: RoundedRectangleBorder(side: BorderSide(color: pref! ? AppColors.whiteColor : AppColors.blackColor), borderRadius: BorderRadius.circular(16))), child: Center(child: Icon(Icons.check, color: pref! ? AppColors.whiteColor : AppColors.blackColor, size: 6.w)))),
-              const SizedBox(width: 15),
-              InkWell(onTap: onPressReject, child: Container(height: 12.w, width: 12.w, decoration: ShapeDecoration(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: AppColors.redColor))), child: Center(child: Icon(Icons.close, color: AppColors.redColor, size: 6.w)))),
+              if (isSentRequest)
+                 InkWell(
+                   onTap: onPressCancel, 
+                   child: Container(
+                     height: 10.w, // ارتفاع محدد عشان ميمطش
+                     padding: EdgeInsets.symmetric(horizontal: 4.w),
+                     decoration: ShapeDecoration(
+                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: AppColors.redColor))
+                     ), 
+                     child: Center(child: Text(S.of(Get.context!).cancel, style: TextStyle(color: AppColors.redColor, fontSize: 3.w, fontWeight: FontWeight.bold)))
+                   )
+                 )
+              else ...[
+                InkWell(onTap: onPressAccept, child: Container(height: 12.w, width: 12.w, decoration: ShapeDecoration(shape: RoundedRectangleBorder(side: BorderSide(color: pref! ? AppColors.whiteColor : AppColors.blackColor), borderRadius: BorderRadius.circular(16))), child: Center(child: Icon(Icons.check, color: pref! ? AppColors.whiteColor : AppColors.blackColor, size: 6.w)))),
+                const SizedBox(width: 15),
+                InkWell(onTap: onPressReject, child: Container(height: 12.w, width: 12.w, decoration: ShapeDecoration(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: AppColors.redColor))), child: Center(child: Icon(Icons.close, color: AppColors.redColor, size: 6.w)))),
+              ],
               if (isRtl) SizedBox(width: 4.w),
             ],
           ),
@@ -95,25 +111,75 @@ class Requests extends StatelessWidget {
   final controller = Get.put(RequestsController());
   final homeController = Get.put(HomeNavigationController());
 
+  Widget _buildTabBadge(String title, int count) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(title),
+        if (count > 0) ...[
+          SizedBox(width: 2.w),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.redColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              "$count",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 2.8.w,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
-      body: Padding(
-        padding: EdgeInsets.only(left: isRtl ? 0.w : 4.w, right: isRtl ? 4.w : 0.w, top: 5.h, bottom: 2.h),
-        child: GetBuilder<RequestsController>(
-          builder: (controller) => RefreshIndicator(
-            onRefresh: controller.refreshData,
-            color: AppColors.secondaryColor,
-            backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
-            child: ListView(
-              controller: controller.scrollController,
-              padding: EdgeInsets.zero,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+        body: Padding(
+          padding: EdgeInsets.only(left: isRtl ? 0.w : 4.w, right: isRtl ? 4.w : 0.w, top: 5.h, bottom: 2.h),
+          child: GetBuilder<RequestsController>(
+            builder: (controller) => Column(
               children: [
-                _buildHeader(context, isRtl), // باصينا الـ isRtl هنا
-                SizedBox(height: 5.h),
-                _buildChatList(controller),
+                _buildHeader(context, isRtl),
+                SizedBox(height: 2.h),
+                TabBar(
+                  labelColor: AppColors.primaryColor,
+                  unselectedLabelColor: pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                  indicatorColor: AppColors.primaryColor,
+                  dividerColor: Colors.transparent,
+                  tabs: [
+                    Tab(child: _buildTabBadge(isRtl ? 'مستلمة' : 'Received', controller.friends.length)),
+                    Tab(child: _buildTabBadge(isRtl ? 'مرسلة' : 'Sent', controller.sentRequests.length)),
+                  ],
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      RefreshIndicator(
+                        onRefresh: controller.refreshData,
+                        color: AppColors.secondaryColor,
+                        backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+                        child: _buildChatList(controller, false),
+                      ),
+                      RefreshIndicator(
+                        onRefresh: controller.refreshData,
+                        color: AppColors.secondaryColor,
+                        backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+                        child: _buildChatList(controller, true),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -122,7 +188,6 @@ class Requests extends StatelessWidget {
     );
   }
 
-  // 🌟 الـ Header الصح لشاشة الطلبات (مفيهوش الـ edit ولا العداد عشان إنت جوة الطلبات أصلاً)
   Widget _buildHeader(BuildContext context, bool isRtl) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,40 +208,42 @@ class Requests extends StatelessWidget {
     );
   }
 
-  Widget _buildChatList(RequestsController controller) {
+  Widget _buildChatList(RequestsController controller, bool isSent) {
     return Obx(() {
-      if (controller.statuesRequest == StatuesRequest.loading && controller.friends.isEmpty) return loading(80.h);
-      if (controller.friends.isEmpty) {
+      final list = isSent ? controller.sentRequests : controller.friends;
+      if (controller.statuesRequest == StatuesRequest.loading && list.isEmpty) return loading(80.h);
+      if (list.isEmpty) {
         return controller.statuesRequest == StatuesRequest.socketException
             ? messageErrorWithButton(S.of(Get.context!).error, S.of(Get.context!).noInternet, () => controller.getFriends(page: 1), S.of(Get.context!).retry)
-            : Center(child: SizedBox(width: 80.w, child: noData(S.of(Get.context!).notFriendRequest))); // 🌟 لو معندوش طلبات هيظهرله الصورة بتاعتك
+            : Center(child: SizedBox(width: 80.w, child: noData(S.of(Get.context!).notFriendRequest)));
       }
       return ListView.separated(
         shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        itemCount: controller.friends.length + 1,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(top: 2.h),
+        itemCount: list.length + 1,
         itemBuilder: (context, index) {
-          if (index == controller.friends.length) return controller.statuesRequest == StatuesRequest.loading && controller.friends.isNotEmpty ? Padding(padding: EdgeInsets.symmetric(vertical: 2.h), child: loading(10.h)) : const SizedBox.shrink();
+          if (index == list.length) return controller.statuesRequest == StatuesRequest.loading && list.isNotEmpty ? Padding(padding: EdgeInsets.symmetric(vertical: 2.h), child: loading(10.h)) : const SizedBox.shrink();
 
-          final friend = controller.friends[index];
+          final friend = list[index];
           final hasValidImg = _isValidImage(friend.image);
 
           return FriendsRequestCard(
-            // 🌟 لما يدوس على الشات من هنا هينفذ اللوجيك بتاع قبول الطلب أوتوماتيك ويفتح الشات
-            onPressChat: () => controller.createChatFriend(friendID: friend.id!),
+            isSentRequest: isSent,
+            onPressCancel: isSent ? () => controller.cancelRequest(friendID: friend.id!) : null,
+            onPressChat: () => controller.createChatFriend(friendID: friend.id!, isSentRequest: isSent),
             power: friend.power,
             imgUrl: hasValidImg,
             onPressImg: () => dialogImgWidget(
                 title: friend.username!,
                 img: friend.image,
-                onPressChat: () => controller.createChatFriend(friendID: friend.id!), // نفس الكلام هنا
+                onPressChat: () => controller.createChatFriend(friendID: friend.id!, isSentRequest: isSent),
                 userChatModel: null
             ),
-            onPressAccept: () => controller.acceptFriend(friendID: friend.id!),
-            onPressReject: () => controller.rejectFriend(friendID: friend.id!),
+            onPressAccept: isSent ? null : () => controller.acceptFriend(friendID: friend.id!),
+            onPressReject: isSent ? null : () => controller.rejectFriend(friendID: friend.id!),
             img: hasValidImg ? CachedNetworkImageProvider(friend.image!.trim()) : const AssetImage(AppImages.noChatImg),
-            body: S.of(context).sendToYouRequest,
+            body: isSent ? S.of(context).youSendRequest : S.of(context).sendToYouRequest,
             ttitle: friend.username!,
           );
         },

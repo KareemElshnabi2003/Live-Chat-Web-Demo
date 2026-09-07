@@ -10,6 +10,7 @@ import 'package:live_chat/Controller/main_controller.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
 import 'package:live_chat/Core/Constant/app_images.dart';
 import 'package:live_chat/Core/class/status_request.dart';
+import 'package:live_chat/Core/function/format_last_message.dart';
 import 'package:live_chat/Data/Model/power_model.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
 import 'package:live_chat/View/Screens/Market/market_page.dart';
@@ -469,7 +470,7 @@ class HomeView extends StatelessWidget {
                   ? false
                   : true,
               numOfMessage: 0,
-              needsAcceptance: controller.pinChatModel!.conversation!.accept == 1, // 🌟 تفعيل القفل للمثبتة لو محتاجة
+              needsAcceptance: controller.pinChatModel!.conversation!.accept == "1", // 🌟 تفعيل القفل للمثبتة لو محتاجة
               onPressImg: () {
                 dialogImgWidget(
                   title: controller.pinChatModel!.conversation!.name!,
@@ -569,16 +570,14 @@ class HomeView extends StatelessWidget {
     return Row(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       children: [
-        userImage != null && userImage.isNotEmpty ?   CircleAvatar(
+        (userImage != null && userImage.trim().isNotEmpty && userImage != "null") ? CircleAvatar(
             radius: 4.w,
             backgroundImage:
             CachedNetworkImageProvider(userImage)
 
-        ):CircleAvatar(
+        ) : CircleAvatar(
             radius: 4.w,
             backgroundColor:Colors.grey
-
-
         ),
         SizedBox(width: 3.w),
         displayWidget,
@@ -772,6 +771,17 @@ class HomeView extends StatelessWidget {
             Row(
               textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
               children: [
+                if (title == S.of(Get.context!).yourFriends && navController.totalReceivedRequestsCount > 0) ...[
+                  Container(
+                    width: 2.5.w,
+                    height: 2.5.w,
+                    decoration: const BoxDecoration(
+                      color: AppColors.redColor, // نقطة حمرا للتنبيه
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  SizedBox(width: 2.w),
+                ],
                 if (showCounter) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), // بادينج مريح
@@ -868,14 +878,7 @@ class HomeView extends StatelessWidget {
                 ? const AssetImage(AppImages.noChatImg)
                 : CachedNetworkImageProvider(
                 "${controller.userMyChatModel!.image}"),
-            body: controller.userMyChatModel!.lastMessage.toString() !=
-                "null"
-                ? controller.userMyChatModel!.lastMessage!.senderId
-                .toString() ==
-                sharedPreferences!.getString("id")
-                ? "${S.of(context).you}: ${controller.userMyChatModel!.lastMessage!.messageType == "voice" ? S.of(context).voiceMessage : controller.userMyChatModel!.lastMessage!.messageType == "image" ? S.of(context).image : controller.userMyChatModel!.lastMessage!.message}"
-                : "${controller.userMyChatModel!.lastMessage!.messageType == "voice" ? S.of(context).voiceMessage : controller.userMyChatModel!.lastMessage!.messageType == "image" ? S.of(context).image : controller.userMyChatModel!.lastMessage!.message}"
-                : "${controller.userMyChatModel!.membersCount} ${S.of(context).engaged_people}",
+            body: formatLastMessage(context, controller.userMyChatModel!),
             ttitle: controller.userMyChatModel!.name!,
             onPressJoin: () {
               controller.onPressGroubChat(
@@ -1012,7 +1015,7 @@ class HomeView extends StatelessWidget {
                   userChatModel: null,
                   onPressChat: () {
                     controller.createChatFriend(
-                      requestStatus: controller.friends[index].requestStatus! ,
+                      requestStatus: controller.friendsSuggestion[index].requestStatus! ,
                         index: index,
                         friendID: controller.friendsSuggestion[index].id!);
                   });
@@ -1020,7 +1023,7 @@ class HomeView extends StatelessWidget {
             chat: () {
               controller.createChatFriend(
                 index: index,
-                  requestStatus:  controller.friends[index].requestStatus!,
+                  requestStatus:  controller.friendsSuggestion[index].requestStatus!,
                   friendID: controller.friendsSuggestion[index].id!);
             },
             removeRequest: () {

@@ -49,7 +49,7 @@ class ChatInputWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     textClick(S.of(context).unBlock, true, () {
-                      controller.blockOrUnBlock(friendID: controller.memberIdToBlock[0].id, status: false);
+                      controller.blockOrUnBlock(friendID: controller.memberIdToBlock[0].id, status: 0);
                       userChatModel.isBlocked = "None";
                     }, AppColors.whiteColor, 4.w),
                   ],
@@ -76,56 +76,160 @@ class ChatInputWidget extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         shadows: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2))],
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: .5.h),
-        child: Row(
-          textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-          children: [
-            if (!controller.isRecording)
-              GestureDetector(
-                onTap: () {
-                  controller.sendImageMessage();
-                  Future.delayed(const Duration(milliseconds: 100), onScrollToBottom);
-                },
-                child: Icon(IconsaxPlusLinear.gallery, size: 6.w, color: pref! ? AppColors.secondaryColor : AppColors.blackTextColor),
-              ),
-            SizedBox(width: 2.w),
-            _buildVoiceRecordingSection(),
-            if (!controller.isRecording) ...[
-              SizedBox(width: 2.w),
-              Expanded(
-                child: TextField(
-                  style: TextStyle(color: pref! ? AppColors.whiteColor : AppColors.blackTextColor, fontSize: 3.5.w, fontWeight: FontWeight.w400),
-                  controller: controller.messageController,
-                  decoration: InputDecoration(
-                    hintText: S.of(context).sendYourMessage,
-                    hintStyle: TextStyle(color: pref! ? AppColors.inActiveColor : AppColors.black2TextColor, fontSize: 3.5.w, fontWeight: FontWeight.w400),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (controller.replyingToMessage != null) _buildReplyPreview(context),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: .5.h),
+            child: Row(
+              textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+              children: [
+                if (!controller.isRecording)
+                  GestureDetector(
+                    onTap: () async {
+                      await controller.sendImageMessage();
+                      Future.delayed(const Duration(milliseconds: 100), onScrollToBottom);
+                    },
+                    child: Icon(IconsaxPlusLinear.gallery, size: 6.w, color: pref! ? AppColors.secondaryColor : AppColors.blackTextColor),
                   ),
-                  onSubmitted: (_) => _sendMessage(),
-                  maxLines: null,
-                ),
-              ),
-              SizedBox(width: 2.w),
-              GestureDetector(
-                onTap: _sendMessage,
-                child: Container(
-                  width: 11.w,
-                  height: 5.h,
-                  decoration: ShapeDecoration(
-                    color: pref! ? AppColors.secondaryColor : AppColors.buttoncolor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                SizedBox(width: 2.w),
+                _buildVoiceRecordingSection(),
+                if (!controller.isRecording) ...[
+                  SizedBox(width: 2.w),
+                  Expanded(
+                    child: TextField(
+                      style: TextStyle(color: pref! ? AppColors.whiteColor : AppColors.blackTextColor, fontSize: 3.5.w, fontWeight: FontWeight.w400),
+                      controller: controller.messageController,
+                      decoration: InputDecoration(
+                        hintText: S.of(context).sendYourMessage,
+                        hintStyle: TextStyle(color: pref! ? AppColors.inActiveColor : AppColors.black2TextColor, fontSize: 3.5.w, fontWeight: FontWeight.w400),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                      ),
+                      onSubmitted: (_) => _sendMessage(),
+                      maxLines: null,
+                    ),
                   ),
-                  child: Center(
-                    child: Icon(IconsaxPlusLinear.send_2, size: 4.w, color: pref! ? AppColors.blackColor : AppColors.whiteColor),
+                  SizedBox(width: 2.w),
+                  GestureDetector(
+                    onTap: _sendMessage,
+                    child: Container(
+                      width: 11.w,
+                      height: 5.h,
+                      decoration: ShapeDecoration(
+                        color: pref! ? AppColors.secondaryColor : AppColors.buttoncolor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                      ),
+                      child: Center(
+                        child: Icon(IconsaxPlusLinear.send_2, size: 4.w, color: pref! ? AppColors.blackColor : AppColors.whiteColor),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
-          ],
-        ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildReplyPreview(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      decoration: BoxDecoration(
+        color: pref! ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Row(
+        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  controller.replyingToMessage!.senderName ?? '',
+                  style: TextStyle(
+                    color: pref! ? AppColors.secondaryColor : AppColors.buttoncolor, 
+                    fontWeight: FontWeight.bold,
+                    fontSize: 3.w
+                  ),
+                ),
+                Builder(
+                  builder: (context) {
+                    String msgText = '';
+                    if (controller.replyingToMessage!.messageType == 'text') {
+                      msgText = controller.replyingToMessage!.message.split('|||REPLY|||').last;
+                      if (msgText.startsWith('|||GROUP_CALL_START|||') || msgText.startsWith('|||PRIVATE_CALL_START|||')) {
+                        final callType = msgText.contains('video') ? (isRtl ? "مكالمة فيديو" : "Video Call") : (isRtl ? "مكالمة صوتية" : "Voice Call");
+                        return Row(
+                          children: [
+                            Icon(msgText.contains('video') ? Icons.videocam : Icons.call, size: 4.w, color: pref! ? Colors.white70 : Colors.black54),
+                            SizedBox(width: 1.w),
+                            Text(callType, style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w)),
+                          ],
+                        );
+                      } else if (msgText == '|||CALL_ENDED|||' || msgText == '|||GROUP_CALL_ENDED|||') {
+                        final callType = isRtl ? "تم إنهاء المكالمة" : "Call ended";
+                        return Row(
+                          children: [
+                            Icon(Icons.call_end, size: 4.w, color: pref! ? Colors.white70 : Colors.black54),
+                            SizedBox(width: 1.w),
+                            Text(callType, style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w)),
+                          ],
+                        );
+                      } else if (msgText == '|||CALL_DECLINED|||') {
+                        final callType = isRtl ? "مكالمة فائتة" : "Missed call";
+                        return Row(
+                          children: [
+                            Icon(Icons.phone_missed, size: 4.w, color: pref! ? Colors.white70 : Colors.black54),
+                            SizedBox(width: 1.w),
+                            Text(callType, style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w)),
+                          ],
+                        );
+                      }
+                    } else if (controller.replyingToMessage!.messageType == 'image') {
+                      return Row(
+                        children: [
+                          Icon(Icons.image, size: 4.w, color: pref! ? Colors.white70 : Colors.black54),
+                          SizedBox(width: 1.w),
+                          Text(isRtl ? "صورة" : "Image", style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w)),
+                        ],
+                      );
+                    } else if (controller.replyingToMessage!.messageType == 'voice' || controller.replyingToMessage!.messageType == 'audio') {
+                      return Row(
+                        children: [
+                          Icon(Icons.mic, size: 4.w, color: pref! ? Colors.white70 : Colors.black54),
+                          SizedBox(width: 1.w),
+                          Text(isRtl ? "تسجيل صوتي" : "Voice Message", style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w)),
+                        ],
+                      );
+                    } else {
+                      msgText = controller.replyingToMessage!.messageType;
+                    }
+                    
+                    return Text(
+                      msgText,
+                      maxLines: 1, 
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: pref! ? Colors.white70 : Colors.black54,
+                        fontSize: 3.w
+                      ),
+                    );
+                  }
+                )
+              ]
+            )
+          ),
+          InkWell(
+            onTap: () => controller.cancelReply(),
+            child: Icon(Icons.close, size: 5.w, color: pref! ? Colors.white54 : Colors.black54),
+          )
+        ]
+      )
     );
   }
 
@@ -137,8 +241,8 @@ class ChatInputWidget extends StatelessWidget {
           isRecording: controller.isRecording,
           isPaused: controller.isRecordingPaused,
           onStartRecording: controller.startRecording,
-          onStopRecording: () {
-            controller.stopRecording();
+          onStopRecording: () async {
+            await controller.stopRecording();
             Future.delayed(const Duration(milliseconds: 100), onScrollToBottom);
           },
           onCancelRecording: controller.cancelRecording,
@@ -184,7 +288,7 @@ class ChatInputWidget extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
-                  controller.blockOrUnBlock(friendID: controller.memberIdToBlock[0].id, status: true);
+                  controller.blockOrUnBlock(friendID: controller.memberIdToBlock[0].id, status: 1);
                   userChatModel.isBlocked = "You blocked them";
                   controller.update();
                 },

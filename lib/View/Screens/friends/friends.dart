@@ -4,18 +4,12 @@ import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/Controller/Home_navigator_controller.dart';
 import 'package:live_chat/Controller/friends_chat_controller.dart';
-import 'package:live_chat/Core/Class/api.dart';
-import 'package:live_chat/Core/Class/error_handler.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
 import 'package:live_chat/Core/Constant/app_images.dart';
 import 'package:live_chat/Core/class/status_request.dart';
-import 'package:live_chat/Core/function/handling_data.dart';
-import 'package:live_chat/Data/DataSource/chats_source.dart';
 import 'package:live_chat/Data/Model/friend_suggest_model.dart';
 import 'package:live_chat/Data/Model/power_model.dart';
-import 'package:live_chat/Data/Model/user_chat_model.dart';
 import 'package:live_chat/View/Screens/Home/home_view.dart';
-import 'package:live_chat/View/Screens/create%20chat/chat_view.dart';
 import 'package:live_chat/View/Widget/PublicWidget/dialog_img.dart';
 import 'package:live_chat/View/Widget/PublicWidget/loading.dart';
 import 'package:live_chat/View/Widget/PublicWidget/no_data.dart';
@@ -26,11 +20,6 @@ import 'package:live_chat/main.dart';
 import 'package:screen_go/extensions/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-
-// 🌟 دالة مساعدة مركزية للصور
-bool _isValidImage(String? url) {
-  return url != null && url.trim().isNotEmpty && url.trim() != "null" && url.trim() != "image";
-}
 
 // ignore: non_constant_identifier_names
 Widget FriendsChatCard({
@@ -280,11 +269,11 @@ class Friends extends StatelessWidget {
 
   Widget _buildFriendItem(SuggestFreindModel friend) {
     // 🌟 الفحص الذكي للصور
-    bool _isValidImage(String? url) {
+    bool isValidImage(String? url) {
       return url != null && url.trim().isNotEmpty && url.trim() != "null" && url.trim() != "image";
     }
 
-    final hasValidImg = _isValidImage(friend.image);
+    final hasValidImg = isValidImage(friend.image);
 
     return FriendsChatCard(
       onPressImg: () => dialogImgWidget(
