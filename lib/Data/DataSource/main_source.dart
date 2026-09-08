@@ -5,7 +5,7 @@ import 'package:live_chat/main.dart';
 class MainRemoteData {
   final Api api; // إضافة final
 
-  final String deviceId=sharedPreferences!.getString("deviceId")??"";
+  String get deviceId => sharedPreferences!.getString("deviceId") ?? "";
 
   MainRemoteData({
     required this.api,

@@ -7,7 +7,7 @@ import 'package:live_chat/main.dart';
 class StarsPurchaseService {
   final String baseUrl = AppApi.baseUrl;
   final Api api = Get.find<Api>(); // ربطناه بالـ Singleton
-  final String deviceId=sharedPreferences!.getString("deviceId")??"";
+  String get deviceId => sharedPreferences!.getString("deviceId") ?? "";
 
   Future<dynamic> getPaymentOptions() async {
     try {

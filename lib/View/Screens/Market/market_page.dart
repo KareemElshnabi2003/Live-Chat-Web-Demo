@@ -12,6 +12,7 @@ import 'package:live_chat/View/Screens/Market%20Bottom%20Sheet/market_buy_charge
 import 'package:live_chat/View/Screens/Market%20Bottom%20Sheet/market_see_more_bottom_sheet.dart';
 import 'package:live_chat/View/Screens/notifications/notifications.dart';
 import 'package:live_chat/View/Widget/PublicWidget/chat_card_widget.dart';
+import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/storetext.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
@@ -67,7 +68,21 @@ class _MarketPageState extends State<MarketPage> {
         },
         child: Obx(
           () => controller.isLoading.value
-              ? const Center(child: CircularProgressIndicator())
+              ? SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      _headerPage(
+                        numOfStars: controller.numOfStars.value,
+                        onPress: () => showBottomSheetPinChatWidget(context: context),
+                        onTapCharge: () => showBottomSheetMarketBuyChargeWidget(context: context),
+                        isRtl: isRtl,
+                      ),
+                      SizedBox(height: 5.h),
+                      Padding(padding: EdgeInsets.all(4.w), child: ShimmerSkeletons.marketGridSkeleton()),
+                    ],
+                  ),
+                )
               : controller.errorMessage.value.isNotEmpty
                   ? _buildErrorState(context, controller, isRtl)
                   : SingleChildScrollView(

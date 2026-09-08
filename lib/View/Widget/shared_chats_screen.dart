@@ -9,8 +9,8 @@ import 'package:live_chat/Core/Constant/app_images.dart';
 import 'package:live_chat/Core/class/status_request.dart';
 import 'package:live_chat/View/Widget/PublicWidget/chat_card_widget.dart';
 import 'package:live_chat/View/Widget/PublicWidget/dialog_img.dart';
-import 'package:live_chat/View/Widget/PublicWidget/loading.dart';
 import 'package:live_chat/View/Widget/PublicWidget/no_data.dart';
+import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:screen_go/extensions/responsive_nums.dart';
@@ -45,7 +45,7 @@ class SharedChatsScreen<T extends BaseChatsController> extends StatelessWidget {
             Expanded(
               child: GetBuilder<T>(
                 builder: (ctrl) => ctrl.statuesRequest == StatuesRequest.loading
-                    ? loading(80.h)
+                    ? ShimmerSkeletons.chatListSkeleton()
                     : ctrl.chatsList.isEmpty
                     ? Center(child: noData(S.of(context).noChat))
                     : RefreshIndicator(

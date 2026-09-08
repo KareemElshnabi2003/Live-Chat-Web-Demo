@@ -11,7 +11,7 @@ class AuthRemoteData {
 
 
 
-  final String deviceId=sharedPreferences!.getString("deviceId")??"";
+  String get deviceId => sharedPreferences!.getString("deviceId") ?? "";
   String _getMobileTheme() {
     return (sharedPreferences?.getBool("isDarkMode") ?? false)
         ? "dark"

@@ -6,7 +6,7 @@ import 'package:live_chat/main.dart';
 class ChatsRemoteData {
   final Api api; // إضافة final
   ChatsRemoteData({required this.api});
-  final String deviceId=sharedPreferences!.getString("deviceId")??"";
+  String get deviceId => sharedPreferences!.getString("deviceId") ?? "";
 
   getConversationUsers({required int chatId}) async {
     var response =

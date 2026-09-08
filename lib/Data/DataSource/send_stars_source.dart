@@ -5,7 +5,7 @@ import 'package:live_chat/main.dart';
 
 class StarsService {
   final Api api = Get.find<Api>(); // استخدمنا الـ Singleton
-  final String deviceId=sharedPreferences!.getString("deviceId")??"";
+  String get deviceId => sharedPreferences!.getString("deviceId") ?? "";
 
   Future<Map<String, dynamic>> sendStars(String email, String numberOfStars) async {
     var response = await api.postData("${AppApi.sendStars}?device_id=$deviceId", {

@@ -11,6 +11,7 @@ import 'package:live_chat/Core/Constant/app_images.dart';
 import 'package:live_chat/Core/class/status_request.dart';
 import 'package:live_chat/View/Screens/Home/home_view.dart';
 import 'package:live_chat/View/Widget/PublicWidget/dialog_img.dart';
+import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/loading.dart';
 import 'package:live_chat/View/Widget/PublicWidget/no_data.dart';
 import 'package:live_chat/View/Widget/PublicWidget/sugessted_friends.dart';
@@ -87,7 +88,7 @@ class SuggessionChat extends StatelessWidget {
       return Column(
         children: [
           _buildHeader(Get.context!),
-          Expanded(child: loading(80.h)),
+          Expanded(child: ShimmerSkeletons.chatListSkeleton()),
         ],
       );
     } else if (controller.friendsSuggestion.isEmpty) {

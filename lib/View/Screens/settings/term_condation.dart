@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/Core/Constant/app_api.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
+import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:screen_go/extensions/responsive_nums.dart';
@@ -101,7 +102,7 @@ class _TermCondationState extends State<TermCondation> {
                 // Content
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? ShimmerSkeletons.pageSkeleton()
                       : _error != null
                           ? Center(
                               child: Text(

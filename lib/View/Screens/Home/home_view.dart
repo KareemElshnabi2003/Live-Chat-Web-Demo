@@ -20,6 +20,7 @@ import 'package:live_chat/View/Widget/PublicWidget/chat_card_widget.dart';
 import 'package:live_chat/View/Screens/Home/show_bottom_sheet_pin_chat_widget.dart';
 import 'package:live_chat/View/Widget/PublicWidget/dialog_img.dart';
 import 'package:live_chat/View/Widget/PublicWidget/loading.dart';
+import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/no_data.dart';
 import 'package:live_chat/View/Widget/PublicWidget/slider_img.dart';
 import 'package:live_chat/View/Widget/PublicWidget/storetext.dart';
@@ -242,7 +243,7 @@ class HomeView extends StatelessWidget {
       initialData: controller.systemChats,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return loading(10.h);
+          return ShimmerSkeletons.chatListSkeleton();
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return controller.statuesRequest == StatuesRequest.socketException
               ? Center(

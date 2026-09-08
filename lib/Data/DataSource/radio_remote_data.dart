@@ -8,7 +8,7 @@ class RadioRemoteData {
   final Api api;
 
   RadioRemoteData({required this.api});
-  final String deviceId=sharedPreferences!.getString("deviceId")??"";
+  String get deviceId => sharedPreferences!.getString("deviceId") ?? "";
 
   Future<List<RadioModel>> getRadios() async {
     try {
