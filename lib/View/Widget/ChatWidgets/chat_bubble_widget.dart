@@ -3,6 +3,7 @@ import 'dart:io';
 
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:live_chat/Controller/chat_controller.dart'; // added
@@ -12,7 +13,7 @@ import 'package:live_chat/View/Widget/ChatWidgets/audio_message_widget.dart';
 import 'package:live_chat/View/Widget/ChatWidgets/show_reaction_message_bottom_sheet_widget.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/main.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 import 'package:swipe_to/swipe_to.dart'; // added
 
 class ChatBubbleWidget extends StatelessWidget {
@@ -355,9 +356,11 @@ class ChatBubbleWidget extends StatelessWidget {
                            if (originalMessage.isNotEmpty)
                              ClipRRect(
                                borderRadius: BorderRadius.circular(4),
-                               child: originalMessage.startsWith('http') 
+                               child: (originalMessage.startsWith('http') && !originalMessage.startsWith('blob:'))
                                  ? CachedNetworkImage(imageUrl: originalMessage, height: 10.w, width: 10.w, fit: BoxFit.cover) 
-                                 : Image.file(File(originalMessage), height: 10.w, width: 10.w, fit: BoxFit.cover),
+                                 : (kIsWeb && originalMessage.startsWith('blob:'))
+                                     ? Image.network(originalMessage, height: 10.w, width: 10.w, fit: BoxFit.cover)
+                                     : Image.file(File(originalMessage), height: 10.w, width: 10.w, fit: BoxFit.cover),
                              )
                          ]
                        )
@@ -436,9 +439,14 @@ class ChatBubbleWidget extends StatelessWidget {
           ),
         );
       case 'image':
-        Widget imageWidget = content.startsWith('http')
-            ? CachedNetworkImage(imageUrl: content)
-            : Image.file(File(content));
+        Widget imageWidget;
+        if (content.startsWith('http') && !content.startsWith('blob:')) {
+           imageWidget = CachedNetworkImage(imageUrl: content);
+        } else if (kIsWeb && content.startsWith('blob:')) {
+           imageWidget = Image.network(content);
+        } else {
+           imageWidget = Image.file(File(content));
+        }
         return Stack(
           clipBehavior: Clip.none,
           children: [
@@ -450,14 +458,13 @@ class ChatBubbleWidget extends StatelessWidget {
           ],
         );
       case 'voice':
+        bool isUrlOrBlob = content.startsWith('http') || (kIsWeb && content.startsWith('blob:'));
         return Stack(
           children: [
             AudioMessageWidget(
               pref: pref,
-
-
-              url: content.startsWith('http') ? content : '',
-              localPath: content.startsWith('http') ? null : content,
+              url: isUrlOrBlob ? content : '',
+              localPath: isUrlOrBlob ? null : content,
             ),
             if (wait) Icon(Icons.timelapse_rounded, size: 5.w),
           ],

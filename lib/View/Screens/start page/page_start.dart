@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:live_chat/Controller/page_start_controller.dart';
@@ -14,7 +15,7 @@ import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 class PageStart extends StatelessWidget {
@@ -156,7 +157,7 @@ class PageStart extends StatelessWidget {
                       children: [
                         textNormal(S.of(context).latest_chats, pref! ? AppColors.whiteColor : AppColors.blackColor, 4.w, FontWeight.w400),
                         SizedBox(width: 2.w),
-                        Icon(isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300, color: AppColors.secondaryColor, size: 7.w),
+                        Icon(isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300, color: AppColors.secondaryColor, size: kIsWeb ? 28.0 : 7.w),
                       ],
                     ),
                   ),
@@ -167,7 +168,7 @@ class PageStart extends StatelessWidget {
                     : controller.recentChats.isEmpty
                     ? Center(child: noData(S.of(context).noChat))
                     : SizedBox(
-                  width: 100.w,
+                  width: double.infinity,
                   child: ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -221,7 +222,7 @@ class PageStart extends StatelessWidget {
                       children: [
                         textNormal(S.of(context).other_chats, pref! ? AppColors.whiteColor : AppColors.blackColor, 4.5.w, FontWeight.w400),
                         SizedBox(width: 2.w),
-                        Icon(isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300, color: AppColors.secondaryColor, size: 7.w),
+                        Icon(isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300, color: AppColors.secondaryColor, size: kIsWeb ? 28.0 : 7.w),
                       ],
                     ),
                   ),
@@ -232,7 +233,7 @@ class PageStart extends StatelessWidget {
                     : controller.systemChats.isEmpty
                     ? Center(child: noData(S.of(context).noChat))
                     : SizedBox(
-                  width: 100.w,
+                  width: double.infinity,
                   child: ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),

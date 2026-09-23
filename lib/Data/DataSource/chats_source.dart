@@ -105,8 +105,8 @@ class ChatsRemoteData {
   sendMessagesWithFile(
       {
       required chatId,
-      required File? audio,
-      required File? image
+      required dynamic audio,
+      required dynamic image
      }) async {
     var response = await api.postDataWithRecordAndImage(
         AppApi.sendMessagesUrl,

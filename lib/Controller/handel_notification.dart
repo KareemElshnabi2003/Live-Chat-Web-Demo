@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:live_chat/Core/Class/api.dart';
@@ -14,9 +13,7 @@ import 'package:live_chat/Core/function/handling_data.dart';
 import 'package:live_chat/Data/DataSource/chats_source.dart';
 import 'package:live_chat/Data/Model/token_call_model.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
-import 'package:live_chat/View/Screens/create%20chat/audio_call_view.dart';
 import 'package:live_chat/View/Screens/create%20chat/chat_view.dart';
-import 'package:live_chat/View/Screens/create%20chat/video_call_view.dart';
 import 'package:live_chat/View/Screens/friends/friends.dart';
 import 'package:live_chat/View/Screens/friends/requests.dart';
 import 'package:live_chat/View/Screens/notifications/notifications.dart';
@@ -27,9 +24,6 @@ import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/main.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:live_chat/firebase_options.dart';
-import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
-import 'package:flutter_callkit_incoming/entities/notification_params.dart';
-import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:uuid/uuid.dart';
 
 // ⚠️ IMPORTANT: Top-level function for background notifications
@@ -39,34 +33,6 @@ import 'package:uuid/uuid.dart';
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   log("📩 Background notification received: ${message.data}");
-  
-  final data = message.data;
-  final status = data['status'] ?? '';
-
-  if (status == "started_call") {
-    final callerName = data['caller_name'] ?? 'Unknown';
-    final isAudio = data['call_type'] == "audio";
-    
-    CallKitParams callKitParams = CallKitParams(
-      id: const Uuid().v4(),
-      nameCaller: callerName,
-      appName: 'Live Chat',
-      avatar: data['caller_image'] ?? '',
-      handle: isAudio ? 'Audio Call' : 'Video Call',
-      type: 0,
-      duration: 30000,
-      
-      // Removed textAccept and textDecline since they are not in CallKitParams directly
-      missedCallNotification: const NotificationParams(
-        showNotification: true,
-        isShowCallback: true,
-        subtitle: 'Missed call',
-        callbackText: 'Call back',
-      ),
-      extra: Map<String, dynamic>.from(data),
-    );
-    await FlutterCallkitIncoming.showCallkitIncoming(callKitParams);
-  }
 }
 
 class FirebaseNotification {
@@ -88,44 +54,7 @@ class FirebaseNotification {
     handelBackGround();
     handleForGround();
 
-    // Listen to CallKit events (Accept / Decline)
-    FlutterCallkitIncoming.onEvent.listen((CallEvent? event) {
-      if (event == null) return;
-      switch (event.eventName) {
-        case CallEventConstants.actionCallAccept:
-          if (event is CallEventActionCallAccept) {
-            final data = event.callKitParams.extra;
-            if (data != null) {
-              // Reconstruct a RemoteMessage from data and pass to handelMassage
-              final msg = RemoteMessage(data: Map<String, dynamic>.from(data));
-              handelMassage(msg);
-            }
-          }
-          break;
-        case CallEventConstants.actionCallDecline:
-          if (event is CallEventActionCallDecline) {
-            final data = event.callKitParams.extra;
-            if (data != null && data['status'] == 'started_call') {
-              final chatId = data['conversation_id'];
-              final isGroup = data['is_group'].toString() == 'true';
-              if (chatId != null && !isGroup) {
-                 if (Get.isRegistered<ChatsRemoteData>()) {
-                   final chatsData = Get.find<ChatsRemoteData>();
-                   chatsData.sendMessages(chatId: chatId.toString(), message: "|||CALL_DECLINED|||");
-                 } else {
-                   // Fallback if not registered
-                   final api = Api();
-                   final chatsData = ChatsRemoteData(api: api);
-                   chatsData.sendMessages(chatId: chatId.toString(), message: "|||CALL_DECLINED|||");
-                 }
-              }
-            }
-          }
-          break;
-        default:
-          break;
-      }
-    });
+    // Removed CallKit listen
   }
 
   // handle background & terminated messages
@@ -399,7 +328,7 @@ class FirebaseNotification {
   }
 
 
-  final ChatsRemoteData _chatsRemoteData = ChatsRemoteData(api: Get.find<Api>());
+  ChatsRemoteData get _chatsRemoteData => ChatsRemoteData(api: Get.find<Api>());
 
   StatuesRequest statuesRequest = StatuesRequest.none;
   TokenCallModel? _tokenCallModel;
@@ -508,28 +437,14 @@ class FirebaseNotification {
               ? ""
               : (usernameFriend.isNotEmpty ? usernameFriend : 'User');
 
-          if (audio) {
-            Get.off(() => const AudioCallPage(), arguments: {
-              "ChannelName": _tokenCallModel!.channel,
-              "Token": _tokenCallModel!.token,
-              "UId": _tokenCallModel!.uid,
-              "IsGroupCall": isGroub,
-              "chatId": chatId,
-              "RemoteUserName": remoteUserName,
-              "UserNamesMap": groubUsersNames,
-              "LocalUserName": sharedPreferences!.getString("name") ?? 'You'
-            });
-          } else {
-            Get.off(() => const VideoCallPage(), arguments: {
-              "ChannelName": _tokenCallModel!.channel,
-              "Token": _tokenCallModel!.token,
-              "UId": _tokenCallModel!.uid,
-              "IsGroupCall": isGroub,
-              "chatId": chatId,
-              "RemoteUserName": remoteUserName,
-              "UserNamesMap": groubUsersNames,
-              "LocalUserName": sharedPreferences!.getString("name") ?? 'You'
-            });
+          if (Get.context != null) {
+            Get.snackbar(
+              S.of(Get.context!).warning ?? "Warning",
+              S.of(Get.context!).mobileOnlyFeature ?? "This feature is available on mobile only",
+              backgroundColor: Colors.orange,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.TOP,
+            );
           }
         } else {
           log("❌ Token data is null");

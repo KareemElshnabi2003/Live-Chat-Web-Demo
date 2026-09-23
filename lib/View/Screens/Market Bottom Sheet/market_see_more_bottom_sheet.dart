@@ -15,7 +15,7 @@ import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/View/Widget/createchat/button.dart';
 import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'dart:convert';
 
@@ -33,6 +33,7 @@ void showBottomSheetMarketMoreWidget({
 
   showModalBottomSheet(
     isScrollControlled: true,
+    constraints: BoxConstraints(maxWidth: GetPlatform.isWeb ? 600 : double.infinity),
     backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
     context: context,
     builder: (context) => GetBuilder<BottomSheetController>(

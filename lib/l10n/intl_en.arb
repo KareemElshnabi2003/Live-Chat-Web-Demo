@@ -248,6 +248,7 @@
   "wantToSendMsg": "That user want to send you message",
   "you":"You",
   "sureToBlock":"Are you sure you want to block this user ?",
+  "mobileOnlyFeature":"This feature is available on the mobile app only",
   "insufficientStars": "Insufficient Stars",
   "pleasePurchaseMoreStars": "Please purchase more stars to complete this purchase.",
   "confirmPurchase": "Confirm Purchase",
@@ -376,15 +377,13 @@
 "ad": "Ad",
 "clickHereToVisit": "Click Here To Visit",
 "adsWithUs": "Ads With Us",
-"general_chat":"General Chat,
-"underReview":"Under Review,
+"general_chat":"General Chat",
+"underReview":"Under Review",
 
 "msgYouBlocked": "Our strategy is that you cannot postpone with this 7 user until now.",
 "msgIBlocked":"You have previously blocked this user. Would you like to unblock him for contacting him?",
-"msgNotHasPermission":"غير مصرح لك بإجراء هذه العملية حالياً.",
+"msgNotHasPermission":"You are not authorized to perform this operation currently.",
 "cancelBlock":"UnBlock",
-"youSendRequest":"Friend request sent"
-
-
-
+"youSendRequest":"Friend request sent",
+"mobileOnlyFeature":"This feature is available on mobile only"
 }

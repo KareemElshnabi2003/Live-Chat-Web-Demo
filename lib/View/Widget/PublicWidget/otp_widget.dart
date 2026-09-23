@@ -1,9 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
 import 'package:live_chat/main.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 
 Widget otpWidget(verifyCode, Function(String)? onSubmit) {
   return Center(
@@ -20,12 +21,12 @@ Widget otpWidget(verifyCode, Function(String)? onSubmit) {
               fontSize: 18.sp,
               fontWeight: FontWeight.w500,
               color: pref! ? AppColors.whiteColor : AppColors.primaryColor),
-          fieldWidth: 12.w,
+          fieldWidth: kIsWeb ? 45.0 : 12.w,
           fieldHeight: 7.h,
           borderColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
           borderWidth: 2,
           numberOfFields: 6,
-          margin: EdgeInsets.only(right: 1.w, left: 1.w),
+          margin: EdgeInsets.only(right: kIsWeb ? 5.0 : 1.w, left: kIsWeb ? 5.0 : 1.w),
           fillColor: pref! ? AppColors.darkcolor : Colors.white,
           filled: true,
 

@@ -1,11 +1,12 @@
 // ignore_for_file: deprecated_member_use
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:live_chat/Controller/chat_controller.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
 import 'package:live_chat/Core/class/status_request.dart';
 import 'package:live_chat/main.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 void showBottomSheetChangeMusicWidget({required BuildContext context}) {
@@ -17,7 +18,12 @@ void showBottomSheetChangeMusicWidget({required BuildContext context}) {
 
   Get.bottomSheet(
     GetBuilder<ChatController>(
-      builder: (controller) => _buildBottomSheetContent(context, controller, isRtl),
+      builder: (controller) => Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: GetPlatform.isWeb ? 600 : double.infinity),
+          child: _buildBottomSheetContent(context, controller, isRtl),
+        ),
+      ),
     ),
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
@@ -97,7 +103,7 @@ void showBottomSheetChangeMusicWidget({required BuildContext context}) {
         SizedBox(height: 2.h),
 
         SizedBox(
-          height: 18.h,
+          height: kIsWeb ? 200.0 : 18.h,
           child: controller.radioStatusRequest == StatuesRequest.loading
               ? const Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
               : controller.radioStatusRequest == StatuesRequest.serverException
@@ -130,7 +136,7 @@ Widget _buildRadioItem(ChatController controller, int index, String name, bool i
       }
     },
     child: Container(
-      width: 28.w,
+      width: kIsWeb ? 130.0 : 28.w,
       decoration: BoxDecoration(
           color: pref! ? AppColors.darkcolor : Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -149,8 +155,8 @@ Widget _buildRadioItem(ChatController controller, int index, String name, bool i
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 14.w,
-            height: 14.w,
+            width: kIsWeb ? 60.0 : 14.w,
+            height: kIsWeb ? 60.0 : 14.w,
             decoration: BoxDecoration(
               // 🌟 الدائرة الداخلية أغمق سنة
               color: pref! ? Colors.grey.shade800 : const Color(0xFFEEEEEE),
@@ -159,10 +165,10 @@ Widget _buildRadioItem(ChatController controller, int index, String name, bool i
             child: Icon(
               isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
               color: pref! ? Colors.white : Colors.black87,
-              size: 8.w,
+              size: kIsWeb ? 30.0 : 8.w,
             ),
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: kIsWeb ? 10.0 : 2.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 2.w),
             child: Text(
