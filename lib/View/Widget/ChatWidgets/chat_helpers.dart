@@ -6,7 +6,7 @@ import 'package:live_chat/Core/Constant/app_color.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
 import 'package:live_chat/main.dart';
 import 'package:live_chat/generated/l10n.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 
 class ChatHelpers {
   // 🌟 استخراج الخلفية

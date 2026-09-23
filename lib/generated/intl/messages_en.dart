@@ -518,5 +518,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Your private chats"),
         "mayolivechat": MessageLookupByLibrary.simpleMessage(
             "Mayo Live Chat\nExperience it Live"),
+        "mobileOnlyFeature": MessageLookupByLibrary.simpleMessage(
+            "This feature is available on mobile only"),
       };
 }

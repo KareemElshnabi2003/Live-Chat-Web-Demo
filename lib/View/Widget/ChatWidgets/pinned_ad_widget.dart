@@ -7,7 +7,7 @@ import 'package:live_chat/Core/Constant/app_color.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PinnedAdWidget extends StatelessWidget {

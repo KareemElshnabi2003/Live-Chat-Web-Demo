@@ -13,7 +13,7 @@ import 'package:live_chat/View/Widget/PublicWidget/message_error.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:live_chat/generated/l10n.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 
 class ChatAppBarWidget extends StatelessWidget {
   final ChatController controller;
@@ -232,17 +232,6 @@ class ChatAppBarWidget extends StatelessWidget {
       );
 
   void _initCall(bool isAudio) async {
-    final isGroup =
-        userChatModel.status == "Public" || userChatModel.status == "Private";
-    controller.audio = isAudio;
-    await controller.getTokenCall(
-        isGroub: isGroup,
-        groubUsersNames: isGroup
-            ? {
-                int.parse(sharedPreferences!.getString("id")!):
-                    sharedPreferences!.getString("name")!
-              }
-            : {},
-        usernameFriend: isGroup ? "" : userChatModel.name);
+    controller.showMobileOnlyFeatureMessage();
   }
 }

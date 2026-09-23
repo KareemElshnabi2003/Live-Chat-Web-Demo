@@ -57,6 +57,20 @@ class HomeNavigationController extends GetxController {
   int totalPrivateChatsCount = 0;
   int totalReceivedRequestsCount = 0;
 
+  // 🌟 Web Desktop Split Pane state
+  UserChatModel? selectedChat;
+  String? selectedChatId;
+  bool isSelectedChatGust = false;
+  bool isSelectedChatPin = false;
+
+  void selectChatForWeb({required UserChatModel chatModel, required String id, required bool isGust, bool isPin = false}) {
+    selectedChat = chatModel;
+    selectedChatId = id;
+    isSelectedChatGust = isGust;
+    isSelectedChatPin = isPin;
+    update();
+  }
+
   Future<void> updateChatUI() async {
     controller.getAds();
     update();
@@ -121,17 +135,22 @@ class HomeNavigationController extends GetxController {
     }
 
     print("id >>$id");
-    Get.to(
-      () => ChatView(
-        userChatModel: chatModel,
-        isPin: true,
-        isGust: isGust,
-      ),
-      arguments: {"chatId": id},
-      transition: Transition.leftToRight,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
+    // Web Layout check
+    if (MediaQuery.of(Get.context!).size.width >= 800) {
+      selectChatForWeb(chatModel: chatModel, id: id.toString(), isGust: isGust, isPin: true);
+    } else {
+      Get.to(
+        () => ChatView(
+          userChatModel: chatModel,
+          isPin: true,
+          isGust: isGust,
+        ),
+        arguments: {"chatId": id},
+        transition: Transition.leftToRight,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   onPressGroubChat(
@@ -146,17 +165,22 @@ class HomeNavigationController extends GetxController {
       if (!canEnter) return;
     }
 
-    Get.to(
-      () => ChatView(
-        userChatModel: chatModel,
-        isPin: false,
-        isGust: isGust,
-      ),
-      arguments: {"chatId": id},
-      transition: Transition.leftToRight,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
+    // Web Layout check
+    if (MediaQuery.of(Get.context!).size.width >= 800) {
+      selectChatForWeb(chatModel: chatModel, id: id.toString(), isGust: isGust, isPin: false);
+    } else {
+      Get.to(
+        () => ChatView(
+          userChatModel: chatModel,
+          isPin: false,
+          isGust: isGust,
+        ),
+        arguments: {"chatId": id},
+        transition: Transition.leftToRight,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   getPinChat() async {
@@ -746,17 +770,25 @@ logOut() async {
   }
 
   void navigateToChats({UserChatModel? userchat}) {
-    Get.to(
-      () => ChatView(
-        isGust: false,
-        isPin: false,
-        userChatModel: userchat,
-      ),
-      arguments: {"chatId": userchat?.id.toString()},
-      transition: Transition.leftToRight,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
-    );
+    if (userchat != null && MediaQuery.of(Get.context!).size.width >= 800) {
+      selectChatForWeb(
+          chatModel: userchat,
+          id: userchat.id.toString(),
+          isGust: false,
+          isPin: false);
+    } else {
+      Get.to(
+        () => ChatView(
+          isGust: false,
+          isPin: false,
+          userChatModel: userchat,
+        ),
+        arguments: {"chatId": userchat?.id.toString()},
+        transition: Transition.leftToRight,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void navigateToTerm() {

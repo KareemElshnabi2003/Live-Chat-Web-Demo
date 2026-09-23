@@ -4,7 +4,7 @@ import 'package:live_chat/Data/Model/chat_message_model.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/main.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 
 void ShowReactionMessageBottomSheet(
     BuildContext context, ChatMessage chatMessage) {

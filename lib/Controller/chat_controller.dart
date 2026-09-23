@@ -3,8 +3,9 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
@@ -22,14 +23,11 @@ import 'package:live_chat/Data/Model/radio_model.dart';
 import 'package:live_chat/Data/Model/token_call_model.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
 import 'package:live_chat/Core/Class/dynamic_link_service.dart';
-import 'package:live_chat/View/Screens/create%20chat/audio_call_view.dart';
 import 'package:live_chat/View/Screens/create%20chat/chat_view.dart';
-import 'package:live_chat/View/Screens/create%20chat/video_call_view.dart';
 import 'package:live_chat/View/Widget/PublicWidget/message_error.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/main.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:image_picker/image_picker.dart';
@@ -44,7 +42,6 @@ class ChatController extends GetxController {
   bool isRecordingPaused = false;
   late PusherChannelsFlutter pusher;
   final Set<String> subscribedChannels = {};
-  FlutterSoundRecorder? _recorder;
   bool isRecording = false;
   static bool _pusherInitialized = false;
   String? currentlyPlaying;
@@ -104,16 +101,6 @@ class ChatController extends GetxController {
     }
 
     audioPlayer = AudioPlayer();
-    _recorder = FlutterSoundRecorder();
-    _initRecorder(); // نقلناها لدالة منفصلة لأمان التهيئة
-  }
-
-  Future<void> _initRecorder() async {
-    try {
-      await _recorder!.openRecorder();
-    } catch (e) {
-      log("Error opening recorder: $e");
-    }
   }
 
   void initPusher() async {
@@ -228,9 +215,7 @@ class ChatController extends GetxController {
           }
         }
 
-        audio
-            ? Get.to(() => const AudioCallPage(), arguments: callArgs)
-            : Get.to(() => const VideoCallPage(), arguments: callArgs);
+
       } else {
         showUserFriendlyError(statuesRequest);
       }
@@ -365,8 +350,8 @@ class ChatController extends GetxController {
 
   Future<void> sendMessage(
       {String? text,
-      File? imgFile,
-      File? audioFile,
+      dynamic imgFile,
+      dynamic audioFile,
       required String messageType,
       String? tempId}) async {
     var response;
@@ -538,7 +523,6 @@ class ChatController extends GetxController {
           imageQuality: 70);
           
       if (pickedFile != null) {
-        File file = File(pickedFile.path);
         final tempId = DateTime.now().millisecondsSinceEpoch.toString();
 
         messages.insert(
@@ -549,7 +533,7 @@ class ChatController extends GetxController {
               senderName: sharedPreferences!.getString("username") ??
                   sharedPreferences!.getString("usernameGust") ??
                   "",
-              message: file.path,
+              message: pickedFile.path,
               messageType: 'image',
               messageId: tempId,
               isFromSender: true,
@@ -557,7 +541,7 @@ class ChatController extends GetxController {
               timestamp: DateFormat('h:mm a').format(DateTime.now()),
             ));
 
-        await sendMessage(imgFile: file, messageType: 'image', tempId: tempId);
+        await sendMessage(imgFile: pickedFile, messageType: 'image', tempId: tempId);
       }
     } finally {
       isImagePickerActive = false;
@@ -567,82 +551,24 @@ class ChatController extends GetxController {
 
   String? path;
 
+  void showMobileOnlyFeatureMessage() {
+    Get.snackbar(
+      S.of(Get.context!).warning ?? "Warning",
+      S.of(Get.context!).mobileOnlyFeature ?? "This feature is available on mobile only",
+      backgroundColor: Colors.orange,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+    );
+  }
+
   Future<void> startRecording() async {
-    if (await Permission.microphone.request().isGranted) {
-      final tempDir = await getTemporaryDirectory();
-      path =
-          '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.aac';
-      await _recorder!.startRecorder(toFile: path);
-      isRecording = true;
-      isRecordingPaused = false;
-      update();
-    }
+    showMobileOnlyFeatureMessage();
   }
 
-  Future<void> pauseRecording() async {
-    try {
-      await _recorder!.pauseRecorder();
-      isRecordingPaused = true;
-      update();
-    } catch (e) {
-      log("Pause error: $e");
-    }
-  }
-
-  Future<void> resumeRecording() async {
-    try {
-      await _recorder!.resumeRecorder();
-      isRecordingPaused = false;
-      update();
-    } catch (e) {
-      log("Resume error: $e");
-    }
-  }
-
-  Future<void> cancelRecording() async {
-    try {
-      await _recorder!.stopRecorder();
-      isRecording = false;
-      isRecordingPaused = false;
-      if (path != null && await File(path!).exists()) {
-        await File(path!).delete();
-      }
-      path = null;
-      update();
-    } catch (e) {
-      debugPrint('Error canceling recording: $e');
-    }
-  }
-
-  Future<void> stopRecording() async {
-    String? recordPath = await _recorder!.stopRecorder();
-    isRecording = false;
-    isRecordingPaused = false;
-    update();
-
-    if (recordPath == null || recordPath.isEmpty) return;
-    File file = File(recordPath);
-    if (!await file.exists()) return;
-
-    final tempId = DateTime.now().millisecondsSinceEpoch.toString();
-    messages.insert(
-        0,
-        ChatMessage(
-          imageUrl: null,
-          reaction: [],
-          senderName: sharedPreferences!.getString("username") ??
-              sharedPreferences!.getString("usernameGust") ??
-              "",
-          message: recordPath,
-          messageType: 'voice',
-          messageId: tempId,
-          isFromSender: true,
-          isPending: true,
-          timestamp: DateFormat('h:mm a').format(DateTime.now()),
-        ));
-
-    await sendMessage(audioFile: file, messageType: 'audio', tempId: tempId);
-  }
+  Future<void> pauseRecording() async {}
+  Future<void> resumeRecording() async {}
+  Future<void> cancelRecording() async {}
+  Future<void> stopRecording() async {}
 
   reactMessage({required String messageId, required String react}) async {
     var response = await _chatsRemoteData.sendReactMessages(
@@ -939,7 +865,6 @@ class ChatController extends GetxController {
   void onClose() {
     audioPlayer.dispose();
     messageController.dispose();
-    _recorder?.closeRecorder();
     for (var channel in subscribedChannels) {
       pusher.unsubscribe(channelName: channel);
     }

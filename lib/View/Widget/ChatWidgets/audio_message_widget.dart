@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 
 class AudioMessageWidget extends StatefulWidget {
   final String url;

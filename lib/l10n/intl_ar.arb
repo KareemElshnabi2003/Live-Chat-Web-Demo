@@ -248,6 +248,7 @@
   "deleteAccount":"حذف الحساب",
   "wantToSendMsg": "هذا المستخدم يرغب بارسال رسالة اليك",
   "you":"أنت",
+  "mobileOnlyFeature":"هذه الخدمة متاحة في تطبيق الموبايل فقط",
   "sureToBlock":"هل أنت متأكد أنك تريد حظر هذا المستخدم ؟",
   "insufficientStars": "النجوم غير كافية",
   "pleasePurchaseMoreStars": "يرجى شراء المزيد من النجوم لإكمال عملية الشراء.",
@@ -379,20 +380,18 @@
 "finish": "إنهاء",
 "orderUnderReview": "طلبك قيد المراجعة",
 "ok": "موافق",
-"ad": "اعلان"
+"ad": "اعلان",
 "clickHereToVisit": "اضغط هنا للزيارة",
 "adsWithUs": "إعلانات معنا",
-"general_chat":"الدردشة العامة,
+"general_chat":"الدردشة العامة",
 "underReview":"قيد المراجعة",
 "msgYouBlocked":"عذراً، لا يمكنك التواصل مع هذا المستخدم حالياً.",
 "msgIBlocked":"لقد قمت بحظر هذا المستخدم مسبقاً. هل ترغب في إلغاء الحظر للتواصل معه؟",
 
 "msgNotHasPermission":"غير مصرح لك بإجراء هذه العملية حالياً.",
 "cancelBlock":"الغاء الحظر",
-"youSendRequest":"تم إرسال طلب الصداقة"
-
-
-
+"youSendRequest":"تم إرسال طلب الصداقة",
+"mobileOnlyFeature":"هذه الخدمة متاحة في تطبيق الموبايل فقط"
 }
 
 

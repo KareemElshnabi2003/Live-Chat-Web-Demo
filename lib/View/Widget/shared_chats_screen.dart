@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -13,7 +14,7 @@ import 'package:live_chat/View/Widget/PublicWidget/no_data.dart';
 import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/Core/function/format_last_message.dart';
 
@@ -39,6 +40,7 @@ class SharedChatsScreen<T extends BaseChatsController> extends StatelessWidget {
       body: Padding(
         padding: EdgeInsets.only(left: isRtl ? 2.w : 4.w, right: isRtl ? 4.w : 2.w, top: 5.h, bottom: 2.h),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context, isRtl),
             SizedBox(height: 4.h),
@@ -73,7 +75,7 @@ class SharedChatsScreen<T extends BaseChatsController> extends StatelessWidget {
           onTap: () => Get.back(),
           child: Icon(
             isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
-            size: 5.5.w,
+            size: kIsWeb ? 24.0 : 5.5.w,
             color: pref! ? AppColors.whiteColor : AppColors.blackTextColor,
           ),
         ),

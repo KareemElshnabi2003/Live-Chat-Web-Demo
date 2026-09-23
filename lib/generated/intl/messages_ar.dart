@@ -619,5 +619,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "yourFriends": MessageLookupByLibrary.simpleMessage("أصدقاؤك"),
     "yourPrivateChats": MessageLookupByLibrary.simpleMessage("دردشاتك الخاصة"),
+    "mobileOnlyFeature": MessageLookupByLibrary.simpleMessage("هذه الخاصية متاحة في تطبيق الهاتف فقط"),
   };
 }

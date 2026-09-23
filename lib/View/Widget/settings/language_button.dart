@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 
 class LanguageButton extends StatelessWidget {
   final String language;

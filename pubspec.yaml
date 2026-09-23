@@ -38,23 +38,16 @@ dependencies:
   firebase_messaging: 
   flutter_image_compress: ^2.4.0
   path_provider: ^2.1.5
-  flutter_sound:
-  permission_handler:
-  agora_rtc_engine: ^6.5.2
-  flutter_html: ^3.0.0
+  flutter_html: ^3.0.0-beta.2
   lottie: 
   dio: ^5.9.0
   device_info_plus: ^13.2.0
   uuid: ^4.6.0
   connectivity_plus: ^7.3.1
   swipe_to: ^1.0.6
-  flutter_callkit_incoming: ^3.1.5
   app_links: ^7.2.1
   shimmer: ^4.0.0
   
-
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -76,10 +69,10 @@ flutter:
     - lib/Images/
     - assets/past_live.mp3
 
-
-
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "lib/Images/play_store_512.png"
- 
+
+dependency_overrides:
+  html: 0.15.1

@@ -3,12 +3,11 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/Controller/chat_controller.dart';
 import 'package:live_chat/Core/Constant/app_color.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
-import 'package:live_chat/View/Widget/ChatWidgets/voice_recording_widgets.dart'; // 🌟 تأكد من استيراد ده
 import 'package:live_chat/View/Widget/PublicWidget/text_click_widget.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:live_chat/generated/l10n.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 
 class ChatInputWidget extends StatelessWidget {
   final ChatController controller;
@@ -234,28 +233,10 @@ class ChatInputWidget extends StatelessWidget {
   }
 
   Widget _buildVoiceRecordingSection() {
-    if (controller.isRecording) {
-      return Expanded(
-        child: EnhancedVoiceRecording(
-          pref: pref!,
-          isRecording: controller.isRecording,
-          isPaused: controller.isRecordingPaused,
-          onStartRecording: controller.startRecording,
-          onStopRecording: () async {
-            await controller.stopRecording();
-            Future.delayed(const Duration(milliseconds: 100), onScrollToBottom);
-          },
-          onCancelRecording: controller.cancelRecording,
-          onPauseRecording: controller.pauseRecording,
-          onResumeRecording: controller.resumeRecording,
-        ),
-      );
-    } else {
-      return GestureDetector(
-        onTap: () => controller.startRecording(),
-        child: Icon(IconsaxPlusLinear.microphone, color: pref! ? AppColors.secondaryColor : AppColors.blackTextColor, size: 6.w),
-      );
-    }
+    return GestureDetector(
+      onTap: () => controller.showMobileOnlyFeatureMessage(),
+      child: Icon(IconsaxPlusLinear.microphone, color: pref! ? AppColors.secondaryColor : AppColors.blackTextColor, size: 6.w),
+    );
   }
 
   void _sendMessage() {

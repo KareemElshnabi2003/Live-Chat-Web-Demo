@@ -21,6 +21,7 @@ import 'package:live_chat/View/Screens/Home/home_view.dart';
 import 'package:live_chat/View/Screens/create%20chat/chat_view.dart';
 import 'package:live_chat/View/Screens/create%20chat/create_chat.dart';
 import 'package:live_chat/View/Screens/friends/friends.dart';
+import 'package:live_chat/View/Screens/auth/auth_view.dart';
 import 'package:live_chat/View/Screens/settings/capapiltes.dart';
 import 'package:live_chat/View/Screens/settings/language_view.dart';
 import 'package:live_chat/View/Screens/settings/my_account_view.dart';
@@ -296,10 +297,17 @@ class PageStartController extends GetxController {
   }
 
   getToken() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    String? tokenDevice = await messaging.getToken();
-    sharedPreferences!.setString("deviceToken", tokenDevice!);
-    log("   👌👌👌deviceToken: ${sharedPreferences!.getString("deviceToken")}");
+    try {
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      String? tokenDevice = await messaging.getToken();
+      if (tokenDevice != null) {
+        sharedPreferences!.setString("deviceToken", tokenDevice);
+        log("   👌👌👌deviceToken: ${sharedPreferences!.getString("deviceToken")}");
+      }
+    } catch (e) {
+      log("Firebase Messaging Error (Usually happens on Web without VAPID): $e");
+      sharedPreferences!.setString("deviceToken", "web_dummy_token");
+    }
     try {
       String? deviceId = sharedPreferences!.getString("deviceId");
 
@@ -353,17 +361,8 @@ class PageStartController extends GetxController {
   }
 
   void onPressLogin(BuildContext context) {
-    showBottomSheetWidget(
-      context: context,
-      onPressSubmit: (String val) {
-        verifyCode = val;
-        if (sheetName == "verifyLogin") {
-          verifyLogin();
-        } else {
-          verifyRegister();
-        }
-      },
-    );
+    updateSheet('Login'); // Reset to login state
+    Get.to(() => const AuthView(), transition: Transition.fadeIn);
   }
 
   snackBarError({message}) {

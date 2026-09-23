@@ -10,7 +10,7 @@ import 'package:live_chat/View/Widget/PublicWidget/otp_widget.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_click_widget.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_field_widget.dart';
 import 'package:live_chat/main.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 void showBottomSheetWidget(

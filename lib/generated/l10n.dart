@@ -2961,6 +2961,15 @@ class S {
 
 
 
+  /// `This feature is available on mobile only`
+  String get mobileOnlyFeature {
+    return Intl.message(
+      'This feature is available on mobile only',
+      name: 'mobileOnlyFeature',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

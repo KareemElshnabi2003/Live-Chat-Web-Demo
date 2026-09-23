@@ -27,9 +27,12 @@ import 'package:live_chat/View/Widget/PublicWidget/storetext.dart';
 import 'package:live_chat/View/Widget/PublicWidget/sugessted_friends.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/View/Widget/home/nav_bar.dart';
+import 'package:live_chat/View/Widget/home/sidebar_nav.dart';
+import 'package:live_chat/View/Widget/PublicWidget/responsive_layout.dart';
+import 'package:live_chat/View/Screens/create chat/chat_view.dart';
 import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 class HomeView extends StatelessWidget {
@@ -50,9 +53,8 @@ class HomeView extends StatelessWidget {
             : hContrtoller.changePage(0);
       },
       child: GetBuilder<HomeNavigationController>(
-        builder: (navController) => Scaffold(
-          backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
-          body: navController.currentPageIndex == 0
+        builder: (navController) {
+          final mobileBody = navController.currentPageIndex == 0
               ? _buildHomeContent(navController, mainContrtoller, onPress: () {
             showBottomSheetPinChatWidget(context: context);
           })
@@ -62,14 +64,67 @@ class HomeView extends StatelessWidget {
           })
               : navController.currentPageIndex == 2
               ? const MarketPage()
-              : const SettingView(),
-          bottomNavigationBar: CustomBottomNavigationBar(
-            currentIndex: navController.currentPageIndex,
-            onTap: (i) {
-              navController.changePage(i);
-            },
-          ),
-        ),
+              : const SettingView();
+
+          return Scaffold(
+            backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+            body: ResponsiveLayout(
+              mobileBody: mobileBody,
+              desktopBody: Row(
+                children: [
+                  CustomSidebarNavigation(
+                    currentIndex: navController.currentPageIndex,
+                    onTap: (i) {
+                      navController.changePage(i);
+                      // Clear selected chat when changing tabs
+                      navController.selectedChat = null;
+                      navController.update();
+                    },
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          right: BorderSide(
+                            color: pref! ? AppColors.darkcolor : Colors.grey.shade300,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: mobileBody, // Reuse the same list content
+                    ),
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: navController.selectedChat == null
+                        ? Center(
+                            child: textNormal(
+                              S.of(context).noChat,
+                              pref! ? AppColors.whiteColor : AppColors.blackColor,
+                              4.w,
+                              FontWeight.w500,
+                            ),
+                          )
+                        : ChatView(
+                            userChatModel: navController.selectedChat,
+                            isPin: navController.isSelectedChatPin,
+                            isGust: navController.isSelectedChatGust,
+                          ),
+                  ),
+                ],
+              ),
+            ),
+            bottomNavigationBar: ResponsiveLayout.isMobile(context)
+                ? CustomBottomNavigationBar(
+                    currentIndex: navController.currentPageIndex,
+                    onTap: (i) {
+                      navController.changePage(i);
+                    },
+                  )
+                : null,
+          );
+        },
       ),
     );
   }

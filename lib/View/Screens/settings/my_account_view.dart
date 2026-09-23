@@ -10,7 +10,7 @@ import 'package:live_chat/Core/Constant/app_images.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/View/Widget/createchat/button.dart';
 import 'package:live_chat/main.dart';
-import 'package:screen_go/extensions/responsive_nums.dart';
+import 'package:live_chat/Core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 class MyAccountView extends StatelessWidget {
