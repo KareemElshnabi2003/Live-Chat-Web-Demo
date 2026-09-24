@@ -24,7 +24,6 @@ import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/main.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:live_chat/firebase_options.dart';
-import 'package:uuid/uuid.dart';
 
 // ⚠️ IMPORTANT: Top-level function for background notifications
 @pragma('vm:entry-point')

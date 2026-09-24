@@ -1,9 +1,11 @@
 // ignore_for_file: file_names, deprecated_member_use
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:live_chat/View/Screens/Home/home_view.dart';
 import 'package:live_chat/generated/l10n.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PaymentWebView extends StatefulWidget {
@@ -15,30 +17,45 @@ class PaymentWebView extends StatefulWidget {
 }
 
 class _PaymentWebViewState extends State<PaymentWebView> {
-  late final WebViewController _controller;
+  WebViewController? _controller;
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0xFFFFFFFF))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (url) {
-            setState(() => isLoading = true);
-          },
-          onPageFinished: (url) {
-            setState(() => isLoading = false);
-          },
-          onWebResourceError: (error) {
-            debugPrint("WebView error: ${error.description}");
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(widget.iframeUrl));
+    if (kIsWeb) {
+      isLoading = false;
+      // On web, launch the payment URL directly in browser
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _launchPaymentWeb();
+      });
+    } else {
+      _controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setBackgroundColor(const Color(0xFFFFFFFF))
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageStarted: (url) {
+              if (mounted) setState(() => isLoading = true);
+            },
+            onPageFinished: (url) {
+              if (mounted) setState(() => isLoading = false);
+            },
+            onWebResourceError: (error) {
+              debugPrint("WebView error: ${error.description}");
+            },
+          ),
+        )
+        ..loadRequest(Uri.parse(widget.iframeUrl));
+    }
+  }
+
+  Future<void> _launchPaymentWeb() async {
+    final uri = Uri.parse(widget.iframeUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.platformDefault);
+    }
   }
 
   @override
@@ -51,19 +68,46 @@ class _PaymentWebViewState extends State<PaymentWebView> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              onPressed: () {
-                Get.offAll(() => const HomeView());
-              },
-              icon: const Icon(Icons.arrow_back)),
+            onPressed: () {
+              Get.offAll(() => const HomeView());
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
           title: Text(S.of(context).purchase),
           centerTitle: true,
         ),
-        body: Stack(
-          children: [
-            WebViewWidget(controller: _controller),
-            if (isLoading) const Center(child: CircularProgressIndicator()),
-          ],
-        ),
+        body: kIsWeb
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.payment, size: 64, color: Colors.blueAccent),
+                      const SizedBox(height: 16),
+                      Text(
+                        S.of(context).purchase,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: _launchPaymentWeb,
+                        icon: const Icon(Icons.open_in_new),
+                        label: Text(S.of(context).purchase),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : Stack(
+                children: [
+                  if (_controller != null) WebViewWidget(controller: _controller!),
+                  if (isLoading) const Center(child: CircularProgressIndicator()),
+                ],
+              ),
       ),
     );
   }
