@@ -53,7 +53,7 @@ class _SuggessionChatState extends State<SuggessionChat> {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: Padding(
         padding: EdgeInsets.only(
             left: isRtl ? 0.w : 4.w,
@@ -97,13 +97,13 @@ class _SuggessionChatState extends State<SuggessionChat> {
                 ? IconsaxPlusLinear.arrow_right_3
                 : IconsaxPlusLinear.arrow_left_1,
             size: 5.5.w,
-            color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+            color: pref ? AppColors.whiteColor : AppColors.blackColor,
           ),
         ),
         SizedBox(width: 2.w),
         textNormal(
           S.of(context).suggestedFriends,
-          pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+          pref ? AppColors.whiteColor : AppColors.blackTextColor,
           4.5.w,
           FontWeight.w500,
         ),
@@ -135,7 +135,7 @@ class _SuggessionChatState extends State<SuggessionChat> {
     return RefreshIndicator(
       onRefresh: () => context.read<FriendsCubit>().loadFriendsAndSuggestions(),
       color: AppColors.secondaryColor,
-      backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+      backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
       child: ListView.builder(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),

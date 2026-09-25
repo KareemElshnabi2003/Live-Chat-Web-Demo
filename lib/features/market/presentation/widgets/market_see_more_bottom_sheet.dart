@@ -29,7 +29,7 @@ void showBottomSheetMarketMoreWidget({
   showModalBottomSheet(
     isScrollControlled: true,
     constraints: const BoxConstraints(maxWidth: kIsWeb ? 600 : double.infinity),
-    backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+    backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
     context: context,
     builder: (ctx) => _MarketSeeMoreSheet(
       parentContext: context,
@@ -95,7 +95,7 @@ class _MarketSeeMoreSheetState extends State<_MarketSeeMoreSheet> {
                 Container(
                   height: 4,
                   width: 70,
-                  color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                  color: pref ? AppColors.whiteColor : AppColors.blackColor,
                 ),
                 Row(
                   mainAxisAlignment: widget.isRtl ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -113,7 +113,7 @@ class _MarketSeeMoreSheetState extends State<_MarketSeeMoreSheet> {
                           Navigator.pop(context);
                         }
                       },
-                      pref! ? AppColors.whiteColor : AppColors.blackColor,
+                      pref ? AppColors.whiteColor : AppColors.blackColor,
                       3.5.w,
                     ),
                   ],
@@ -121,7 +121,7 @@ class _MarketSeeMoreSheetState extends State<_MarketSeeMoreSheet> {
                 if (_sheetMarket == "secondPage")
                   textNormal(
                     S.of(context).confirmPurchase,
-                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     4.w,
                     FontWeight.w600,
                   ),
@@ -140,7 +140,7 @@ class _MarketSeeMoreSheetState extends State<_MarketSeeMoreSheet> {
                       const SizedBox(width: 5),
                       textNormal(
                         widget.name,
-                        pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                        pref ? AppColors.whiteColor : AppColors.blackTextColor,
                         3.5.w,
                         FontWeight.w500,
                       ),
@@ -153,13 +153,13 @@ class _MarketSeeMoreSheetState extends State<_MarketSeeMoreSheet> {
                     children: [
                       Icon(
                         LucideIcons.circlePoundSterling300,
-                        color: pref! ? AppColors.secondaryColor : AppColors.blackColor,
+                        color: pref ? AppColors.secondaryColor : AppColors.blackColor,
                         size: 5.w,
                       ),
                       SizedBox(width: 2.w),
                       textNormal(
                         "${S.of(context).price} : ${widget.price}",
-                        pref! ? AppColors.inActiveColor : AppColors.blackTextColor,
+                        pref ? AppColors.inActiveColor : AppColors.blackTextColor,
                         3.5.w,
                         FontWeight.w400,
                       ),
@@ -172,13 +172,13 @@ class _MarketSeeMoreSheetState extends State<_MarketSeeMoreSheet> {
                     children: [
                       Icon(
                         LucideIcons.clock,
-                        color: pref! ? AppColors.secondaryColor : AppColors.blackColor,
+                        color: pref ? AppColors.secondaryColor : AppColors.blackColor,
                         size: 5.w,
                       ),
                       SizedBox(width: 2.w),
                       textNormal(
                         "${S.of(context).reminingTime} : 30 ${S.of(context).days}",
-                        pref! ? AppColors.inActiveColor : AppColors.blackTextColor,
+                        pref ? AppColors.inActiveColor : AppColors.blackTextColor,
                         3.5.w,
                         FontWeight.w400,
                       ),
@@ -192,7 +192,7 @@ class _MarketSeeMoreSheetState extends State<_MarketSeeMoreSheet> {
                     children: [
                       Icon(
                         widget.isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300,
-                        color: pref! ? AppColors.secondaryColor : AppColors.blackColor,
+                        color: pref ? AppColors.secondaryColor : AppColors.blackColor,
                         size: 5.w,
                       ),
                       const Spacer(),

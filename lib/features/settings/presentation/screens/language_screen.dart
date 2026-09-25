@@ -40,7 +40,7 @@ class _LanguageViewState extends State<LanguageView> {
     final isRtl = _selectedLanguage == 'ar';
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: Padding(
         padding: EdgeInsets.only(left: 4.w, right: 4.w, top: 2.h, bottom: 2.h),
         child: Directionality(
@@ -58,13 +58,13 @@ class _LanguageViewState extends State<LanguageView> {
                           : IconsaxPlusLinear.arrow_left_1,
                       size: 5.5.w,
                       color:
-                          pref! ? AppColors.whiteColor : AppColors.blackColor,
+                          pref ? AppColors.whiteColor : AppColors.blackColor,
                     ),
                   ),
                   SizedBox(width: 2.w),
                   textNormal(
                     S.of(context).language,
-                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     4.5.w,
                     FontWeight.w500,
                   ),
@@ -75,7 +75,7 @@ class _LanguageViewState extends State<LanguageView> {
                 _selectedLanguage == 'ar'
                     ? S.of(context).arabic
                     : S.of(context).english,
-                pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                pref ? AppColors.whiteColor : AppColors.blackTextColor,
                 3.5.w,
                 FontWeight.w400,
               ),

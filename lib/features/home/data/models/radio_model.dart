@@ -5,14 +5,15 @@ class RadioModel {
 
   RadioModel({
     required this.id,
-    required this.radioUrl, required this.name,
+    required this.radioUrl,
+    required this.name,
   });
 
   factory RadioModel.fromJson(Map<String, dynamic> json) {
     return RadioModel(
-      name: json['name'],
-      id: json['id'] ?? 0,
-      radioUrl: json['radio_url'] ?? '',
+      name: json['name']?.toString() ?? '',
+      id: json['id'] is int ? json['id'] : (int.tryParse(json['id']?.toString() ?? '') ?? 0),
+      radioUrl: (json['radio_url'] ?? json['url'] ?? '').toString(),
     );
   }
 
@@ -20,12 +21,12 @@ class RadioModel {
     return {
       'id': id,
       'radio_url': radioUrl,
-      "name":name
+      'name': name,
     };
   }
 
   @override
   String toString() {
-    return 'RadioModel{id: $id, radioUrl: $radioUrl}';
+    return 'RadioModel{id: $id, radioUrl: $radioUrl, name: $name}';
   }
 }

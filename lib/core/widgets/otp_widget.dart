@@ -7,7 +7,7 @@ import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/main.dart';
 
 Widget otpWidget(String? verifyCode, Function(String)? onSubmit) {
-  final isDark = pref ?? false;
+  final isDark = pref;
   return Center(
     child: SizedBox(
       height: 12.h,

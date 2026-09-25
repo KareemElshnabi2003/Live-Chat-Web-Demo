@@ -25,7 +25,16 @@ import 'package:live_chat/features/settings/presentation/cubit/settings_cubit.da
 import 'package:live_chat/generated/l10n.dart';
 
 SharedPreferences? sharedPreferences;
-bool? pref;
+
+bool get pref => sl.isRegistered<ThemeCubit>()
+    ? sl<ThemeCubit>().isDarkMode
+    : (CacheHelper.getBool(key: AppConstants.isDarkModeKey) ?? false);
+
+set pref(bool? value) {
+  if (value != null && sl.isRegistered<ThemeCubit>()) {
+    sl<ThemeCubit>().setTheme(value);
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,9 +62,6 @@ void main() async {
 
   // 2. Initialize device ID & FCM token via AuthCubit
   await sl<AuthCubit>().initDeviceIdAndToken();
-
-  final bool isDark = CacheHelper.getBool(key: AppConstants.isDarkModeKey) ?? false;
-  pref = isDark;
 
   final String initialLocale = CacheHelper.getString(key: "selectedLanguage") ?? 'ar';
   await CacheHelper.saveData(key: "selectedLanguage", value: initialLocale);

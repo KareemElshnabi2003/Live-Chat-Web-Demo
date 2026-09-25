@@ -34,7 +34,7 @@ class _CapabilitiesState extends State<Capabilities> {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 6.h),
         child: Directionality(
@@ -52,13 +52,13 @@ class _CapabilitiesState extends State<Capabilities> {
                           : IconsaxPlusLinear.arrow_left_1,
                       size: 5.5.w,
                       color:
-                          pref! ? AppColors.whiteColor : AppColors.blackColor,
+                          pref ? AppColors.whiteColor : AppColors.blackColor,
                     ),
                   ),
                   SizedBox(width: isRtl ? 1.5.w : 2.w),
                   textNormal(
                     S.of(context).capabilities,
-                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     4.5.w,
                     FontWeight.w500,
                   ),
@@ -84,7 +84,7 @@ class _CapabilitiesState extends State<Capabilities> {
                         return Center(
                           child: textNormal(
                             S.of(context).noPowersAvailable,
-                            pref!
+                            pref
                                 ? AppColors.whiteColor
                                 : AppColors.blackTextColor,
                             4.w,
@@ -101,7 +101,7 @@ class _CapabilitiesState extends State<Capabilities> {
                     return Center(
                       child: textNormal(
                         S.of(context).noPowersAvailable,
-                        pref!
+                        pref
                             ? AppColors.whiteColor
                             : AppColors.blackTextColor,
                         4.w,
@@ -132,7 +132,7 @@ class _CapabilitiesState extends State<Capabilities> {
                 width: 60.w,
                 child: textNormal(
                   S.of(context).name,
-                  pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                  pref ? AppColors.whiteColor : AppColors.blackTextColor,
                   3.5.w,
                   FontWeight.w500,
                 ),
@@ -141,7 +141,7 @@ class _CapabilitiesState extends State<Capabilities> {
                 width: 13.w,
                 child: textNormal(
                   S.of(context).price,
-                  pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                  pref ? AppColors.whiteColor : AppColors.blackTextColor,
                   3.5.w,
                   FontWeight.w500,
                 ),
@@ -150,7 +150,7 @@ class _CapabilitiesState extends State<Capabilities> {
                 width: 13.w,
                 child: textNormal(
                   S.of(context).procedure,
-                  pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                  pref ? AppColors.whiteColor : AppColors.blackTextColor,
                   3.5.w,
                   FontWeight.w500,
                 ),
@@ -203,7 +203,7 @@ class _CapabilitiesState extends State<Capabilities> {
                 width: 15.w,
                 child: textNormal(
                   "${power.price ?? 0} ${S.of(context).points}",
-                  pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                  pref ? AppColors.whiteColor : AppColors.blackTextColor,
                   3.w,
                   FontWeight.w500,
                 ),
@@ -232,7 +232,7 @@ class _CapabilitiesState extends State<Capabilities> {
                   width: 13.w,
                   child: textNormal(
                     expire ? S.of(context).renewal : S.of(context).more,
-                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     3.5.w,
                     FontWeight.w500,
                   ),

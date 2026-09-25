@@ -32,12 +32,12 @@ Future<void> messageSuccessPayment(BuildContext context) async {
             bottom: 37.h),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
-            color: pref! ? AppColors.darkcolor : AppColors.whiteColor),
+            color: pref ? AppColors.darkcolor : AppColors.whiteColor),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              color: pref! ? AppColors.secondaryColor : null,
+              color: pref ? AppColors.secondaryColor : null,
               AppImages.successPaymentImg,
               fit: BoxFit.fill,
               height: 16.w,
@@ -46,7 +46,7 @@ Future<void> messageSuccessPayment(BuildContext context) async {
             SizedBox(height: 2.h),
             textNormal(
                 S.of(context).paymentSuccessful,
-                pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                pref ? AppColors.whiteColor : AppColors.blackTextColor,
                 4.w,
                 FontWeight.w600),
           ],

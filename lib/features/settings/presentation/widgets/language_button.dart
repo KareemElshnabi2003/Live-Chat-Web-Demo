@@ -26,10 +26,10 @@ class LanguageButton extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 1.5.h),
         decoration: ShapeDecoration(
           color: isSelected
-              ? pref!
+              ? pref
                   ? AppColors.secondaryColor
                   : AppColors.primaryColor
-              : pref!
+              : pref
                   ? AppColors.darkcolor
                   : AppColors.whiteColor,
           shape: RoundedRectangleBorder(
@@ -43,10 +43,10 @@ class LanguageButton extends StatelessWidget {
           child: textNormal(
             language,
             isSelected
-                ? pref!
+                ? pref
                     ? AppColors.blackTextColor
                     : AppColors.whiteColor
-                : pref!
+                : pref
                     ? AppColors.inActiveColor
                     : AppColors.blackTextColor,
             3.5.w,

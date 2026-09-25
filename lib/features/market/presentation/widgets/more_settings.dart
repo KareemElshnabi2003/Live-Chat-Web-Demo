@@ -26,7 +26,7 @@ void showBottomSheetmore({
   showModalBottomSheet(
     isDismissible: true,
     isScrollControlled: true,
-    backgroundColor: pref! ? AppColors.darkcolor : AppColors.bgColor,
+    backgroundColor: pref ? AppColors.darkcolor : AppColors.bgColor,
     context: context,
     builder: (sheetContext) => StatefulBuilder(
       builder: (context, setState) => PopScope(
@@ -54,7 +54,7 @@ void showBottomSheetmore({
                   Container(
                     height: 4,
                     width: 70,
-                    color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                    color: pref ? AppColors.whiteColor : AppColors.blackColor,
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(
@@ -79,7 +79,7 @@ void showBottomSheetmore({
                               context.read<MarketCubit>().loadUserPowers();
                               Navigator.pop(sheetContext);
                             },
-                            pref! ? AppColors.whiteColor : AppColors.blackColor,
+                            pref ? AppColors.whiteColor : AppColors.blackColor,
                             3.5.w,
                           ),
                         ),
@@ -100,7 +100,7 @@ void showBottomSheetmore({
                                 Flexible(
                                   child: textNormal(
                                     name,
-                                    pref!
+                                    pref
                                         ? AppColors.whiteColor
                                         : AppColors.inActiveColor,
                                     3.5.w,
@@ -118,7 +118,7 @@ void showBottomSheetmore({
                                   isRtl
                                       ? LucideIcons.circlePoundSterling
                                       : LucideIcons.circleDollarSign,
-                                  color: pref!
+                                  color: pref
                                       ? AppColors.secondaryColor
                                       : AppColors.blackColor,
                                   size: 4.w,
@@ -127,7 +127,7 @@ void showBottomSheetmore({
                                 Flexible(
                                   child: textNormal(
                                     "${S.of(context).price} $price",
-                                    pref!
+                                    pref
                                         ? AppColors.whiteColor
                                         : AppColors.blackTextColor,
                                     3.5.w,
@@ -145,7 +145,7 @@ void showBottomSheetmore({
                                   isRtl
                                       ? LucideIcons.moveLeft
                                       : LucideIcons.moveRight,
-                                  color: pref!
+                                  color: pref
                                       ? AppColors.secondaryColor
                                       : AppColors.blackColor,
                                   size: 4.w,
@@ -153,7 +153,7 @@ void showBottomSheetmore({
                                 SizedBox(width: isRtl ? 1.5.w : 2.w),
                                 textNormal(
                                   daysRemaining ?? "",
-                                  pref!
+                                  pref
                                       ? AppColors.whiteColor
                                       : AppColors.blackTextColor,
                                   3.5.w,
@@ -186,7 +186,7 @@ void showBottomSheetmore({
                               children: [
                                 textNormal(
                                   S.of(context).closeEnergy,
-                                  pref!
+                                  pref
                                       ? AppColors.whiteColor
                                       : AppColors.inActiveColor,
                                   3.5.w,
@@ -203,10 +203,10 @@ void showBottomSheetmore({
                                       status: value ? "0" : "1",
                                     );
                                   },
-                                  activeColor: pref!
+                                  activeColor: pref
                                       ? AppColors.secondaryColor
                                       : AppColors.primaryColor,
-                                  activeTrackColor: pref!
+                                  activeTrackColor: pref
                                       ? AppColors.secondaryColor
                                           .withOpacity(.5)
                                       : AppColors.primaryColor

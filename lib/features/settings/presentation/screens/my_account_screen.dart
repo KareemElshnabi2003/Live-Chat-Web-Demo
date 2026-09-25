@@ -126,7 +126,7 @@ class _MyAccountViewState extends State<MyAccountView> {
         final isLoading = state is SettingsLoading;
 
         return Scaffold(
-          backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+          backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
           body: Stack(
             children: [
               Padding(
@@ -152,7 +152,7 @@ class _MyAccountViewState extends State<MyAccountView> {
                                     ? IconsaxPlusLinear.arrow_right_3
                                     : IconsaxPlusLinear.arrow_left_1,
                                 size: 5.5.w,
-                                color: pref!
+                                color: pref
                                     ? AppColors.whiteColor
                                     : AppColors.blackColor,
                               ),
@@ -161,7 +161,7 @@ class _MyAccountViewState extends State<MyAccountView> {
                           SizedBox(width: isRtl ? 1.5.w : 2.w),
                           textNormal(
                             S.of(context).myAccount,
-                            pref!
+                            pref
                                 ? AppColors.whiteColor
                                 : AppColors.blackTextColor,
                             4.5.w,
@@ -172,7 +172,7 @@ class _MyAccountViewState extends State<MyAccountView> {
                       SizedBox(height: 5.h),
                       textNormal(
                         S.of(context).editInformation,
-                        pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                        pref ? AppColors.whiteColor : AppColors.blackTextColor,
                         3.5.w,
                         FontWeight.w500,
                       ),
@@ -266,7 +266,7 @@ class _MyAccountViewState extends State<MyAccountView> {
         decoration: ShapeDecoration(
           color: Colors.grey[100],
           shape: RoundedRectangleBorder(
-            side: pref!
+            side: pref
                 ? const BorderSide(color: AppColors.inActiveColor)
                 : BorderSide.none,
             borderRadius: BorderRadius.circular(30),
@@ -295,13 +295,13 @@ class _MyAccountViewState extends State<MyAccountView> {
                 width: 4.5.h,
                 height: 4.h,
                 decoration: ShapeDecoration(
-                  color: pref! ? AppColors.blackColor : const Color(0xFFF4F2E9),
+                  color: pref ? AppColors.blackColor : const Color(0xFFF4F2E9),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                   shadows: [
                     BoxShadow(
-                      color: pref!
+                      color: pref
                           ? AppColors.whiteColor
                           : Colors.black.withOpacity(0.1),
                       spreadRadius: 1,
@@ -315,7 +315,7 @@ class _MyAccountViewState extends State<MyAccountView> {
                     IconsaxPlusLinear.camera,
                     size: 5.w,
                     color:
-                        pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                        pref ? AppColors.whiteColor : AppColors.blackTextColor,
                   ),
                 ),
               ),
@@ -339,7 +339,7 @@ class _MyAccountViewState extends State<MyAccountView> {
       height: 6.h,
       margin: EdgeInsets.only(bottom: 1.h),
       decoration: ShapeDecoration(
-        color: pref! ? AppColors.darkcolor : Colors.white,
+        color: pref ? AppColors.darkcolor : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -366,7 +366,7 @@ class _MyAccountViewState extends State<MyAccountView> {
                   fontSize: 4.w,
                   fontWeight: FontWeight.w400,
                   color:
-                      pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                      pref ? AppColors.whiteColor : AppColors.blackTextColor,
                 ),
                 decoration: InputDecoration(
                   hintText: hintText,
@@ -399,7 +399,7 @@ class _MyAccountViewState extends State<MyAccountView> {
         height: 6.h,
         margin: EdgeInsets.only(bottom: 1.h),
         decoration: ShapeDecoration(
-          color: pref! ? AppColors.darkcolor : Colors.white,
+          color: pref ? AppColors.darkcolor : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -423,7 +423,7 @@ class _MyAccountViewState extends State<MyAccountView> {
                 selectedGender == "Male"
                     ? S.of(context).male
                     : S.of(context).female,
-                pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                pref ? AppColors.whiteColor : AppColors.blackTextColor,
                 4.w,
                 FontWeight.w400,
               ),
@@ -442,7 +442,7 @@ class _MyAccountViewState extends State<MyAccountView> {
   void _showGenderBottomSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: pref! ? AppColors.darkcolor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.darkcolor : AppColors.bgColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -455,7 +455,7 @@ class _MyAccountViewState extends State<MyAccountView> {
               ListTile(
                 title: textNormal(
                   S.of(context).male,
-                  pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                  pref ? AppColors.whiteColor : AppColors.blackTextColor,
                   4.w,
                   FontWeight.w500,
                 ),
@@ -467,7 +467,7 @@ class _MyAccountViewState extends State<MyAccountView> {
               ListTile(
                 title: textNormal(
                   S.of(context).female,
-                  pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                  pref ? AppColors.whiteColor : AppColors.blackTextColor,
                   4.w,
                   FontWeight.w500,
                 ),

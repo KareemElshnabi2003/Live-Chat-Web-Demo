@@ -18,10 +18,10 @@ class CustomSidebarNavigation extends StatelessWidget {
     return NavigationRail(
       selectedIndex: currentIndex,
       onDestinationSelected: onTap,
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       selectedIconTheme: IconThemeData(
         size: 28,
-        color: pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+        color: pref ? AppColors.whiteColor : AppColors.blackTextColor,
       ),
       unselectedIconTheme: const IconThemeData(
         size: 24,

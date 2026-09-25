@@ -26,3 +26,7 @@ class ThemeCubit extends Cubit<ThemeMode> {
     emit(isDark ? ThemeMode.dark : ThemeMode.light);
   }
 }
+
+extension ThemeContextExtension on BuildContext {
+  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+}

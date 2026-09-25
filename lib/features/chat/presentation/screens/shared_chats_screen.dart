@@ -163,7 +163,7 @@ class _SharedChatsScreenState extends State<SharedChatsScreen> {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: Padding(
         padding: EdgeInsets.only(left: isRtl ? 2.w : 4.w, right: isRtl ? 4.w : 2.w, top: 5.h, bottom: 2.h),
         child: Column(
@@ -181,7 +181,7 @@ class _SharedChatsScreenState extends State<SharedChatsScreen> {
                             await _loadChats(isRefresh: true);
                           },
                           color: AppColors.secondaryColor,
-                          backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+                          backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
                           child: _buildChatList(isRtl, context),
                         ),
             ),
@@ -200,11 +200,11 @@ class _SharedChatsScreenState extends State<SharedChatsScreen> {
           child: Icon(
             isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
             size: kIsWeb ? 24.0 : 5.5.w,
-            color: pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+            color: pref ? AppColors.whiteColor : AppColors.blackTextColor,
           ),
         ),
         SizedBox(width: 2.w),
-        textNormal(widget.title, pref! ? AppColors.whiteColor : AppColors.blackTextColor, 4.5.w, FontWeight.w500),
+        textNormal(widget.title, pref ? AppColors.whiteColor : AppColors.blackTextColor, 4.5.w, FontWeight.w500),
       ],
     );
   }
@@ -263,7 +263,7 @@ class _SharedChatsScreenState extends State<SharedChatsScreen> {
         width: 6.w,
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(pref! ? AppColors.whiteColor : AppColors.blackTextColor),
+          valueColor: AlwaysStoppedAnimation<Color>(pref ? AppColors.whiteColor : AppColors.blackTextColor),
         ),
       ),
     );

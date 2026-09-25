@@ -22,7 +22,7 @@ void showBottomSheetPinChatWidget({required BuildContext context}) {
   showModalBottomSheet(
     isScrollControlled: true,
     constraints: const BoxConstraints(maxWidth: kIsWeb ? 600 : double.infinity),
-    backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+    backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
     context: context,
     builder: (ctx) => BlocProvider(
       create: (_) => sl<PinChatCubit>()..loadUserChats(),
@@ -122,7 +122,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                   Container(
                     height: 4,
                     width: 70,
-                    color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                    color: pref ? AppColors.whiteColor : AppColors.blackColor,
                   ),
                   Container(
                     padding: EdgeInsets.all(4.w),
@@ -140,7 +140,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                               S.of(context).close,
                               true,
                               () => Navigator.pop(context),
-                              pref! ? AppColors.whiteColor : AppColors.blackColor,
+                              pref ? AppColors.whiteColor : AppColors.blackColor,
                               3.5.w,
                             ),
                           ],
@@ -191,7 +191,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                         // Title
                         textNormal(
                           S.of(context).pinYourChat,
-                          pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                          pref ? AppColors.whiteColor : AppColors.blackTextColor,
                           4.w,
                           FontWeight.w600,
                         ),
@@ -238,7 +238,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                 height: 6.h,
                                 width: 92.w,
                                 decoration: BoxDecoration(
-                                  color: pref! ? AppColors.darkcolor : Colors.white,
+                                  color: pref ? AppColors.darkcolor : Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
@@ -248,13 +248,13 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                     height: 6.h,
                                     width: 92.w,
                                     decoration: BoxDecoration(
-                                      color: pref! ? AppColors.darkcolor : Colors.white,
+                                      color: pref ? AppColors.darkcolor : Colors.white,
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Center(
                                       child: textNormal(
                                         S.of(context).noChat,
-                                        pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                                        pref ? AppColors.whiteColor : AppColors.blackTextColor,
                                         3.5.w,
                                         FontWeight.w400,
                                       ),
@@ -265,12 +265,12 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                     height: 6.h,
                                     padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4),
                                     decoration: ShapeDecoration(
-                                      color: pref! ? AppColors.darkcolor : Colors.white,
+                                      color: pref ? AppColors.darkcolor : Colors.white,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                     ),
                                     child: DropdownButtonHideUnderline(
                                       child: DropdownButton<String>(
-                                        dropdownColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+                                        dropdownColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
                                         hint: textNormal(S.of(context).chooseChatToPin, AppColors.inActiveColor, 3.5.w, FontWeight.w400),
                                         value: state.selectedChatId.isEmpty ? null : state.selectedChatId,
                                         isExpanded: true,
@@ -279,7 +279,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                             value: chat.id.toString(),
                                             child: textNormal(
                                               chat.name ?? 'Chat ${chat.id}',
-                                              pref! ? AppColors.whiteColor : AppColors.inActiveColor,
+                                              pref ? AppColors.whiteColor : AppColors.inActiveColor,
                                               3.5.w,
                                               FontWeight.w400,
                                             ),
@@ -302,7 +302,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                               height: 6.h,
                               width: 92.w,
                               decoration: ShapeDecoration(
-                                color: pref! ? AppColors.darkcolor : Colors.white,
+                                color: pref ? AppColors.darkcolor : Colors.white,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               ),
                               child: AbsorbPointer(
@@ -310,7 +310,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                   controller: _dateController,
                                   textDirection: widget.isRtl ? TextDirection.rtl : TextDirection.ltr,
                                   style: TextStyle(
-                                    color: pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                                    color: pref ? AppColors.whiteColor : AppColors.blackTextColor,
                                     fontSize: 3.5.w,
                                   ),
                                   decoration: InputDecoration(
@@ -336,7 +336,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                 padding: EdgeInsets.symmetric(horizontal: 4.w),
                                 child: textNormal(
                                   S.of(context).availableTimes,
-                                  pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                                  pref ? AppColors.whiteColor : AppColors.blackTextColor,
                                   3.5.w,
                                   FontWeight.w600,
                                 ),
@@ -346,7 +346,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                 width: 92.w,
                                 constraints: BoxConstraints(maxHeight: 20.h),
                                 decoration: BoxDecoration(
-                                  color: pref! ? AppColors.darkcolor : Colors.white,
+                                  color: pref ? AppColors.darkcolor : Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(color: AppColors.inActiveColor.withOpacity(0.3)),
                                 ),
@@ -369,7 +369,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                               color: isSelected
                                                   ? AppColors.primaryColor
                                                   : isAvailable
-                                                      ? (pref! ? AppColors.blackColor : AppColors.whiteColor)
+                                                      ? (pref ? AppColors.blackColor : AppColors.whiteColor)
                                                       : AppColors.inActiveColor.withOpacity(0.3),
                                               borderRadius: BorderRadius.circular(8),
                                               border: Border.all(
@@ -391,7 +391,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                                   color: isSelected
                                                       ? AppColors.whiteColor
                                                       : isAvailable
-                                                          ? (pref! ? AppColors.whiteColor : AppColors.blackColor)
+                                                          ? (pref ? AppColors.whiteColor : AppColors.blackColor)
                                                           : AppColors.inActiveColor,
                                                 ),
                                                 SizedBox(width: 1.w),
@@ -400,7 +400,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                                   isSelected
                                                       ? AppColors.whiteColor
                                                       : isAvailable
-                                                          ? (pref! ? AppColors.whiteColor : AppColors.blackColor)
+                                                          ? (pref ? AppColors.whiteColor : AppColors.blackColor)
                                                           : AppColors.inActiveColor,
                                                   3.w,
                                                   FontWeight.w400,
@@ -427,7 +427,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                           children: [
                             textNormal(
                               S.of(context).wantToPinAdd,
-                              pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                              pref ? AppColors.whiteColor : AppColors.blackTextColor,
                               3.5.w,
                               FontWeight.w600,
                             ),
@@ -438,7 +438,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                   children: [
                                     textNormal(
                                       S.of(context).no,
-                                      !state.addAds ? (pref! ? AppColors.whiteColor : AppColors.blackTextColor) : AppColors.inActiveColor,
+                                      !state.addAds ? (pref ? AppColors.whiteColor : AppColors.blackTextColor) : AppColors.inActiveColor,
                                       3.5.w,
                                       FontWeight.w400,
                                     ),
@@ -446,7 +446,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                       value: false,
                                       groupValue: state.addAds,
                                       onChanged: (val) => cubit.setAddAds(val ?? false),
-                                      activeColor: pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                                      activeColor: pref ? AppColors.whiteColor : AppColors.blackTextColor,
                                     ),
                                   ],
                                 ),
@@ -454,7 +454,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                   children: [
                                     textNormal(
                                       S.of(context).yes,
-                                      state.addAds ? (pref! ? AppColors.whiteColor : AppColors.blackTextColor) : AppColors.inActiveColor,
+                                      state.addAds ? (pref ? AppColors.whiteColor : AppColors.blackTextColor) : AppColors.inActiveColor,
                                       3.5.w,
                                       FontWeight.w400,
                                     ),
@@ -462,7 +462,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                                       value: true,
                                       groupValue: state.addAds,
                                       onChanged: (val) => cubit.setAddAds(val ?? true),
-                                      activeColor: pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                                      activeColor: pref ? AppColors.whiteColor : AppColors.blackTextColor,
                                     ),
                                   ],
                                 ),
@@ -511,7 +511,7 @@ class _BottomSheetContentState extends State<_BottomSheetContent> {
                               height: state.adImage != null ? 20.h : 6.h,
                               width: 92.w,
                               decoration: BoxDecoration(
-                                color: pref! ? AppColors.darkcolor : Colors.white,
+                                color: pref ? AppColors.darkcolor : Colors.white,
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(color: AppColors.inActiveColor.withOpacity(0.5)),
                               ),

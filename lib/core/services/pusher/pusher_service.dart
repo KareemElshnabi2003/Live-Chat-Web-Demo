@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
@@ -13,12 +14,19 @@ class PusherService {
   PusherChannelsFlutter? _pusher;
   bool _isInitialized = false;
   final Set<String> _subscribedChannels = {};
-  void Function(PusherEvent)? _eventHandler;
+  final StreamController<PusherEvent> _eventController = StreamController<PusherEvent>.broadcast();
 
   bool get isInitialized => _isInitialized;
 
-  Future<void> init({required void Function(PusherEvent) onEvent}) async {
-    _eventHandler = onEvent;
+  Stream<PusherEvent> get eventStream => _eventController.stream;
+
+  Stream<PusherEvent> eventStreamForChannel(String channelName) =>
+      _eventController.stream.where((event) => event.channelName == channelName);
+
+  Future<void> init({void Function(PusherEvent)? onEvent}) async {
+    if (onEvent != null) {
+      _eventController.stream.listen(onEvent);
+    }
     if (_isInitialized) return;
 
     try {
@@ -28,7 +36,9 @@ class PusherService {
         cluster: cluster,
         onEvent: (event) {
           log("Pusher event: ${event.eventName} on channel: ${event.channelName}");
-          _eventHandler?.call(event);
+          if (!_eventController.isClosed) {
+            _eventController.add(event);
+          }
         },
         onError: (message, code, error) {
           debugPrint("Pusher Error: $message (code: $code)");
@@ -42,10 +52,6 @@ class PusherService {
     } catch (e) {
       debugPrint("Pusher init error: $e");
     }
-  }
-
-  void setEventHandler(void Function(PusherEvent) onEvent) {
-    _eventHandler = onEvent;
   }
 
   Future<void> subscribe(String channelName) async {
@@ -84,5 +90,9 @@ class PusherService {
       }
       _isInitialized = false;
     }
+  }
+
+  void dispose() {
+    _eventController.close();
   }
 }

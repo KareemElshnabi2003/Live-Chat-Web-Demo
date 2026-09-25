@@ -21,7 +21,7 @@ class SettingView extends StatelessWidget {
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: Padding(
         padding: EdgeInsets.symmetric(
             horizontal: isRtl ? 4.w : 4.w, vertical: 2.h),
@@ -119,7 +119,7 @@ class SettingView extends StatelessWidget {
   Widget _buildSectionTitle(String title, double fontSize) {
     return textNormal(
       title,
-      pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+      pref ? AppColors.whiteColor : AppColors.blackTextColor,
       fontSize,
       FontWeight.w500,
     );
@@ -135,7 +135,7 @@ class SettingView extends StatelessWidget {
     return row_optin(
       icon: Icon(icon,
           size: 5.5.w,
-          color: pref! ? AppColors.whiteColor : AppColors.blackColor),
+          color: pref ? AppColors.whiteColor : AppColors.blackColor),
       name: name,
       ontap: onTap,
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -143,7 +143,7 @@ class SettingView extends StatelessWidget {
   }
 
   Widget _buildDivider() {
-    return Divider(color: pref! ? AppColors.darkcolor : AppColors.whiteColor);
+    return Divider(color: pref ? AppColors.darkcolor : AppColors.whiteColor);
   }
 
   Widget _buildDeleteAccountButton(BuildContext context) {
@@ -223,7 +223,7 @@ class SettingView extends StatelessWidget {
   void _showDeleteAccountBottomSheet(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     showModalBottomSheet(
-      backgroundColor: pref! ? AppColors.darkcolor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.darkcolor : AppColors.bgColor,
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -243,7 +243,7 @@ class SettingView extends StatelessWidget {
               SizedBox(height: 3.h),
               textNormal(
                   S.of(context).deletAccMsg,
-                  pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                  pref ? AppColors.whiteColor : AppColors.blackTextColor,
                   5.w,
                   FontWeight.w400),
               SizedBox(height: 2.h),
@@ -258,7 +258,7 @@ class SettingView extends StatelessWidget {
   void _showLogOutBottomSheet(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     showModalBottomSheet(
-      backgroundColor: pref! ? AppColors.darkcolor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.darkcolor : AppColors.bgColor,
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -278,7 +278,7 @@ class SettingView extends StatelessWidget {
               SizedBox(height: 3.h),
               textNormal(
                   S.of(context).logOut,
-                  pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                  pref ? AppColors.whiteColor : AppColors.blackTextColor,
                   5.w,
                   FontWeight.w400),
               SizedBox(height: 2.h),
@@ -378,7 +378,7 @@ class SettingView extends StatelessWidget {
         child: Center(
           child: textNormal(
             S.of(context).confirm,
-            pref! ? AppColors.blackColor : AppColors.whiteColor,
+            pref ? AppColors.blackColor : AppColors.whiteColor,
             4.w,
             FontWeight.w400,
           ),
@@ -411,7 +411,7 @@ class SettingView extends StatelessWidget {
         child: Center(
           child: textNormal(
             S.of(context).deleteAccount,
-            pref! ? AppColors.blackColor : AppColors.whiteColor,
+            pref ? AppColors.blackColor : AppColors.whiteColor,
             4.w,
             FontWeight.w400,
           ),

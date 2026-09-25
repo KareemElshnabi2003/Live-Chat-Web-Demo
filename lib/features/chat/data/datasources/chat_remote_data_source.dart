@@ -3,6 +3,7 @@ import 'package:live_chat/core/api/api_consumer.dart';
 import 'package:live_chat/core/api/end_points.dart';
 import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/helper/cache_helper.dart';
+import '../../domain/entities/chat_attachment.dart';
 
 abstract class ChatRemoteDataSource {
   Future<dynamic> getMessages({required String chatId, int page = 1});
@@ -13,7 +14,7 @@ abstract class ChatRemoteDataSource {
   Future<dynamic> sendMessageWithFile({
     required String chatId,
     required String messageType,
-    MultipartFile? file,
+    ChatAttachment? file,
   });
   Future<dynamic> sendReaction({
     required String messageId,
@@ -24,14 +25,14 @@ abstract class ChatRemoteDataSource {
   Future<dynamic> getThemes();
   Future<dynamic> createGeneralChat({
     required Map<String, dynamic> data,
-    MultipartFile? imgChat,
-    MultipartFile? bgChat,
+    ChatAttachment? imgChat,
+    ChatAttachment? bgChat,
   });
   Future<dynamic> updateGeneralChat({
     required String chatId,
     required Map<String, dynamic> data,
-    MultipartFile? imgChat,
-    MultipartFile? bgChat,
+    ChatAttachment? imgChat,
+    ChatAttachment? bgChat,
   });
   Future<dynamic> deleteChat({required String chatId});
   Future<dynamic> acceptMemberToChat({
@@ -52,6 +53,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
   String get _deviceId =>
       CacheHelper.getString(key: AppConstants.deviceIdKey) ?? "";
+
+  MultipartFile? _toMultipart(ChatAttachment? attachment) {
+    if (attachment == null) return null;
+    return MultipartFile.fromBytes(attachment.bytes, filename: attachment.filename);
+  }
 
   @override
   Future<dynamic> getMessages({required String chatId, int page = 1}) async {
@@ -80,15 +86,16 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   Future<dynamic> sendMessageWithFile({
     required String chatId,
     required String messageType,
-    MultipartFile? file,
+    ChatAttachment? file,
   }) async {
     final Map<String, dynamic> data = {
       "conversation_id": chatId,
       "message_type": messageType,
       "device_id": _deviceId,
     };
-    if (file != null) {
-      data["message"] = file;
+    final multipart = _toMultipart(file);
+    if (multipart != null) {
+      data["message"] = multipart;
     }
     return await api.post(
       EndPoints.sendMessagesUrl,
@@ -136,13 +143,15 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   @override
   Future<dynamic> createGeneralChat({
     required Map<String, dynamic> data,
-    MultipartFile? imgChat,
-    MultipartFile? bgChat,
+    ChatAttachment? imgChat,
+    ChatAttachment? bgChat,
   }) async {
     final map = Map<String, dynamic>.from(data);
     map['device_id'] = _deviceId;
-    if (imgChat != null) map['image'] = imgChat;
-    if (bgChat != null) map['bg_image'] = bgChat;
+    final imgPart = _toMultipart(imgChat);
+    final bgPart = _toMultipart(bgChat);
+    if (imgPart != null) map['image'] = imgPart;
+    if (bgPart != null) map['bg_image'] = bgPart;
     return await api.post(
       "${EndPoints.conversations}?device_id=$_deviceId",
       data: map,
@@ -154,14 +163,16 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   Future<dynamic> updateGeneralChat({
     required String chatId,
     required Map<String, dynamic> data,
-    MultipartFile? imgChat,
-    MultipartFile? bgChat,
+    ChatAttachment? imgChat,
+    ChatAttachment? bgChat,
   }) async {
     final map = Map<String, dynamic>.from(data);
     map['device_id'] = _deviceId;
     map['_method'] = 'PATCH';
-    if (imgChat != null) map['image'] = imgChat;
-    if (bgChat != null) map['bg_image'] = bgChat;
+    final imgPart = _toMultipart(imgChat);
+    final bgPart = _toMultipart(bgChat);
+    if (imgPart != null) map['image'] = imgPart;
+    if (bgPart != null) map['bg_image'] = bgPart;
     return await api.post(
       "${EndPoints.conversations}/$chatId?device_id=$_deviceId",
       data: map,

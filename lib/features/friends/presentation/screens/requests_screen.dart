@@ -57,7 +57,7 @@ Widget friendsRequestCard({
                         width: 19.w,
                         height: 19.w,
                         decoration: BoxDecoration(
-                          color: pref! ? AppColors.darkcolor : null,
+                          color: pref ? AppColors.darkcolor : null,
                           image: DecorationImage(image: img, fit: BoxFit.fill),
                           borderRadius: BorderRadius.circular(80),
                         ),
@@ -70,7 +70,7 @@ Widget friendsRequestCard({
                         width: 19.w,
                         height: 19.w,
                         decoration: BoxDecoration(
-                          color: pref! ? AppColors.darkcolor : AppColors.black2TextColor,
+                          color: pref ? AppColors.darkcolor : AppColors.black2TextColor,
                           borderRadius: BorderRadius.circular(80),
                         ),
                         child: textNormal(
@@ -89,9 +89,9 @@ Widget friendsRequestCard({
                   children: [
                     power != null
                         ? PowerTextWidget(powerModel: power, displyText: ttitle)
-                        : textNormal(ttitle, pref! ? AppColors.whiteColor : AppColors.blackTextColor, 3.5.w, FontWeight.w400),
+                        : textNormal(ttitle, pref ? AppColors.whiteColor : AppColors.blackTextColor, 3.5.w, FontWeight.w400),
                     const Spacer(flex: 1),
-                    textNormal(body, pref! ? AppColors.inActiveColor : AppColors.black2TextColor, 3.w, FontWeight.w500),
+                    textNormal(body, pref ? AppColors.inActiveColor : AppColors.black2TextColor, 3.w, FontWeight.w500),
                     const Spacer(flex: 1),
                   ],
                 ),
@@ -133,14 +133,14 @@ Widget friendsRequestCard({
                     width: 12.w,
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(color: pref! ? AppColors.whiteColor : AppColors.blackColor),
+                        side: BorderSide(color: pref ? AppColors.whiteColor : AppColors.blackColor),
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     child: Center(
                       child: Icon(
                         Icons.check,
-                        color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                        color: pref ? AppColors.whiteColor : AppColors.blackColor,
                         size: 6.w,
                       ),
                     ),
@@ -225,7 +225,7 @@ class _RequestsState extends State<Requests> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+        backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
         body: Padding(
           padding: EdgeInsets.only(left: isRtl ? 0.w : 4.w, right: isRtl ? 4.w : 0.w, top: 5.h, bottom: 2.h),
           child: BlocConsumer<FriendsCubit, FriendsState>(
@@ -251,7 +251,7 @@ class _RequestsState extends State<Requests> {
                   SizedBox(height: 2.h),
                   TabBar(
                     labelColor: AppColors.primaryColor,
-                    unselectedLabelColor: pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    unselectedLabelColor: pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     indicatorColor: AppColors.primaryColor,
                     dividerColor: Colors.transparent,
                     tabs: [
@@ -265,13 +265,13 @@ class _RequestsState extends State<Requests> {
                         RefreshIndicator(
                           onRefresh: () => context.read<FriendsCubit>().loadFriendsAndSuggestions(),
                           color: AppColors.secondaryColor,
-                          backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+                          backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
                           child: _buildChatList(context, isLoading, received, false),
                         ),
                         RefreshIndicator(
                           onRefresh: () => context.read<FriendsCubit>().loadFriendsAndSuggestions(),
                           color: AppColors.secondaryColor,
-                          backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+                          backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
                           child: _buildChatList(context, isLoading, sent, true),
                         ),
                       ],
@@ -299,13 +299,13 @@ class _RequestsState extends State<Requests> {
               child: Icon(
                 isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
                 size: 5.5.w,
-                color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                color: pref ? AppColors.whiteColor : AppColors.blackColor,
               ),
             ),
             SizedBox(width: 2.w),
             textNormal(
               S.of(context).requests,
-              pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+              pref ? AppColors.whiteColor : AppColors.blackTextColor,
               4.5.w,
               FontWeight.w500,
             ),

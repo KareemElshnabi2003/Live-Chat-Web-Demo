@@ -2,21 +2,21 @@
 
 import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/widgets/loading.dart';
 import 'package:live_chat/core/widgets/text_click_widget.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/chat_attachment.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/widgets/button.dart';
-import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
@@ -30,6 +30,7 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  bool get pref => context.isDarkMode;
   final ScrollController _membersScrollController = ScrollController();
   final TextEditingController _nameController = TextEditingController();
 
@@ -146,18 +147,18 @@ class _SettingsState extends State<Settings> {
     setState(() => _isSubmitting = true);
 
     try {
-      MultipartFile? imgChat;
+      ChatAttachment? imgChat;
       if (_chatImageBytes != null && _chatImageFile != null) {
-        imgChat = MultipartFile.fromBytes(
-          _chatImageBytes!,
+        imgChat = ChatAttachment(
+          bytes: _chatImageBytes!,
           filename: _chatImageFile!.name,
         );
       }
 
-      MultipartFile? bgChat;
+      ChatAttachment? bgChat;
       if (_customThemeBytes != null && _customThemeFile != null) {
-        bgChat = MultipartFile.fromBytes(
-          _customThemeBytes!,
+        bgChat = ChatAttachment(
+          bytes: _customThemeBytes!,
           filename: _customThemeFile!.name,
         );
       }
@@ -245,7 +246,7 @@ class _SettingsState extends State<Settings> {
     if (_selectedCanChat.isEmpty) _selectedCanChat = canChatOptions.first;
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
         child: ListView(
@@ -302,13 +303,13 @@ class _SettingsState extends State<Settings> {
           child: Icon(
             isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
             size: 5.5.w,
-            color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+            color: pref ? AppColors.whiteColor : AppColors.blackColor,
           ),
         ),
         SizedBox(width: 2.w),
         textNormal(
           S.of(context).update_chat,
-          pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+          pref ? AppColors.whiteColor : AppColors.blackTextColor,
           4.5.w,
           FontWeight.w500,
         ),
@@ -330,7 +331,7 @@ class _SettingsState extends State<Settings> {
             side: const BorderSide(width: 0.50, color: AppColors.inActiveColor),
             borderRadius: BorderRadius.circular(20),
           ),
-          shadows: pref!
+          shadows: pref
               ? null
               : const [
                   BoxShadow(
@@ -369,12 +370,12 @@ class _SettingsState extends State<Settings> {
                         Icon(
                           LucideIcons.cloudUpload,
                           size: 6.w,
-                          color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                          color: pref ? AppColors.whiteColor : AppColors.blackColor,
                         ),
                         SizedBox(height: 1.h),
                         textNormal(
                           S.of(context).roomImage,
-                          pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                          pref ? AppColors.whiteColor : AppColors.blackTextColor,
                           3.5.w,
                           FontWeight.w500,
                         ),
@@ -390,13 +391,13 @@ class _SettingsState extends State<Settings> {
       height: 6.h,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: ShapeDecoration(
-        color: pref! ? AppColors.darkcolor : Colors.white,
+        color: pref ? AppColors.darkcolor : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: TextField(
         controller: _nameController,
         style: TextStyle(
-          color: pref! ? AppColors.whiteColor : AppColors.inActiveColor,
+          color: pref ? AppColors.whiteColor : AppColors.inActiveColor,
           fontSize: 3.5.w,
           fontWeight: FontWeight.w400,
         ),
@@ -424,13 +425,13 @@ class _SettingsState extends State<Settings> {
       height: 6.h,
       padding: EdgeInsets.symmetric(horizontal: isRtl ? 12 : 16, vertical: 4),
       decoration: ShapeDecoration(
-        color: pref! ? AppColors.darkcolor : Colors.white,
+        color: pref ? AppColors.darkcolor : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: DropdownButtonHideUnderline(
         child: Theme(
           data: ThemeData(
-            canvasColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+            canvasColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
           ),
           child: DropdownButton<String>(
             hint: textNormal(hint, AppColors.inActiveColor, 3.5.w, FontWeight.w400),
@@ -441,7 +442,7 @@ class _SettingsState extends State<Settings> {
                       value: value,
                       child: textNormal(
                         value,
-                        pref! ? AppColors.whiteColor : AppColors.inActiveColor,
+                        pref ? AppColors.whiteColor : AppColors.inActiveColor,
                         3.5.w,
                         FontWeight.w400,
                       ),
@@ -472,7 +473,7 @@ class _SettingsState extends State<Settings> {
       return Container(
         height: 8.h,
         decoration: BoxDecoration(
-          color: pref! ? AppColors.darkcolor : Colors.white,
+          color: pref ? AppColors.darkcolor : Colors.white,
           borderRadius: BorderRadius.circular(10),
         ),
         alignment: Alignment.center,
@@ -489,7 +490,7 @@ class _SettingsState extends State<Settings> {
       constraints: BoxConstraints(maxHeight: 30.h),
       padding: EdgeInsets.symmetric(horizontal: isRtl ? 12 : 16, vertical: 12),
       decoration: BoxDecoration(
-        color: pref! ? AppColors.darkcolor : Colors.white,
+        color: pref ? AppColors.darkcolor : Colors.white,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -501,7 +502,7 @@ class _SettingsState extends State<Settings> {
             children: [
               textNormal(
                 S.of(context).chooseAdmin,
-                pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                pref ? AppColors.whiteColor : AppColors.blackTextColor,
                 3.5.w,
                 FontWeight.w500,
               ),
@@ -531,7 +532,7 @@ class _SettingsState extends State<Settings> {
                   contentPadding: EdgeInsets.zero,
                   title: textNormal(
                     memberName,
-                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     3.5.w,
                     FontWeight.w400,
                   ),
@@ -561,7 +562,7 @@ class _SettingsState extends State<Settings> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: isRtl ? 2.w : 4.w, vertical: 2.h),
       decoration: ShapeDecoration(
-        color: pref! ? AppColors.darkcolor : Colors.white,
+        color: pref ? AppColors.darkcolor : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: Column(
@@ -581,17 +582,17 @@ class _SettingsState extends State<Settings> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
                   decoration: BoxDecoration(
-                    color: pref! ? AppColors.secondaryColor : AppColors.buttoncolor,
+                    color: pref ? AppColors.secondaryColor : AppColors.buttoncolor,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add, size: 3.5.w, color: pref! ? AppColors.blackColor : AppColors.whiteColor),
+                      Icon(Icons.add, size: 3.5.w, color: pref ? AppColors.blackColor : AppColors.whiteColor),
                       SizedBox(width: 1.w),
                       textNormal(
                         S.of(context).addCustom,
-                        pref! ? AppColors.blackColor : AppColors.whiteColor,
+                        pref ? AppColors.blackColor : AppColors.whiteColor,
                         2.8.w,
                         FontWeight.w500,
                       ),

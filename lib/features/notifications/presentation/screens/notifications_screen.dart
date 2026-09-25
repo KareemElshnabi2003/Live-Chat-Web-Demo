@@ -50,7 +50,7 @@ class _NotificationsState extends State<Notifications> {
     final bool langAr = selectedLang == 'ar';
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: Padding(
         padding: EdgeInsets.only(
             left: 4.w, right: 4.w, top: 5.h),
@@ -69,14 +69,14 @@ class _NotificationsState extends State<Notifications> {
                         isRtl
                             ? IconsaxPlusLinear.arrow_right_3
                             : IconsaxPlusLinear.arrow_left_1,
-                        color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                        color: pref ? AppColors.whiteColor : AppColors.blackColor,
                         size: 5.5.w,
                       ),
                     ),
                     SizedBox(width: 2.w),
                     textNormal(
                       S.of(context).notifications,
-                      pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                      pref ? AppColors.whiteColor : AppColors.blackTextColor,
                       4.5.w,
                       FontWeight.w500,
                     ),
@@ -102,7 +102,7 @@ class _NotificationsState extends State<Notifications> {
 
                   return RefreshIndicator(
                     color: AppColors.secondaryColor,
-                    backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+                    backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
                     onRefresh: () => context.read<NotificationsCubit>().getNotifications(),
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -156,9 +156,9 @@ class _NotificationsState extends State<Notifications> {
       margin: EdgeInsets.only(bottom: 1.5.h),
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
-        color: pref! ? AppColors.darkcolor.withOpacity(0.5) : Colors.white,
+        color: pref ? AppColors.darkcolor.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: pref! ? [] : [
+        boxShadow: pref ? [] : [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
             spreadRadius: 1,
@@ -190,7 +190,7 @@ class _NotificationsState extends State<Notifications> {
               height: 15.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: pref! ? AppColors.black2TextColor : Colors.grey.shade200,
+                color: pref ? AppColors.black2TextColor : Colors.grey.shade200,
                 image: (additionalData != null && additionalData['image'] != null && additionalData['image'].toString().isNotEmpty)
                     ? DecorationImage(
                         image: CachedNetworkImageProvider(imageUrl),
@@ -209,7 +209,7 @@ class _NotificationsState extends State<Notifications> {
                 children: [
                   textNormal(
                     title,
-                    pref! ? AppColors.whiteColor : AppColors.blackColor,
+                    pref ? AppColors.whiteColor : AppColors.blackColor,
                     3.8.w,
                     FontWeight.bold,
                   ),
@@ -218,14 +218,14 @@ class _NotificationsState extends State<Notifications> {
                     multi: true,
                     numOfRow: 2,
                     body,
-                    pref! ? AppColors.inActiveColor : AppColors.black2TextColor,
+                    pref ? AppColors.inActiveColor : AppColors.black2TextColor,
                     3.3.w,
                     FontWeight.w500,
                   ),
                   SizedBox(height: 1.h),
                   textNormal(
                     _formatDateTime(notification.date, langAr),
-                    pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+                    pref ? AppColors.secondaryColor : AppColors.primaryColor,
                     3.w,
                     FontWeight.w500,
                   ),
@@ -234,7 +234,7 @@ class _NotificationsState extends State<Notifications> {
             ),
             Icon(
               isRtl ? LucideIcons.chevronLeft : LucideIcons.chevronRight,
-              color: pref! ? AppColors.inActiveColor : Colors.grey.shade400,
+              color: pref ? AppColors.inActiveColor : Colors.grey.shade400,
               size: 5.w,
             )
           ],
@@ -251,12 +251,12 @@ class _NotificationsState extends State<Notifications> {
           Icon(
             LucideIcons.bellOff,
             size: 20.w,
-            color: pref! ? AppColors.inActiveColor : AppColors.black2TextColor,
+            color: pref ? AppColors.inActiveColor : AppColors.black2TextColor,
           ),
           SizedBox(height: 3.h),
           textNormal(
             S.of(context).noNotifications,
-            pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+            pref ? AppColors.whiteColor : AppColors.blackTextColor,
             4.5.w,
             FontWeight.bold,
           ),
@@ -264,7 +264,7 @@ class _NotificationsState extends State<Notifications> {
           textNormal(
             center: true,
             S.of(context).noNotificationsDescription,
-            pref! ? AppColors.inActiveColor : AppColors.black2TextColor,
+            pref ? AppColors.inActiveColor : AppColors.black2TextColor,
             3.5.w,
             FontWeight.w400,
           ),

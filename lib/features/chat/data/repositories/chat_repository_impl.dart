@@ -1,6 +1,11 @@
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
+import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/errors/server_exceptions.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
+import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
+import 'package:live_chat/features/chat/data/models/member_of_chat_model.dart';
+import 'package:live_chat/features/home/data/models/radio_model.dart';
+import '../../domain/entities/chat_attachment.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/chat_remote_data_source.dart';
 
@@ -10,11 +15,20 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<String, List<dynamic>>> getMessages({required String chatId, int page = 1}) async {
+  Future<Either<String, List<ChatMessage>>> getMessages({required String chatId, int page = 1}) async {
     try {
       final response = await remoteDataSource.getMessages(chatId: chatId, page: page);
       if (response != null && response is Map && response['data'] is List) {
-        return Right(response['data'] as List<dynamic>);
+        final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
+        final list = (response['data'] as List).map((item) {
+          if (item is Map<String, dynamic>) {
+            return ChatMessage.fromJson(item, currentUserId: currentUserId);
+          } else if (item is Map) {
+            return ChatMessage.fromJson(Map<String, dynamic>.from(item), currentUserId: currentUserId);
+          }
+          return null;
+        }).whereType<ChatMessage>().toList();
+        return Right(list);
       }
       return const Right([]);
     } on ServerException catch (e) {
@@ -43,7 +57,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<String, dynamic>> sendMessageWithFile({
     required String chatId,
     required String messageType,
-    MultipartFile? file,
+    ChatAttachment? file,
   }) async {
     try {
       final response = await remoteDataSource.sendMessageWithFile(
@@ -75,11 +89,19 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<String, List<dynamic>>> getMembers({required String chatId, int page = 1}) async {
+  Future<Either<String, List<MemberOfChatModel>>> getMembers({required String chatId, int page = 1}) async {
     try {
       final response = await remoteDataSource.getMembers(chatId: chatId, page: page);
       if (response != null && response is Map && response['data'] is List) {
-        return Right(response['data'] as List<dynamic>);
+        final list = (response['data'] as List).map((item) {
+          if (item is Map<String, dynamic>) {
+            return MemberOfChatModel.fromJson(item);
+          } else if (item is Map) {
+            return MemberOfChatModel.fromJson(Map<String, dynamic>.from(item));
+          }
+          return null;
+        }).whereType<MemberOfChatModel>().toList();
+        return Right(list);
       }
       return const Right([]);
     } on ServerException catch (e) {
@@ -90,11 +112,19 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<String, List<dynamic>>> getRadios() async {
+  Future<Either<String, List<RadioModel>>> getRadios() async {
     try {
       final response = await remoteDataSource.getRadios();
       if (response != null && response is Map && response['data'] is List) {
-        return Right(response['data'] as List<dynamic>);
+        final list = (response['data'] as List).map((item) {
+          if (item is Map<String, dynamic>) {
+            return RadioModel.fromJson(item);
+          } else if (item is Map) {
+            return RadioModel.fromJson(Map<String, dynamic>.from(item));
+          }
+          return null;
+        }).whereType<RadioModel>().toList();
+        return Right(list);
       }
       return const Right([]);
     } on ServerException catch (e) {
@@ -122,8 +152,8 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Future<Either<String, dynamic>> createGeneralChat({
     required Map<String, dynamic> data,
-    MultipartFile? imgChat,
-    MultipartFile? bgChat,
+    ChatAttachment? imgChat,
+    ChatAttachment? bgChat,
   }) async {
     try {
       final response = await remoteDataSource.createGeneralChat(
@@ -143,8 +173,8 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<String, dynamic>> updateGeneralChat({
     required String chatId,
     required Map<String, dynamic> data,
-    MultipartFile? imgChat,
-    MultipartFile? bgChat,
+    ChatAttachment? imgChat,
+    ChatAttachment? bgChat,
   }) async {
     try {
       final response = await remoteDataSource.updateGeneralChat(

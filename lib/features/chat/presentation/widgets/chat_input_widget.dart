@@ -1,19 +1,21 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
+import 'package:live_chat/features/chat/domain/entities/chat_attachment.dart';
 import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_state.dart';
 import 'package:live_chat/core/widgets/text_click_widget.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
-import 'package:live_chat/main.dart';
 import 'package:live_chat/generated/l10n.dart';
+import 'package:live_chat/core/constant/app_constant.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 
 class ChatInputWidget extends StatefulWidget {
@@ -33,6 +35,7 @@ class ChatInputWidget extends StatefulWidget {
 }
 
 class _ChatInputWidgetState extends State<ChatInputWidget> {
+  bool get pref => context.isDarkMode;
   final TextEditingController _messageController = TextEditingController();
   bool _isAnswer = false;
   bool _isPickingImage = false;
@@ -59,7 +62,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
         if (msgContent.contains('|||REPLY|||')) {
           msgContent = msgContent.split('|||REPLY|||').last;
         }
-        final myName = sharedPreferences?.getString("username") ?? sharedPreferences?.getString("usernameGust") ?? "";
+        final myName = CacheHelper.getString(key: AppConstants.usernameKey) ?? CacheHelper.getString(key: AppConstants.usernameGustKey) ?? "";
         String senderNameForReply = rep.senderName == myName ? S.of(context).you : (rep.senderName ?? "Unknown");
 
         String tag = 'MSG';
@@ -86,11 +89,11 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
       final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
       if (picked != null) {
         final bytes = await picked.readAsBytes();
-        final multipart = MultipartFile.fromBytes(bytes, filename: picked.name);
+        final attachment = ChatAttachment(bytes: bytes, filename: picked.name);
         if (mounted) {
           await context.read<ChatCubit>().sendMediaMessage(
             messageType: 'image',
-            file: multipart,
+            file: attachment,
           );
           Future.delayed(const Duration(milliseconds: 100), widget.onScrollToBottom);
         }
@@ -150,7 +153,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
       } else {
         return textNormal(S.of(context).msgBlockUser, AppColors.blackColor, 3.5.w, FontWeight.w400);
       }
-    } else if (isNotFriend && hasLastMessage && isBlocked == "None" && !_isAnswer && widget.userChatModel.user?.id.toString() != sharedPreferences?.getString('id')) {
+    } else if (isNotFriend && hasLastMessage && isBlocked == "None" && !_isAnswer && widget.userChatModel.user?.id.toString() != CacheHelper.getString(key: AppConstants.userIdKey)) {
       return _buildAcceptOrCancelArea(context);
     } else {
       return _buildMessageInput(context);
@@ -165,7 +168,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
         return Container(
           width: double.infinity,
           decoration: ShapeDecoration(
-            color: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+            color: pref ? AppColors.darkcolor : AppColors.whiteColor,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             shadows: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2))],
           ),
@@ -180,21 +183,21 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
                   children: [
                     GestureDetector(
                       onTap: _sendImageMessage,
-                      child: Icon(IconsaxPlusLinear.gallery, size: 6.w, color: pref! ? AppColors.secondaryColor : AppColors.blackTextColor),
+                      child: Icon(IconsaxPlusLinear.gallery, size: 6.w, color: pref ? AppColors.secondaryColor : AppColors.blackTextColor),
                     ),
                     SizedBox(width: 2.w),
                     GestureDetector(
                       onTap: _showMobileOnlyMessage,
-                      child: Icon(IconsaxPlusLinear.microphone, color: pref! ? AppColors.secondaryColor : AppColors.blackTextColor, size: 6.w),
+                      child: Icon(IconsaxPlusLinear.microphone, color: pref ? AppColors.secondaryColor : AppColors.blackTextColor, size: 6.w),
                     ),
                     SizedBox(width: 2.w),
                     Expanded(
                       child: TextField(
-                        style: TextStyle(color: pref! ? AppColors.whiteColor : AppColors.blackTextColor, fontSize: 3.5.w, fontWeight: FontWeight.w400),
+                        style: TextStyle(color: pref ? AppColors.whiteColor : AppColors.blackTextColor, fontSize: 3.5.w, fontWeight: FontWeight.w400),
                         controller: _messageController,
                         decoration: InputDecoration(
                           hintText: S.of(context).sendYourMessage,
-                          hintStyle: TextStyle(color: pref! ? AppColors.inActiveColor : AppColors.black2TextColor, fontSize: 3.5.w, fontWeight: FontWeight.w400),
+                          hintStyle: TextStyle(color: pref ? AppColors.inActiveColor : AppColors.black2TextColor, fontSize: 3.5.w, fontWeight: FontWeight.w400),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(vertical: 1.h),
                         ),
@@ -209,11 +212,11 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
                         width: 11.w,
                         height: 5.h,
                         decoration: ShapeDecoration(
-                          color: pref! ? AppColors.secondaryColor : AppColors.buttoncolor,
+                          color: pref ? AppColors.secondaryColor : AppColors.buttoncolor,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                         ),
                         child: Center(
-                          child: Icon(IconsaxPlusLinear.send_2, size: 4.w, color: pref! ? AppColors.blackColor : AppColors.whiteColor),
+                          child: Icon(IconsaxPlusLinear.send_2, size: 4.w, color: pref ? AppColors.blackColor : AppColors.whiteColor),
                         ),
                       ),
                     ),
@@ -235,7 +238,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
       decoration: BoxDecoration(
-        color: pref! ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+        color: pref ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Row(
@@ -248,7 +251,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
                 Text(
                   senderName,
                   style: TextStyle(
-                    color: pref! ? AppColors.secondaryColor : AppColors.buttoncolor,
+                    color: pref ? AppColors.secondaryColor : AppColors.buttoncolor,
                     fontWeight: FontWeight.bold,
                     fontSize: 3.w,
                   ),
@@ -261,9 +264,9 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
                         final callType = msgText.contains('video') ? (widget.isRtl ? "مكالمة فيديو" : "Video Call") : (widget.isRtl ? "مكالمة صوتية" : "Voice Call");
                         return Row(
                           children: [
-                            Icon(msgText.contains('video') ? Icons.videocam : Icons.call, size: 4.w, color: pref! ? Colors.white70 : Colors.black54),
+                            Icon(msgText.contains('video') ? Icons.videocam : Icons.call, size: 4.w, color: pref ? Colors.white70 : Colors.black54),
                             SizedBox(width: 1.w),
-                            Text(callType, style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w)),
+                            Text(callType, style: TextStyle(color: pref ? Colors.white70 : Colors.black54, fontSize: 3.w)),
                           ],
                         );
                       }
@@ -271,26 +274,26 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
                         msgText,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w),
+                        style: TextStyle(color: pref ? Colors.white70 : Colors.black54, fontSize: 3.w),
                       );
                     } else if (messageType == 'image') {
                       return Row(
                         children: [
-                          Icon(Icons.image, size: 4.w, color: pref! ? Colors.white70 : Colors.black54),
+                          Icon(Icons.image, size: 4.w, color: pref ? Colors.white70 : Colors.black54),
                           SizedBox(width: 1.w),
-                          Text(widget.isRtl ? "صورة" : "Image", style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w)),
+                          Text(widget.isRtl ? "صورة" : "Image", style: TextStyle(color: pref ? Colors.white70 : Colors.black54, fontSize: 3.w)),
                         ],
                       );
                     } else if (messageType == 'voice' || messageType == 'audio') {
                       return Row(
                         children: [
-                          Icon(Icons.mic, size: 4.w, color: pref! ? Colors.white70 : Colors.black54),
+                          Icon(Icons.mic, size: 4.w, color: pref ? Colors.white70 : Colors.black54),
                           SizedBox(width: 1.w),
-                          Text(widget.isRtl ? "تسجيل صوتي" : "Voice Message", style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w)),
+                          Text(widget.isRtl ? "تسجيل صوتي" : "Voice Message", style: TextStyle(color: pref ? Colors.white70 : Colors.black54, fontSize: 3.w)),
                         ],
                       );
                     }
-                    return Text(messageType, style: TextStyle(color: pref! ? Colors.white70 : Colors.black54, fontSize: 3.w));
+                    return Text(messageType, style: TextStyle(color: pref ? Colors.white70 : Colors.black54, fontSize: 3.w));
                   },
                 ),
               ],
@@ -298,7 +301,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
           ),
           InkWell(
             onTap: () => context.read<ChatCubit>().cancelReply(),
-            child: Icon(Icons.close, size: 5.w, color: pref! ? Colors.white54 : Colors.black54),
+            child: Icon(Icons.close, size: 5.w, color: pref ? Colors.white54 : Colors.black54),
           ),
         ],
       ),

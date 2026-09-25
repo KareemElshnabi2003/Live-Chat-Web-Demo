@@ -31,8 +31,10 @@ import 'package:live_chat/features/friends/presentation/cubit/friends_state.dart
 import 'package:live_chat/features/market/data/models/power_model.dart';
 import 'package:live_chat/features/market/presentation/screens/market_screen.dart';
 import 'package:live_chat/features/settings/presentation/screens/settings_screen.dart';
-import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
+import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
@@ -44,6 +46,8 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  bool get pref => context.isDarkMode;
+
   @override
   void initState() {
     super.initState();
@@ -110,7 +114,7 @@ class _HomeViewState extends State<HomeView> {
             }
           },
           child: Scaffold(
-            backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+            backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
             body: ResponsiveLayout(
               mobileBody: _buildBodyForIndex(selectedIndex, homeState),
               desktopBody: Row(
@@ -127,7 +131,7 @@ class _HomeViewState extends State<HomeView> {
                       decoration: BoxDecoration(
                         border: Border(
                           right: BorderSide(
-                            color: pref! ? AppColors.darkcolor : Colors.grey.shade300,
+                            color: pref ? AppColors.darkcolor : Colors.grey.shade300,
                             width: 1,
                           ),
                         ),
@@ -141,7 +145,7 @@ class _HomeViewState extends State<HomeView> {
                         ? Center(
                             child: textNormal(
                               S.of(context).noChat,
-                              pref! ? AppColors.whiteColor : AppColors.blackColor,
+                              pref ? AppColors.whiteColor : AppColors.blackColor,
                               4.w,
                               FontWeight.w500,
                             ),
@@ -198,7 +202,7 @@ class _HomeViewState extends State<HomeView> {
         }
       },
       color: AppColors.secondaryColor,
-      backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+      backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Padding(
@@ -243,7 +247,7 @@ class _HomeViewState extends State<HomeView> {
         await context.read<HomeCubit>().refreshHome();
       },
       color: AppColors.secondaryColor,
-      backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+      backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Padding(
@@ -284,7 +288,7 @@ class _HomeViewState extends State<HomeView> {
           children: [
             textNormal(
               S.of(context).positive_chat,
-              pref! ? AppColors.whiteColor : AppColors.blackColor,
+              pref ? AppColors.whiteColor : AppColors.blackColor,
               4.w,
               FontWeight.w400,
             ),
@@ -292,7 +296,7 @@ class _HomeViewState extends State<HomeView> {
             Icon(
               LucideIcons.pin300,
               size: 5.w,
-              color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+              color: pref ? AppColors.whiteColor : AppColors.blackColor,
             ),
           ],
         ),
@@ -346,46 +350,48 @@ class _HomeViewState extends State<HomeView> {
         if (systemChats.isEmpty)
           Center(child: noData(S.of(context).noChat))
         else
-          SizedBox(
-            width: 100.w,
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
-              itemCount: systemChats.length,
-              separatorBuilder: (context, index) => SizedBox(height: 2.h),
-              itemBuilder: (context, index) {
-                final chat = systemChats[index];
-                final hasValidImage = chat.image != null &&
-                    chat.image!.trim().isNotEmpty &&
-                    chat.image != "null" &&
-                    chat.image != "image";
+          Padding(
+            padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
+            child: Column(
+              children: [
+                for (int index = 0; index < systemChats.length; index++) ...[
+                  if (index > 0) SizedBox(height: 2.h),
+                  Builder(
+                    builder: (context) {
+                      final chat = systemChats[index];
+                      final hasValidImage = chat.image != null &&
+                          chat.image!.trim().isNotEmpty &&
+                          chat.image != "null" &&
+                          chat.image != "image";
 
-                return chatCardWidget(
-                  needsAcceptance: chat.accept == "1",
-                  power: null,
-                  imageUrl: hasValidImage,
-                  numOfMessage: 0,
-                  onPressImg: () {
-                    dialogImgWidget(
-                      title: chat.name ?? '',
-                      img: chat.image,
-                      onPressChat: () => _handleChatTap(context, chat),
-                      userChatModel: chat,
-                    );
-                  },
-                  private: chat.status == "Private",
-                  img: hasValidImage
-                      ? CachedNetworkImageProvider(chat.image!.trim())
-                      : const AssetImage(AppImages.noChatImg) as ImageProvider,
-                  body: "${chat.membersCount ?? 0} ${S.of(context).engaged_people}",
-                  ttitle: chat.name ?? '',
-                  onPressJoin: () => _handleChatTap(context, chat),
-                  isFriendsSection: false,
-                  action: S.of(context).joinNow,
-                  ontap: () => _handleChatTap(context, chat),
-                );
-              },
+                      return chatCardWidget(
+                        needsAcceptance: chat.accept == "1",
+                        power: null,
+                        imageUrl: hasValidImage,
+                        numOfMessage: 0,
+                        onPressImg: () {
+                          dialogImgWidget(
+                            title: chat.name ?? '',
+                            img: chat.image,
+                            onPressChat: () => _handleChatTap(context, chat),
+                            userChatModel: chat,
+                          );
+                        },
+                        private: chat.status == "Private",
+                        img: hasValidImage
+                            ? CachedNetworkImageProvider(chat.image!.trim())
+                            : const AssetImage(AppImages.noChatImg) as ImageProvider,
+                        body: "${chat.membersCount ?? 0} ${S.of(context).engaged_people}",
+                        ttitle: chat.name ?? '',
+                        onPressJoin: () => _handleChatTap(context, chat),
+                        isFriendsSection: false,
+                        action: S.of(context).joinNow,
+                        ontap: () => _handleChatTap(context, chat),
+                      );
+                    },
+                  ),
+                ],
+              ],
             ),
           ),
       ],
@@ -412,64 +418,67 @@ class _HomeViewState extends State<HomeView> {
           },
         ),
         SizedBox(height: 2.h),
-        SizedBox(
-          width: 100.w,
-          child: ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
-            separatorBuilder: (context, index) => SizedBox(height: 2.h),
-            itemCount: userChats.isEmpty ? 1 : (userChats.length > 2 ? 3 : userChats.length + 1),
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return chatCardWidget(
-                  needsAcceptance: false,
-                  power: null,
-                  imageUrl: true,
-                  numOfMessage: 0,
-                  onPressImg: () {},
-                  private: false,
-                  img: const AssetImage(AppImages.noChatImg),
-                  body: S.of(context).startCreatingNewWorld,
-                  ttitle: S.of(context).newChat,
-                  onPressJoin: () => context.push(Routes.createChatScreen),
-                  isFriendsSection: false,
-                  action: S.of(context).createNow,
-                  ontap: () => context.push(Routes.createChatScreen),
-                );
-              }
+        Padding(
+          padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
+          child: Column(
+            children: [
+              for (int index = 0;
+                  index < (userChats.isEmpty ? 1 : (userChats.length > 2 ? 3 : userChats.length + 1));
+                  index++) ...[
+                if (index > 0) SizedBox(height: 2.h),
+                if (index == 0)
+                  chatCardWidget(
+                    needsAcceptance: false,
+                    power: null,
+                    imageUrl: true,
+                    numOfMessage: 0,
+                    onPressImg: () {},
+                    private: false,
+                    img: const AssetImage(AppImages.noChatImg),
+                    body: S.of(context).startCreatingNewWorld,
+                    ttitle: S.of(context).newChat,
+                    onPressJoin: () => context.push(Routes.createChatScreen),
+                    isFriendsSection: false,
+                    action: S.of(context).createNow,
+                    ontap: () => context.push(Routes.createChatScreen),
+                  )
+                else
+                  Builder(
+                    builder: (context) {
+                      final chat = userChats[index - 1];
+                      final hasValidImage = chat.image != null &&
+                          chat.image!.trim().isNotEmpty &&
+                          chat.image != "null" &&
+                          chat.image != "image";
 
-              final chat = userChats[index - 1];
-              final hasValidImage = chat.image != null &&
-                  chat.image!.trim().isNotEmpty &&
-                  chat.image != "null" &&
-                  chat.image != "image";
-
-              return chatCardWidget(
-                needsAcceptance: chat.accept == "1",
-                power: null,
-                imageUrl: hasValidImage,
-                numOfMessage: chat.unreadCount ?? 0,
-                onPressImg: () {
-                  dialogImgWidget(
-                    title: chat.name ?? '',
-                    img: chat.image,
-                    onPressChat: () => _handleChatTap(context, chat),
-                    userChatModel: chat,
-                  );
-                },
-                private: chat.status == "Private",
-                img: hasValidImage
-                    ? CachedNetworkImageProvider(chat.image!.trim())
-                    : const AssetImage(AppImages.noChatImg) as ImageProvider,
-                body: formatLastMessage(context, chat),
-                ttitle: chat.name ?? '',
-                onPressJoin: () => _handleChatTap(context, chat),
-                isFriendsSection: false,
-                action: S.of(context).joinNow,
-                ontap: () => _handleChatTap(context, chat),
-              );
-            },
+                      return chatCardWidget(
+                        needsAcceptance: chat.accept == "1",
+                        power: null,
+                        imageUrl: hasValidImage,
+                        numOfMessage: chat.unreadCount ?? 0,
+                        onPressImg: () {
+                          dialogImgWidget(
+                            title: chat.name ?? '',
+                            img: chat.image,
+                            onPressChat: () => _handleChatTap(context, chat),
+                            userChatModel: chat,
+                          );
+                        },
+                        private: chat.status == "Private",
+                        img: hasValidImage
+                            ? CachedNetworkImageProvider(chat.image!.trim())
+                            : const AssetImage(AppImages.noChatImg) as ImageProvider,
+                        body: formatLastMessage(context, chat),
+                        ttitle: chat.name ?? '',
+                        onPressJoin: () => _handleChatTap(context, chat),
+                        isFriendsSection: false,
+                        action: S.of(context).joinNow,
+                        ontap: () => _handleChatTap(context, chat),
+                      );
+                    },
+                  ),
+              ],
+            ],
           ),
         ),
       ],
@@ -501,71 +510,73 @@ class _HomeViewState extends State<HomeView> {
             else if (friends.isEmpty)
               Center(child: noData(S.of(context).noChat))
             else
-              SizedBox(
-                width: 100.w,
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
-                  separatorBuilder: (context, index) => SizedBox(height: 2.h),
-                  itemCount: friends.length > 2 ? 2 : friends.length,
-                  itemBuilder: (context, index) {
-                    final friend = friends[index];
-                    final hasValidImage = friend.image != null &&
-                        friend.image!.trim().isNotEmpty &&
-                        friend.image != "null" &&
-                        friend.image != "image";
+              Padding(
+                padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
+                child: Column(
+                  children: [
+                    for (int index = 0; index < (friends.length > 2 ? 2 : friends.length); index++) ...[
+                      if (index > 0) SizedBox(height: 2.h),
+                      Builder(
+                        builder: (context) {
+                          final friend = friends[index];
+                          final hasValidImage = friend.image != null &&
+                              friend.image!.trim().isNotEmpty &&
+                              friend.image != "null" &&
+                              friend.image != "image";
 
-                    return chatCardWidget(
-                      needsAcceptance: false,
-                      power: friend.power,
-                      imageUrl: hasValidImage,
-                      numOfMessage: 0,
-                      onPressImg: () {
-                        dialogImgWidget(
-                          title: friend.name ?? '',
-                          img: friend.image,
-                          userChatModel: null,
-                          onPressChat: () {
-                            if (friend.id != null) {
-                              context.read<FriendsCubit>().createChatFriend(friendId: friend.id!);
-                            }
-                          },
-                        );
-                      },
-                      private: false,
-                      img: hasValidImage
-                          ? CachedNetworkImageProvider(friend.image!.trim())
-                          : const AssetImage(AppImages.noChatImg) as ImageProvider,
-                      body: friend.requestStatus == "friends"
-                          ? S.of(context).friend
-                          : S.of(context).requestWaiting,
-                      ttitle: friend.username ?? '',
-                      onPressJoin: () {
-                        if (friend.id != null) {
-                          if (friend.requestStatus == "friends") {
-                            context.read<FriendsCubit>().createChatFriend(friendId: friend.id!);
-                          } else {
-                            context.read<FriendsCubit>().sendFriendRequest(friendId: friend.id!);
-                          }
-                        }
-                      },
-                      isFriendsSection: true,
-                      action: friend.requestStatus == "friends"
-                          ? S.of(context).correspondent
-                          : S.of(context).cancel,
-                      ontap: () {
-                        if (friend.id != null) {
-                          if (friend.requestStatus == "friends") {
-                            context.read<FriendsCubit>().createChatFriend(friendId: friend.id!);
-                          } else {
-                            context.read<FriendsCubit>().sendFriendRequest(friendId: friend.id!);
-                          }
-                        }
-                      },
-                      isFriend: friend.requestStatus == "friends",
-                    );
-                  },
+                          return chatCardWidget(
+                            needsAcceptance: false,
+                            power: friend.power,
+                            imageUrl: hasValidImage,
+                            numOfMessage: 0,
+                            onPressImg: () {
+                              dialogImgWidget(
+                                title: friend.name ?? '',
+                                img: friend.image,
+                                userChatModel: null,
+                                onPressChat: () {
+                                  if (friend.id != null) {
+                                    context.read<FriendsCubit>().createChatFriend(friendId: friend.id!);
+                                  }
+                                },
+                              );
+                            },
+                            private: false,
+                            img: hasValidImage
+                                ? CachedNetworkImageProvider(friend.image!.trim())
+                                : const AssetImage(AppImages.noChatImg) as ImageProvider,
+                            body: friend.requestStatus == "friends"
+                                ? S.of(context).friend
+                                : S.of(context).requestWaiting,
+                            ttitle: friend.username ?? '',
+                            onPressJoin: () {
+                              if (friend.id != null) {
+                                if (friend.requestStatus == "friends") {
+                                  context.read<FriendsCubit>().createChatFriend(friendId: friend.id!);
+                                } else {
+                                  context.read<FriendsCubit>().sendFriendRequest(friendId: friend.id!);
+                                }
+                              }
+                            },
+                            isFriendsSection: true,
+                            action: friend.requestStatus == "friends"
+                                ? S.of(context).correspondent
+                                : S.of(context).cancel,
+                            ontap: () {
+                              if (friend.id != null) {
+                                if (friend.requestStatus == "friends") {
+                                  context.read<FriendsCubit>().createChatFriend(friendId: friend.id!);
+                                } else {
+                                  context.read<FriendsCubit>().sendFriendRequest(friendId: friend.id!);
+                                }
+                              }
+                            },
+                            isFriend: friend.requestStatus == "friends",
+                          );
+                        },
+                      ),
+                    ],
+                  ],
                 ),
               ),
           ],
@@ -595,61 +606,63 @@ class _HomeViewState extends State<HomeView> {
             else if (suggested.isEmpty)
               Center(child: noData(S.of(context).noChat))
             else
-              SizedBox(
-                width: 100.w,
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(right: isRtl ? 4.w : 0, left: isRtl ? 0 : 4.w, bottom: 2.h),
-                  separatorBuilder: (context, index) => SizedBox(height: 2.h),
-                  itemCount: suggested.length,
-                  itemBuilder: (context, index) {
-                    final item = suggested[index];
-                    final hasValidImage = item.image != null &&
-                        item.image!.trim().isNotEmpty &&
-                        item.image != "null" &&
-                        item.image != "image";
+              Padding(
+                padding: EdgeInsets.only(right: isRtl ? 4.w : 0, left: isRtl ? 0 : 4.w, bottom: 2.h),
+                child: Column(
+                  children: [
+                    for (int index = 0; index < suggested.length; index++) ...[
+                      if (index > 0) SizedBox(height: 2.h),
+                      Builder(
+                        builder: (context) {
+                          final item = suggested[index];
+                          final hasValidImage = item.image != null &&
+                              item.image!.trim().isNotEmpty &&
+                              item.image != "null" &&
+                              item.image != "image";
 
-                    return SuggestedFriends(
-                      power: item.power,
-                      imgUrl: hasValidImage,
-                      onPressImg: () {
-                        dialogImgWidget(
-                          title: item.name ?? '',
-                          img: item.image,
-                          userChatModel: null,
-                          onPressChat: () {
-                            if (item.id != null) {
-                              context.read<FriendsCubit>().createChatFriend(friendId: item.id!);
-                            }
-                          },
-                        );
-                      },
-                      chat: () {
-                        if (item.id != null) {
-                          context.read<FriendsCubit>().createChatFriend(friendId: item.id!);
-                        }
-                      },
-                      removeRequest: () {
-                        if (item.id != null) {
-                          context.read<FriendsCubit>().sendFriendRequest(friendId: item.id!);
-                        }
-                      },
-                      requestSend: item.requestStatus != "none",
-                      sendRequest: () {
-                        if (item.id != null) {
-                          context.read<FriendsCubit>().sendFriendRequest(friendId: item.id!);
-                        }
-                      },
-                      img: hasValidImage
-                          ? CachedNetworkImageProvider(item.image!.trim())
-                          : const AssetImage(AppImages.noChatImg) as ImageProvider,
-                      body: item.requestStatus == "none"
-                          ? S.of(context).notFriend
-                          : S.of(context).requestWaiting,
-                      ttitle: item.username ?? "",
-                    );
-                  },
+                          return SuggestedFriends(
+                            power: item.power,
+                            imgUrl: hasValidImage,
+                            onPressImg: () {
+                              dialogImgWidget(
+                                title: item.name ?? '',
+                                img: item.image,
+                                userChatModel: null,
+                                onPressChat: () {
+                                  if (item.id != null) {
+                                    context.read<FriendsCubit>().createChatFriend(friendId: item.id!);
+                                  }
+                                },
+                              );
+                            },
+                            chat: () {
+                              if (item.id != null) {
+                                context.read<FriendsCubit>().createChatFriend(friendId: item.id!);
+                              }
+                            },
+                            removeRequest: () {
+                              if (item.id != null) {
+                                context.read<FriendsCubit>().sendFriendRequest(friendId: item.id!);
+                              }
+                            },
+                            requestSend: item.requestStatus != "none",
+                            sendRequest: () {
+                              if (item.id != null) {
+                                context.read<FriendsCubit>().sendFriendRequest(friendId: item.id!);
+                              }
+                            },
+                            img: hasValidImage
+                                ? CachedNetworkImageProvider(item.image!.trim())
+                                : const AssetImage(AppImages.noChatImg) as ImageProvider,
+                            body: item.requestStatus == "none"
+                                ? S.of(context).notFriend
+                                : S.of(context).requestWaiting,
+                            ttitle: item.username ?? "",
+                          );
+                        },
+                      ),
+                    ],
+                  ],
                 ),
               ),
           ],
@@ -678,7 +691,7 @@ class _HomeViewState extends State<HomeView> {
           children: [
             textNormal(
               title,
-              pref! ? AppColors.whiteColor : AppColors.blackColor,
+              pref ? AppColors.whiteColor : AppColors.blackColor,
               4.5.w,
               FontWeight.w400,
             ),
@@ -700,12 +713,12 @@ class _HomeViewState extends State<HomeView> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+                      color: pref ? AppColors.secondaryColor : AppColors.primaryColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: textNormal(
                       "$counterValue",
-                      pref! ? AppColors.blackColor : Colors.white,
+                      pref ? AppColors.blackColor : Colors.white,
                       3.5.w,
                       FontWeight.bold,
                     ),
@@ -740,9 +753,9 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildUserGreeting() {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
-    String? userImage = sharedPreferences!.getString("img");
-    String? username = sharedPreferences!.getString("username");
-    String? powerString = sharedPreferences!.getString("powermodel");
+    String? userImage = CacheHelper.getString(key: AppConstants.userImageKey);
+    String? username = CacheHelper.getString(key: AppConstants.usernameKey);
+    String? powerString = CacheHelper.getString(key: "powermodel");
 
     Widget displayWidget;
 
@@ -757,7 +770,7 @@ class _HomeViewState extends State<HomeView> {
       } catch (e) {
         displayWidget = textNormal(
           username ?? "User",
-          pref! ? AppColors.whiteColor : AppColors.blackColor,
+          pref ? AppColors.whiteColor : AppColors.blackColor,
           3.5.w,
           FontWeight.w400,
         );
@@ -765,7 +778,7 @@ class _HomeViewState extends State<HomeView> {
     } else {
       displayWidget = textNormal(
         username ?? "User",
-        pref! ? AppColors.whiteColor : AppColors.blackColor,
+        pref ? AppColors.whiteColor : AppColors.blackColor,
         3.5.w,
         FontWeight.w400,
       );
@@ -804,7 +817,7 @@ class _HomeViewState extends State<HomeView> {
           icon: Icon(
             LucideIcons.bell,
             size: 5.w,
-            color: pref! ? AppColors.inActiveColor : AppColors.blackColor,
+            color: pref ? AppColors.inActiveColor : AppColors.blackColor,
           ),
           onPressed: () {
             context.push(Routes.notificationsScreen);
@@ -820,7 +833,7 @@ class _HomeViewState extends State<HomeView> {
       child: Container(
         height: 4.5.h,
         decoration: ShapeDecoration(
-          color: pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+          color: pref ? AppColors.secondaryColor : AppColors.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
@@ -832,7 +845,7 @@ class _HomeViewState extends State<HomeView> {
             children: [
               Icon(
                 LucideIcons.keyRound,
-                color: pref! ? AppColors.blackColor : Colors.white,
+                color: pref ? AppColors.blackColor : Colors.white,
                 size: 4.w,
               ),
             ],
@@ -907,17 +920,17 @@ class _HomeViewState extends State<HomeView> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+        backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         title: textNormal(
           S.of(context).warning,
-          pref! ? AppColors.whiteColor : AppColors.blackColor,
+          pref ? AppColors.whiteColor : AppColors.blackColor,
           4.5.w,
           FontWeight.w700,
         ),
         content: textNormal(
           S.of(context).exitConfirmation,
-          pref! ? AppColors.inActiveColor : AppColors.blackColor.withOpacity(0.6),
+          pref ? AppColors.inActiveColor : AppColors.blackColor.withOpacity(0.6),
           3.5.w,
           FontWeight.w600,
         ),
@@ -928,7 +941,7 @@ class _HomeViewState extends State<HomeView> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+              backgroundColor: pref ? AppColors.secondaryColor : AppColors.primaryColor,
             ),
             onPressed: () {
               Navigator.of(context).pop();

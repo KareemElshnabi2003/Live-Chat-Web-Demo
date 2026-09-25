@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/core/di/service_locator.dart';
 import 'package:live_chat/core/routing/routes.dart';
-import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_state.dart';
@@ -16,7 +16,6 @@ import 'package:live_chat/features/chat/presentation/widgets/chat_input_widget.d
 import 'package:live_chat/features/chat/presentation/widgets/chat_bubble_widget.dart';
 import 'package:live_chat/features/chat/presentation/widgets/pinned_ad_widget.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
-import 'package:live_chat/main.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
@@ -32,6 +31,7 @@ class ChatView extends StatefulWidget {
 }
 
 class _ChatViewState extends State<ChatView> {
+  bool get pref => context.isDarkMode;
   final ScrollController _scrollController = ScrollController();
   bool showScrollToBottom = false;
 
@@ -79,7 +79,7 @@ class _ChatViewState extends State<ChatView> {
           });
         },
         child: Scaffold(
-          backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+          backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
           body: SafeArea(
             child: BlocConsumer<ChatCubit, ChatState>(
               listener: (context, state) {},
@@ -115,7 +115,7 @@ class _ChatViewState extends State<ChatView> {
                             ),
                             if (widget.isPin && ChatHelpers.hasAd(widget.userChatModel!))
                               PinnedAdWidget(
-                                pref: pref!,
+                                pref: pref,
                                 adTitle: widget.userChatModel!.adTitle,
                                 adLink: widget.userChatModel!.adLink,
                                 adImage: widget.userChatModel!.adImage,
@@ -148,8 +148,8 @@ class _ChatViewState extends State<ChatView> {
                                     if (index >= messages.length - 1) return const SizedBox(height: 20);
                                     final cur = messages[index];
                                     final nxt = messages[index + 1];
-                                    final curName = cur is ChatMessage ? cur.senderName : '';
-                                    final nxtName = nxt is ChatMessage ? nxt.senderName : '';
+                                    final curName = cur.senderName;
+                                    final nxtName = nxt.senderName;
                                     return SizedBox(height: curName != nxtName ? 15 : 0);
                                   },
                                   controller: _scrollController,
@@ -160,34 +160,19 @@ class _ChatViewState extends State<ChatView> {
                                     if (index == messages.length && isLoadingMore) {
                                       return const Center(child: CircularProgressIndicator());
                                     }
-                                    final msg = messages[index];
-                                    final message = msg is ChatMessage
-                                        ? msg
-                                        : ChatMessage(
-                                            senderName: '',
-                                            message: '',
-                                            isFromSender: false,
-                                            timestamp: '',
-                                            imageUrl: null,
-                                            reaction: [],
-                                            messageId: '',
-                                            messageType: 'text',
-                                            isPending: false,
-                                          );
+                                    final message = messages[index];
 
                                     final isLastInGroup = index == 0 ||
                                         (index > 0 &&
-                                            (messages[index - 1] is ChatMessage) &&
-                                            (messages[index - 1] as ChatMessage).senderName != message.senderName);
+                                            messages[index - 1].senderName != message.senderName);
                                     final isFirstInGroup = index == messages.length - 1 ||
                                         (index < messages.length - 1 &&
-                                            (messages[index + 1] is ChatMessage) &&
-                                            (messages[index + 1] as ChatMessage).senderName != message.senderName);
+                                            messages[index + 1].senderName != message.senderName);
 
                                     return ChatBubbleWidget(
-                                      key: ValueKey(message.messageId),
-                                      pref: pref!,
-                                      name: message.senderName?.toString() ?? '',
+                                      key: ValueKey(message.messageId.isNotEmpty ? message.messageId : index.toString()),
+                                      pref: context.isDarkMode,
+                                      name: message.senderName ?? '',
                                       img: message.imageUrl,
                                       message: message,
                                       showAvatar: isFirstInGroup,

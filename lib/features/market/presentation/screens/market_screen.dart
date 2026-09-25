@@ -58,7 +58,7 @@ class _MarketPageState extends State<MarketPage> {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: BlocConsumer<MarketCubit, MarketState>(
         listener: (context, state) {
           if (state is MarketError) {
@@ -124,7 +124,7 @@ class _MarketPageState extends State<MarketPage> {
                       padding: EdgeInsets.all(4.w),
                       child: textNormal(
                         isRtl ? "لا يوجد المزيد" : "No more items",
-                        pref! ? AppColors.inActiveColor : AppColors.blackColor.withOpacity(0.6),
+                        pref ? AppColors.inActiveColor : AppColors.blackColor.withOpacity(0.6),
                         3.w,
                         FontWeight.w500,
                         textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -147,7 +147,7 @@ class _MarketPageState extends State<MarketPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+        color: pref ? AppColors.darkcolor : AppColors.whiteColor,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(12),
           bottomRight: Radius.circular(12),
@@ -168,7 +168,7 @@ class _MarketPageState extends State<MarketPage> {
               CircleAvatar(
                 radius: 5.w,
                 backgroundColor:
-                    pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+                    pref ? AppColors.secondaryColor : AppColors.primaryColor,
                 child: CircleAvatar(
                   backgroundImage:
                       const AssetImage("lib/Images/play_store_512.png"),
@@ -178,7 +178,7 @@ class _MarketPageState extends State<MarketPage> {
               SizedBox(width: 2.w),
               textNormal(
                 S.of(context).mayolivechat,
-                pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+                pref ? AppColors.secondaryColor : AppColors.primaryColor,
                 3.5.w,
                 FontWeight.bold,
               ),
@@ -249,7 +249,7 @@ class _MarketPageState extends State<MarketPage> {
             powerModel == null
                 ? textNormal(
                     sharedPreferences!.getString("username") ?? "User",
-                    pref! ? AppColors.whiteColor : AppColors.blackColor,
+                    pref ? AppColors.whiteColor : AppColors.blackColor,
                     3.5.w,
                     FontWeight.w400,
                     textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -274,7 +274,7 @@ class _MarketPageState extends State<MarketPage> {
           icon: Icon(
             LucideIcons.bell,
             size: 5.w,
-            color: pref! ? AppColors.inActiveColor : AppColors.blackColor,
+            color: pref ? AppColors.inActiveColor : AppColors.blackColor,
           ),
           onPressed: () {
             context.push(Routes.notificationsScreen);
@@ -291,7 +291,7 @@ class _MarketPageState extends State<MarketPage> {
       child: Container(
         height: 4.5.h,
         decoration: ShapeDecoration(
-          color: pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+          color: pref ? AppColors.secondaryColor : AppColors.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
@@ -304,7 +304,7 @@ class _MarketPageState extends State<MarketPage> {
             children: [
               Icon(
                 LucideIcons.keyRound,
-                color: pref! ? AppColors.blackColor : Colors.white,
+                color: pref ? AppColors.blackColor : Colors.white,
                 size: 4.w,
               ),
             ],
@@ -329,7 +329,7 @@ class _MarketPageState extends State<MarketPage> {
                   child: textNormal(
                     S.of(context).name,
                     center: true,
-                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     3.5.w,
                     FontWeight.w500,
                     textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -341,7 +341,7 @@ class _MarketPageState extends State<MarketPage> {
                 child: Center(
                   child: textNormal(
                     S.of(context).price,
-                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     3.5.w,
                     FontWeight.w500,
                     textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -353,7 +353,7 @@ class _MarketPageState extends State<MarketPage> {
                 child: Center(
                   child: textNormal(
                     S.of(context).procedure,
-                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     3.5.w,
                     FontWeight.w500,
                     textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -386,7 +386,7 @@ class _MarketPageState extends State<MarketPage> {
           margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.w),
           padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.w),
           decoration: BoxDecoration(
-            color: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+            color: pref ? AppColors.darkcolor : AppColors.whiteColor,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -409,7 +409,7 @@ class _MarketPageState extends State<MarketPage> {
                 child: Center(
                   child: textNormal(
                     "${power.price} ${S.of(context).points}",
-                    pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                    pref ? AppColors.whiteColor : AppColors.blackTextColor,
                     3.2.w,
                     FontWeight.w500,
                     textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -445,7 +445,7 @@ class _MarketPageState extends State<MarketPage> {
                       decoration: BoxDecoration(
                         color: power.isPurches == 1
                             ? AppColors.inActiveColor.withOpacity(0.3)
-                            : (pref!
+                            : (pref
                                 ? AppColors.secondaryColor
                                 : AppColors.primaryColor),
                         borderRadius: BorderRadius.circular(6),
@@ -456,7 +456,7 @@ class _MarketPageState extends State<MarketPage> {
                             : S.of(context).more,
                         power.isPurches == 1
                             ? AppColors.inActiveColor
-                            : (pref!
+                            : (pref
                                 ? AppColors.blackColor
                                 : AppColors.whiteColor),
                         3.2.w,
@@ -487,7 +487,7 @@ class _MarketPageState extends State<MarketPage> {
     } catch (_) {
       return textNormal(
         displayName,
-        pref! ? AppColors.whiteColor : AppColors.blackColor,
+        pref ? AppColors.whiteColor : AppColors.blackColor,
         3.5.w,
         FontWeight.w400,
         textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,

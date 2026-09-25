@@ -9,5 +9,6 @@ class AppConstants {
   static const String isDarkModeKey = 'isDarkMode';
   static const String langKey = 'selectedLanguage';
   static const String languageKey = 'selectedLanguage';
+  static const String usernameGustKey = 'usernameGust';
   static const String pageKey = 'page';
 }

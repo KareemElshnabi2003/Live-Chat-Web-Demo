@@ -30,7 +30,7 @@ void showBottomSheetControlPersonWidget({
 
   showModalBottomSheet(
     isScrollControlled: true,
-    backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+    backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
     context: context,
     builder: (ctx) => ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: kIsWeb ? 600 : double.infinity),
@@ -94,10 +94,7 @@ class _ControlPersonBottomSheetContentState
     final raw = await widget.parentContext.read<ChatCubit>().getMembers(chatId: chatId);
     if (mounted) {
       setState(() {
-        _members = raw.map((e) {
-          if (e is MemberOfChatModel) return e;
-          return MemberOfChatModel.fromJson(Map<String, dynamic>.from(e as Map));
-        }).toList();
+        _members = raw;
         _isLoading = false;
       });
     }
@@ -153,7 +150,7 @@ class _ControlPersonBottomSheetContentState
               Container(
                 height: 4,
                 width: 70,
-                color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                color: pref ? AppColors.whiteColor : AppColors.blackColor,
               ),
               Container(
                 padding: EdgeInsets.only(right: 4.w, left: 4.w, top: 4.w),
@@ -170,7 +167,7 @@ class _ControlPersonBottomSheetContentState
                       children: [
                         textNormal(
                           S.of(context).members,
-                          pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                          pref ? AppColors.whiteColor : AppColors.blackTextColor,
                           4.w,
                           FontWeight.w600,
                         ),
@@ -274,7 +271,7 @@ class _CardPersonItem extends StatelessWidget {
                   ? PowerTextWidget(powerModel: power!, displyText: ttitle)
                   : textNormal(
                       ttitle,
-                      pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                      pref ? AppColors.whiteColor : AppColors.blackTextColor,
                       3.5.w,
                       FontWeight.w400,
                     ),
@@ -318,7 +315,7 @@ class _CardPersonItem extends StatelessWidget {
                 ),
               IconButton(
                 icon: const Icon(LucideIcons.messageCircle, size: 20),
-                color: pref! ? AppColors.secondaryColor : AppColors.blackColor,
+                color: pref ? AppColors.secondaryColor : AppColors.blackColor,
                 onPressed: onPressChat,
               ),
             ],

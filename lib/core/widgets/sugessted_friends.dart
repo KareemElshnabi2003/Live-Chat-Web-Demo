@@ -39,7 +39,7 @@ Widget SuggestedFriends({
                       width: 19.w,
                       height: 19.w,
                       decoration: BoxDecoration(
-                        color: pref! ? AppColors.darkcolor : null,
+                        color: pref ? AppColors.darkcolor : null,
                         image: DecorationImage(
                           image: img,
                           fit: BoxFit.fill,
@@ -55,7 +55,7 @@ Widget SuggestedFriends({
                       width: 19.w,
                       height: 19.w,
                       decoration: BoxDecoration(
-                        color: pref!
+                        color: pref
                             ? AppColors.darkcolor
                             : AppColors.black2TextColor,
                         borderRadius: BorderRadius.circular(80),
@@ -78,7 +78,7 @@ Widget SuggestedFriends({
                             multi: true,
                             numOfRow: 1,
                             ttitle,
-                            pref!
+                            pref
                                 ? AppColors.whiteColor
                                 : AppColors.blackTextColor,
                             3.5.w,
@@ -97,7 +97,7 @@ Widget SuggestedFriends({
                     body,
                     requestSend
                         ? AppColors.secondaryColor
-                        : pref!
+                        : pref
                             ? AppColors.inActiveColor
                             : AppColors.black2TextColor,
                     3.w,
@@ -115,7 +115,7 @@ Widget SuggestedFriends({
                     sendRequest,
                     requestSend
                         ? AppColors.redColor
-                        : pref!
+                        : pref
                             ? AppColors.secondaryColor
                             : AppColors.primaryColor,
                     3.w,
@@ -131,16 +131,16 @@ Widget SuggestedFriends({
           height: 14.w,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+            color: pref ? AppColors.darkcolor : AppColors.whiteColor,
             borderRadius: BorderRadius.only(
               topLeft:
-                  isRtl ? Radius.circular(0) : Radius.circular(25),
+                  isRtl ? const Radius.circular(0) : const Radius.circular(25),
               bottomLeft:
-                  isRtl ? Radius.circular(0) : Radius.circular(25),
+                  isRtl ? const Radius.circular(0) : const Radius.circular(25),
               topRight:
-                  isRtl ? Radius.circular(25) : Radius.circular(0),
+                  isRtl ? const Radius.circular(25) : const Radius.circular(0),
               bottomRight:
-                  isRtl ? Radius.circular(25) : Radius.circular(0),
+                  isRtl ? const Radius.circular(25) : const Radius.circular(0),
             ),
           ),
           child: Row(
@@ -152,7 +152,7 @@ Widget SuggestedFriends({
                   height: 12.w,
                   width: 12.w,
                   decoration: ShapeDecoration(
-                    color: pref! ? AppColors.blackColor : AppColors.bgColor,
+                    color: pref ? AppColors.blackColor : AppColors.bgColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -161,7 +161,7 @@ Widget SuggestedFriends({
                     child: Icon(
                       requestSend ? Icons.close : LucideIcons.plus,
                       size: 4.w,
-                      color: pref!
+                      color: pref
                           ? AppColors.secondaryColor
                           : AppColors.blackColor,
                     ),
@@ -177,7 +177,7 @@ Widget SuggestedFriends({
                   height: 12.w,
                   width: 12.w,
                   decoration: ShapeDecoration(
-                    color: pref! ? AppColors.blackColor : AppColors.bgColor,
+                    color: pref ? AppColors.blackColor : AppColors.bgColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -186,7 +186,7 @@ Widget SuggestedFriends({
                     child: Icon(
                       LucideIcons.messageCircle300,
                       size: 4.w,
-                      color: pref!
+                      color: pref
                           ? AppColors.secondaryColor
                           : AppColors.blackColor,
                     ),

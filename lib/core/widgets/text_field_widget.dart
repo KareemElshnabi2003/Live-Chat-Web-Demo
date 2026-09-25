@@ -17,7 +17,7 @@ Widget textFieldWidget(
   VoidCallback? onTap,
   required TextDirection textDirection,
 }) {
-  final isDark = pref ?? false;
+  final isDark = pref;
   return InkWell(
     onTap: onTap,
     child: TextFormField(

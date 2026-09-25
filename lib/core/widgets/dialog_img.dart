@@ -21,7 +21,7 @@ void dialogImgWidget({
   showDialog(
     context: ctx,
     builder: (dialogCtx) => AlertDialog(
-      backgroundColor: (pref ?? false) ? AppColors.darkcolor : AppColors.whiteColor,
+      backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
       titlePadding: EdgeInsets.zero,
       contentPadding: const EdgeInsets.only(bottom: 10),
       actionsAlignment: MainAxisAlignment.spaceAround,
@@ -56,11 +56,11 @@ void dialogImgWidget({
                 ? Container(
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: (pref ?? false) ? AppColors.darkcolor : AppColors.black2TextColor,
+                      color: pref ? AppColors.darkcolor : AppColors.black2TextColor,
                     ),
                     child: textNormal(
                       title.isNotEmpty ? title[0] : "",
-                      (pref ?? false) ? AppColors.blackTextColor : AppColors.whiteColor,
+                      pref ? AppColors.blackTextColor : AppColors.whiteColor,
                       14.w,
                       FontWeight.bold,
                     ),
@@ -70,11 +70,11 @@ void dialogImgWidget({
                 ? Container(
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: (pref ?? false) ? AppColors.darkcolor : AppColors.black2TextColor,
+                      color: pref ? AppColors.darkcolor : AppColors.black2TextColor,
                     ),
                     child: textNormal(
                       title.isNotEmpty ? title[0] : "",
-                      (pref ?? false) ? AppColors.blackTextColor : AppColors.whiteColor,
+                      pref ? AppColors.blackTextColor : AppColors.whiteColor,
                       14.w,
                       FontWeight.bold,
                     ),

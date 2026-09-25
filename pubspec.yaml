@@ -12,11 +12,9 @@ dependencies:
     sdk: flutter
   image_picker: 
   cached_network_image: 
-  path: 
   url_launcher: ^6.3.2 
   google_fonts:
   flutter_otp_text_field: 
-  device_preview: 
   shared_preferences: 
   dartz: 
   dotted_border: ^2.1.0
@@ -25,25 +23,20 @@ dependencies:
   carousel_slider: 
   iconsax_plus: 
   lucide_icons_flutter:
-#  audioplayers:
   just_audio:
   flutter_localizations:
     sdk: flutter
   intl: 
-  share_plus: 
   pusher_channels_flutter: ^2.5.0
   firebase_core: 
   firebase_messaging: 
-  flutter_image_compress: ^2.4.0
   path_provider: ^2.1.5
   flutter_html: ^3.0.0-beta.2
-  lottie: 
   dio: ^5.9.0
   device_info_plus: ^13.2.0
   uuid: ^4.6.0
   connectivity_plus: ^7.3.1
   swipe_to: ^1.0.6
-  app_links: ^7.2.1
   shimmer: ^4.0.0
   flutter_bloc: ^8.1.6
   get_it: ^7.7.0

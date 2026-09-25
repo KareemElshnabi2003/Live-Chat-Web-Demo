@@ -17,15 +17,15 @@ class CustomBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
-      selectedItemColor: pref! ? AppColors.whiteColor : AppColors.primaryColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
+      selectedItemColor: pref ? AppColors.whiteColor : AppColors.primaryColor,
       unselectedItemColor: Colors.grey,
       showSelectedLabels: false,
       showUnselectedLabels: false,
       currentIndex: currentIndex,
       selectedIconTheme: IconThemeData(
         size: 28,
-        color: pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+        color: pref ? AppColors.whiteColor : AppColors.blackTextColor,
       ),
       unselectedIconTheme: const IconThemeData(
         size: 24,

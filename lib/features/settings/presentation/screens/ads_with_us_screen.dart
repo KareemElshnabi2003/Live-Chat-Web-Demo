@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:live_chat/core/api/api_consumer.dart';
+import 'package:live_chat/core/api/end_points.dart';
 import 'package:live_chat/core/di/service_locator.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:live_chat/core/Constant/app_api.dart';
-import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/core/widgets/shimmer_skeletons.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
-import 'package:live_chat/main.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 
 import 'package:flutter_html/flutter_html.dart';
@@ -33,7 +33,7 @@ class _AdsWithUsState extends State<AdsWithUs> {
 
   Future<void> fetchTermsAndConditions() async {
     try {
-      final response = await sl<ApiConsumer>().get(AppApi.adsWithUs);
+      final response = await sl<ApiConsumer>().get(EndPoints.adsWithUs);
       if (response != null && response is Map && response['data'] != null) {
         setState(() {
           _content = response['data']['content'] ?? '';
@@ -56,12 +56,13 @@ class _AdsWithUsState extends State<AdsWithUs> {
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final textColor = pref! ? AppColors.whiteColor : AppColors.blackTextColor;
+    final isDarkMode = context.isDarkMode;
+    final textColor = isDarkMode ? AppColors.whiteColor : AppColors.blackTextColor;
     final subTextColor =
-        pref! ? Colors.grey.shade400 : Colors.grey.shade800.withOpacity(0.9);
+        isDarkMode ? Colors.grey.shade400 : Colors.grey.shade800.withOpacity(0.9);
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: isDarkMode ? AppColors.blackColor : AppColors.bgColor,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),

@@ -102,7 +102,7 @@ class _HoverableChatCardState extends State<_HoverableChatCard> {
         padding: isHovered ? const EdgeInsets.all(8) : EdgeInsets.zero,
         decoration: BoxDecoration(
           color: isHovered
-              ? (pref! ? Colors.grey.shade900 : Colors.grey.shade200)
+              ? (pref ? Colors.grey.shade900 : Colors.grey.shade200)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -122,7 +122,7 @@ class _HoverableChatCardState extends State<_HoverableChatCard> {
                           width: kIsWeb ? 75.0 : 19.w,
                           height: kIsWeb ? 75.0 : 19.w,
                           decoration: BoxDecoration(
-                            color: pref! ? AppColors.darkcolor : AppColors.black2TextColor,
+                            color: pref ? AppColors.darkcolor : AppColors.black2TextColor,
                             borderRadius: BorderRadius.circular(
                                 widget.isFriendsSection ? 80 : 20),
                           ),
@@ -181,7 +181,7 @@ class _HoverableChatCardState extends State<_HoverableChatCard> {
                                       )
                                     : textNormal(
                                         widget.ttitle,
-                                        pref!
+                                        pref
                                             ? AppColors.whiteColor
                                             : AppColors.blackTextColor,
                                         kIsWeb ? 16.0 : 3.5.w,
@@ -211,7 +211,7 @@ class _HoverableChatCardState extends State<_HoverableChatCard> {
                                   ? widget.isFriend
                                       ? AppColors.primaryColor
                                       : AppColors.secondaryColor
-                                  : pref!
+                                  : pref
                                       ? AppColors.inActiveColor
                                       : AppColors.inActiveColor,
                               kIsWeb ? 14.0 : 3.w,
@@ -229,7 +229,7 @@ class _HoverableChatCardState extends State<_HoverableChatCard> {
                             widget.onPressJoin,
                             !widget.isFriend
                                 ? AppColors.redColor
-                                : pref!
+                                : pref
                                     ? AppColors.secondaryColor
                                     : AppColors.primaryColor,
                             kIsWeb ? 14.0 : 3.w,
@@ -246,7 +246,7 @@ class _HoverableChatCardState extends State<_HoverableChatCard> {
               height: kIsWeb ? 75.0 : 19.w,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: pref! ? AppColors.blackColor : AppColors.bgColor,
+                color: pref ? AppColors.blackColor : AppColors.bgColor,
                 borderRadius: BorderRadius.only(
                   topLeft: isRtl
                       ? const Radius.circular(0)
@@ -272,7 +272,7 @@ class _HoverableChatCardState extends State<_HoverableChatCard> {
                               ? LucideIcons.moveLeft300
                               : LucideIcons.moveRight300))
                       : Icons.close,
-                  color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                  color: pref ? AppColors.whiteColor : AppColors.blackColor,
                   size: kIsWeb ? 28.0 : 5.w,
                 ),
               ),

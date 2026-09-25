@@ -2,10 +2,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_state.dart';
-import 'package:live_chat/main.dart';
+import 'package:live_chat/features/home/data/models/radio_model.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
@@ -33,13 +34,15 @@ class _BottomSheetContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext buildCtx) {
-    final bgColor = pref! ? AppColors.blackColor : const Color(0xFFEBEBEB);
+    final isDarkMode = buildCtx.isDarkMode;
+    final bool pref = isDarkMode;
+    final bgColor = isDarkMode ? AppColors.blackColor : const Color(0xFFEBEBEB);
 
     return BlocBuilder<ChatCubit, ChatState>(
       bloc: context.read<ChatCubit>(),
       builder: (ctx, state) {
         final cubit = context.read<ChatCubit>();
-        List<dynamic> radios = [];
+        List<RadioModel> radios = [];
         bool isRadioPlaying = false;
         String? currentRadioUrl;
 
@@ -86,7 +89,7 @@ class _BottomSheetContent extends StatelessWidget {
                   Text(
                     S.of(buildCtx).chooseWhatYouWantToPlay,
                     style: TextStyle(
-                      color: pref! ? Colors.white : Colors.black87,
+                      color: pref ? Colors.white : Colors.black87,
                       fontSize: 4.5.w,
                       fontWeight: FontWeight.w800,
                     ),
@@ -96,10 +99,10 @@ class _BottomSheetContent extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.all(1.8.w),
                       decoration: BoxDecoration(
-                        color: pref! ? Colors.grey.shade800 : const Color(0xFFD6D6D6),
+                        color: pref ? Colors.grey.shade800 : const Color(0xFFD6D6D6),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(Icons.close, color: pref! ? Colors.white : Colors.black87, size: 4.5.w),
+                      child: Icon(Icons.close, color: pref ? Colors.white : Colors.black87, size: 4.5.w),
                     ),
                   ),
                 ],
@@ -109,7 +112,7 @@ class _BottomSheetContent extends StatelessWidget {
               Text(
                 S.of(buildCtx).radioStations,
                 style: TextStyle(
-                  color: pref! ? Colors.white : Colors.black87,
+                  color: pref ? Colors.white : Colors.black87,
                   fontSize: 3.8.w,
                   fontWeight: FontWeight.w700,
                 ),
@@ -123,7 +126,7 @@ class _BottomSheetContent extends StatelessWidget {
                     ? Center(
                         child: Text(
                           S.of(buildCtx).failedToLoadRadioStations,
-                          style: TextStyle(color: pref! ? Colors.white70 : Colors.black54),
+                          style: TextStyle(color: pref ? Colors.white70 : Colors.black54),
                         ),
                       )
                     : ListView.separated(
@@ -133,8 +136,8 @@ class _BottomSheetContent extends StatelessWidget {
                         separatorBuilder: (_, __) => SizedBox(width: 3.w),
                         itemBuilder: (c, index) {
                           final radio = radios[index];
-                          final radioName = radio['name'] ?? radio.name ?? '';
-                          final radioUrl = radio['url'] ?? radio.url ?? '';
+                          final radioName = radio.name;
+                          final radioUrl = radio.radioUrl;
                           final isPlaying = isRadioPlaying && currentRadioUrl == radioUrl;
 
                           return GestureDetector(
@@ -148,11 +151,11 @@ class _BottomSheetContent extends StatelessWidget {
                             child: Container(
                               width: kIsWeb ? 130.0 : 28.w,
                               decoration: BoxDecoration(
-                                color: pref! ? AppColors.darkcolor : Colors.white,
+                                color: isDarkMode ? AppColors.darkcolor : Colors.white,
                                 borderRadius: BorderRadius.circular(16),
-                                border: pref! ? null : Border.all(color: Colors.grey.shade300, width: 0.8),
+                                border: isDarkMode ? null : Border.all(color: Colors.grey.shade300, width: 0.8),
                                 boxShadow: [
-                                  if (!pref!)
+                                  if (!isDarkMode)
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.08),
                                       blurRadius: 12,
@@ -167,12 +170,12 @@ class _BottomSheetContent extends StatelessWidget {
                                     width: kIsWeb ? 60.0 : 14.w,
                                     height: kIsWeb ? 60.0 : 14.w,
                                     decoration: BoxDecoration(
-                                      color: pref! ? Colors.grey.shade800 : const Color(0xFFEEEEEE),
+                                      color: isDarkMode ? Colors.grey.shade800 : const Color(0xFFEEEEEE),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
                                       isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                                      color: pref! ? Colors.white : Colors.black87,
+                                      color: isDarkMode ? Colors.white : Colors.black87,
                                       size: kIsWeb ? 30.0 : 8.w,
                                     ),
                                   ),
@@ -182,7 +185,7 @@ class _BottomSheetContent extends StatelessWidget {
                                     child: Text(
                                       radioName,
                                       style: TextStyle(
-                                        color: pref! ? Colors.white : Colors.black87,
+                                        color: isDarkMode ? Colors.white : Colors.black87,
                                         fontSize: 3.3.w,
                                         fontWeight: FontWeight.w600,
                                       ),

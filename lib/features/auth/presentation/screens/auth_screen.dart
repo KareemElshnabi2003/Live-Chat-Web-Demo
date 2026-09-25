@@ -88,7 +88,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = pref ?? false;
+    final isDark = pref;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return BlocConsumer<AuthCubit, AuthState>(

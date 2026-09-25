@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
 import 'package:live_chat/generated/l10n.dart';
-import 'package:live_chat/main.dart'; // for sharedPreferences
+import 'package:live_chat/core/constant/app_constant.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
 
 String formatLastMessage(BuildContext context, UserChatModel chat) {
   if (chat.lastMessage == null || chat.lastMessage.toString() == "null") {
@@ -9,7 +10,8 @@ String formatLastMessage(BuildContext context, UserChatModel chat) {
   }
 
   final isRtl = Directionality.of(context) == TextDirection.rtl;
-  final isMe = chat.lastMessage!.senderId.toString() == sharedPreferences!.getString("id");
+  final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
+  final isMe = chat.lastMessage!.senderId.toString() == currentUserId;
   final prefix = isMe ? "${S.of(context).you}: " : "";
   
   String msgType = chat.lastMessage!.messageType ?? "text";

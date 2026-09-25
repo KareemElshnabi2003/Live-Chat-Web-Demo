@@ -53,7 +53,7 @@ class ChatAppBarWidget extends StatelessWidget {
                 child: Icon(
                   isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
                   size: 5.w,
-                  color: pref! ? AppColors.blackColor : AppColors.blackTextColor,
+                  color: pref ? AppColors.blackColor : AppColors.blackTextColor,
                 ),
               ),
               SizedBox(width: 2.w),
@@ -82,7 +82,7 @@ class ChatAppBarWidget extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(
-                    color: pref! ? AppColors.blackColor : AppColors.blackTextColor,
+                    color: pref ? AppColors.blackColor : AppColors.blackTextColor,
                     fontSize: 4.5.w,
                     fontWeight: FontWeight.bold,
                   ),
@@ -127,7 +127,7 @@ class ChatAppBarWidget extends StatelessWidget {
 
   Widget _buildMoreMenu(BuildContext context, bool isGroup, bool canShareGroup, bool canMusic, bool isCurrentUser) {
     return PopupMenuButton<String>(
-      color: pref! ? AppColors.blackColor : Colors.white,
+      color: pref ? AppColors.blackColor : Colors.white,
       borderRadius: BorderRadius.circular(10),
       onSelected: (String value) async {
         if (value == 'share') {
@@ -204,7 +204,7 @@ class ChatAppBarWidget extends StatelessWidget {
       ],
       child: Icon(Icons.more_vert,
           size: 5.5.w,
-          color: pref! ? AppColors.blackColor : AppColors.blackColor),
+          color: pref ? AppColors.blackColor : AppColors.blackColor),
     );
   }
 
@@ -213,9 +213,9 @@ class ChatAppBarWidget extends StatelessWidget {
         children: [
           Icon(icon,
               size: 5.w,
-              color: pref! ? AppColors.whiteColor : AppColors.blackColor),
+              color: pref ? AppColors.whiteColor : AppColors.blackColor),
           SizedBox(width: 3.w),
-          textNormal(title, pref! ? AppColors.whiteColor : AppColors.blackColor,
+          textNormal(title, pref ? AppColors.whiteColor : AppColors.blackColor,
               3.5.w, FontWeight.w500),
         ],
       );
@@ -228,7 +228,7 @@ class ChatAppBarWidget extends StatelessWidget {
         },
         child: Icon(IconsaxPlusLinear.call_calling,
             size: 5.5.w,
-            color: pref! ? AppColors.blackColor : AppColors.blackColor),
+            color: pref ? AppColors.blackColor : AppColors.blackColor),
       );
 
   Widget _buildVideoCallIcon(BuildContext context) => GestureDetector(
@@ -239,6 +239,6 @@ class ChatAppBarWidget extends StatelessWidget {
         },
         child: Icon(IconsaxPlusLinear.video,
             size: 5.5.w,
-            color: pref! ? AppColors.blackColor : AppColors.blackColor),
+            color: pref ? AppColors.blackColor : AppColors.blackColor),
       );
 }

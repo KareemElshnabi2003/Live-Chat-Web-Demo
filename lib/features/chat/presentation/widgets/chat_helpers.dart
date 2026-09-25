@@ -42,7 +42,7 @@ class ChatHelpers {
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.2.h),
       margin: EdgeInsets.only(bottom: 2.h),
       decoration: BoxDecoration(
-        color: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+        color: pref ? AppColors.darkcolor : AppColors.whiteColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
       ),
@@ -51,14 +51,14 @@ class ChatHelpers {
         children: [
           GestureDetector(
             onTap: onStopRadio,
-            child: Icon(IconsaxPlusLinear.close_circle, size: 5.w, color: pref! ? Colors.grey.shade400 : Colors.grey.shade600),
+            child: Icon(IconsaxPlusLinear.close_circle, size: 5.w, color: pref ? Colors.grey.shade400 : Colors.grey.shade600),
           ),
           SizedBox(width: 3.w),
           Expanded(
             child: Text(
               title,
               style: TextStyle(
-                color: pref! ? Colors.white : AppColors.blackTextColor,
+                color: pref ? Colors.white : AppColors.blackTextColor,
                 fontSize: 3.5.w,
                 fontWeight: FontWeight.w600,
               ),
@@ -68,7 +68,7 @@ class ChatHelpers {
             ),
           ),
           SizedBox(width: 3.w),
-          Icon(Icons.radio, size: 5.w, color: pref! ? Colors.white : AppColors.blackTextColor),
+          Icon(Icons.radio, size: 5.w, color: pref ? Colors.white : AppColors.blackTextColor),
         ],
       ),
     );
@@ -85,7 +85,7 @@ class ChatHelpers {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         decoration: BoxDecoration(
-          color: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+          color: pref ? AppColors.darkcolor : AppColors.whiteColor,
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
         ),
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 3.h),
@@ -94,7 +94,7 @@ class ChatHelpers {
           children: [
             Container(width: 12.w, height: 0.5.h, decoration: BoxDecoration(color: Colors.grey[400], borderRadius: BorderRadius.circular(10))),
             SizedBox(height: 2.h),
-            Text(S.of(context).react, style: TextStyle(color: pref! ? AppColors.whiteColor : AppColors.blackTextColor, fontSize: 4.w, fontWeight: FontWeight.w600)),
+            Text(S.of(context).react, style: TextStyle(color: pref ? AppColors.whiteColor : AppColors.blackTextColor, fontSize: 4.w, fontWeight: FontWeight.w600)),
             SizedBox(height: 3.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -108,7 +108,7 @@ class ChatHelpers {
                     width: 12.w,
                     height: 12.w,
                     decoration: BoxDecoration(
-                      color: pref! ? AppColors.blackColor.withOpacity(0.3) : Colors.grey[200],
+                      color: pref ? AppColors.blackColor.withOpacity(0.3) : Colors.grey[200],
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Center(child: Text(emoji, style: TextStyle(fontSize: 6.w))),

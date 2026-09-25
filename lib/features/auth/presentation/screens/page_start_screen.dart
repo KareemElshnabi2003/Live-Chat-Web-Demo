@@ -70,7 +70,7 @@ class _PageStartState extends State<PageStart> {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: BlocBuilder<HomeCubit, HomeState>(
         builder: (context, state) {
           final isLoading = state is HomeLoading;
@@ -84,7 +84,7 @@ class _PageStartState extends State<PageStart> {
               await context.read<HomeCubit>().refreshHome();
             },
             color: AppColors.secondaryColor,
-            backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+            backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
@@ -101,7 +101,7 @@ class _PageStartState extends State<PageStart> {
                       bottom: 2.h,
                     ),
                     decoration: BoxDecoration(
-                      color: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+                      color: pref ? AppColors.darkcolor : AppColors.whiteColor,
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(12),
                         bottomRight: Radius.circular(12),
@@ -121,7 +121,7 @@ class _PageStartState extends State<PageStart> {
                               SizedBox(width: 2.w),
                               textNormal(
                                 S.of(context).log_in,
-                                pref! ? AppColors.whiteColor : AppColors.blackColor,
+                                pref ? AppColors.whiteColor : AppColors.blackColor,
                                 4.w,
                                 FontWeight.w400,
                               ),
@@ -133,7 +133,7 @@ class _PageStartState extends State<PageStart> {
                           children: [
                             CircleAvatar(
                               radius: 5.w,
-                              backgroundColor: pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+                              backgroundColor: pref ? AppColors.secondaryColor : AppColors.primaryColor,
                               child: const CircleAvatar(
                                 backgroundImage: AssetImage("lib/Images/play_store_512.png"),
                                 radius: 18,
@@ -142,7 +142,7 @@ class _PageStartState extends State<PageStart> {
                             SizedBox(width: 2.w),
                             textNormal(
                               S.of(context).mayolivechat,
-                              pref! ? AppColors.secondaryColor : AppColors.primaryColor,
+                              pref ? AppColors.secondaryColor : AppColors.primaryColor,
                               3.5.w,
                               FontWeight.bold,
                             ),
@@ -161,7 +161,7 @@ class _PageStartState extends State<PageStart> {
                             children: [
                               textNormal(
                                 S.of(context).positive_chat,
-                                pref! ? AppColors.whiteColor : AppColors.blackColor,
+                                pref ? AppColors.whiteColor : AppColors.blackColor,
                                 4.w,
                                 FontWeight.w400,
                               ),
@@ -169,7 +169,7 @@ class _PageStartState extends State<PageStart> {
                               Icon(
                                 LucideIcons.pin300,
                                 size: 5.w,
-                                color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                                color: pref ? AppColors.whiteColor : AppColors.blackColor,
                               ),
                             ],
                           ),
@@ -218,7 +218,7 @@ class _PageStartState extends State<PageStart> {
                       children: [
                         textNormal(
                           S.of(context).latest_chats,
-                          pref! ? AppColors.whiteColor : AppColors.blackColor,
+                          pref ? AppColors.whiteColor : AppColors.blackColor,
                           4.w,
                           FontWeight.w400,
                         ),
@@ -288,7 +288,7 @@ class _PageStartState extends State<PageStart> {
                       children: [
                         textNormal(
                           S.of(context).other_chats,
-                          pref! ? AppColors.whiteColor : AppColors.blackColor,
+                          pref ? AppColors.whiteColor : AppColors.blackColor,
                           4.5.w,
                           FontWeight.w400,
                         ),

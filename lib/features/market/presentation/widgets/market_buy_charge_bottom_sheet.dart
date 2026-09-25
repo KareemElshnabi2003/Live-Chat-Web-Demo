@@ -79,7 +79,7 @@ void showBottomSheetMarketBuyChargeWidget({required BuildContext context}) {
   showModalBottomSheet(
     isScrollControlled: true,
     constraints: const BoxConstraints(maxWidth: kIsWeb ? 600 : double.infinity),
-    backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+    backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
     context: context,
     builder: (ctx) => const _MarketBuyChargeSheetContent(),
   );
@@ -158,7 +158,7 @@ class _MarketBuyChargeSheetContentState
               Container(
                 height: 4,
                 width: 70,
-                color: pref! ? AppColors.whiteColor : AppColors.blackColor,
+                color: pref ? AppColors.whiteColor : AppColors.blackColor,
               ),
               Container(
                 padding: EdgeInsets.only(
@@ -197,7 +197,7 @@ class _MarketBuyChargeSheetContentState
                               setState(() => _sheetBuyMarket = "paymentMethodsPage");
                             }
                           },
-                          pref! ? AppColors.whiteColor : AppColors.blackColor,
+                          pref ? AppColors.whiteColor : AppColors.blackColor,
                           3.5.w,
                         ),
                       ],
@@ -244,7 +244,7 @@ class _MarketBuyChargeSheetContentState
                       SizedBox(height: 2.h),
                       textNormal(
                         S.of(context).buyOrSendStars,
-                        pref!
+                        pref
                             ? AppColors.whiteColor
                             : AppColors.blackTextColor,
                         3.5.w,
@@ -340,7 +340,7 @@ class _MarketBuyChargeSheetContentState
                       SizedBox(height: 2.h),
                       textNormal(
                         S.of(context).buyOrSendStars,
-                        pref!
+                        pref
                             ? AppColors.whiteColor
                             : AppColors.blackTextColor,
                         3.5.w,
@@ -402,7 +402,7 @@ class _MarketBuyChargeSheetContentState
                       SizedBox(height: 2.h),
                       textNormal(
                         S.of(context).selectStarsPackages,
-                        pref!
+                        pref
                             ? AppColors.whiteColor
                             : AppColors.blackTextColor,
                         4.w,
@@ -444,7 +444,7 @@ class _MarketBuyChargeSheetContentState
                                   color: isSelected
                                       ? AppColors.primaryColor
                                           .withOpacity(0.3)
-                                      : (pref!
+                                      : (pref
                                           ? Colors.grey.withOpacity(0.2)
                                           : Colors.grey.withOpacity(0.1)),
                                   borderRadius: BorderRadius.circular(10),
@@ -460,7 +460,7 @@ class _MarketBuyChargeSheetContentState
                                   children: [
                                     textNormal(
                                       "${option.stars} Stars",
-                                      pref!
+                                      pref
                                           ? AppColors.whiteColor
                                           : AppColors.blackTextColor,
                                       3.5.w,
@@ -469,7 +469,7 @@ class _MarketBuyChargeSheetContentState
                                     SizedBox(height: 0.5.h),
                                     textNormal(
                                       "${option.price} EGP",
-                                      pref!
+                                      pref
                                           ? AppColors.whiteColor
                                           : AppColors.blackTextColor,
                                       3.w,
@@ -487,7 +487,7 @@ class _MarketBuyChargeSheetContentState
                         Container(
                           padding: EdgeInsets.all(2.w),
                           decoration: BoxDecoration(
-                            color: pref!
+                            color: pref
                                 ? Colors.grey.withOpacity(0.2)
                                 : Colors.grey.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10),
@@ -497,7 +497,7 @@ class _MarketBuyChargeSheetContentState
                             children: [
                               textNormal(
                                 S.of(context).totalStars(_totalStars),
-                                pref!
+                                pref
                                     ? AppColors.whiteColor
                                     : AppColors.blackTextColor,
                                 3.5.w,
@@ -562,7 +562,7 @@ class _MarketBuyChargeSheetContentState
                       SizedBox(height: 2.h),
                       textNormal(
                         S.of(context).selectPaymentMethod,
-                        pref!
+                        pref
                             ? AppColors.whiteColor
                             : AppColors.blackTextColor,
                         4.w,
@@ -591,7 +591,7 @@ class _MarketBuyChargeSheetContentState
                                   color: isSelected
                                       ? AppColors.primaryColor
                                           .withOpacity(0.3)
-                                      : (pref!
+                                      : (pref
                                           ? Colors.grey.withOpacity(0.2)
                                           : Colors.grey.withOpacity(0.1)),
                                   borderRadius: BorderRadius.circular(10),
@@ -608,7 +608,7 @@ class _MarketBuyChargeSheetContentState
                                   children: [
                                     textNormal(
                                       method.name,
-                                      pref!
+                                      pref
                                           ? AppColors.whiteColor
                                           : AppColors.blackTextColor,
                                       4.w,
@@ -625,7 +625,7 @@ class _MarketBuyChargeSheetContentState
                                           children: [
                                             textNormal(
                                               "${entry.key}:",
-                                              pref!
+                                              pref
                                                   ? AppColors.whiteColor
                                                       .withOpacity(0.7)
                                                   : AppColors.blackTextColor
@@ -636,7 +636,7 @@ class _MarketBuyChargeSheetContentState
                                             Expanded(
                                               child: textNormal(
                                                 entry.value.toString(),
-                                                pref!
+                                                pref
                                                     ? AppColors.whiteColor
                                                     : AppColors
                                                         .blackTextColor,
@@ -675,7 +675,7 @@ class _MarketBuyChargeSheetContentState
                       SizedBox(height: 2.h),
                       textNormal(
                         S.of(context).uploadPaymentReceipt,
-                        pref!
+                        pref
                             ? AppColors.whiteColor
                             : AppColors.blackTextColor,
                         4.w,
@@ -685,7 +685,7 @@ class _MarketBuyChargeSheetContentState
                       Container(
                         padding: EdgeInsets.all(3.w),
                         decoration: BoxDecoration(
-                          color: pref!
+                          color: pref
                               ? Colors.grey.withOpacity(0.2)
                               : Colors.grey.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
@@ -694,7 +694,7 @@ class _MarketBuyChargeSheetContentState
                           children: [
                             textNormal(
                               S.of(context).paymentDetails,
-                              pref!
+                              pref
                                   ? AppColors.whiteColor
                                   : AppColors.blackTextColor,
                               3.5.w,
@@ -703,7 +703,7 @@ class _MarketBuyChargeSheetContentState
                             SizedBox(height: 1.h),
                             textNormal(
                               S.of(context).starsCount(_totalStars),
-                              pref!
+                              pref
                                   ? AppColors.whiteColor
                                   : AppColors.blackTextColor,
                               3.w,
@@ -711,7 +711,7 @@ class _MarketBuyChargeSheetContentState
                             ),
                             textNormal(
                               S.of(context).priceAmount(_totalPrice),
-                              pref!
+                              pref
                                   ? AppColors.whiteColor
                                   : AppColors.blackTextColor,
                               3.w,
@@ -719,7 +719,7 @@ class _MarketBuyChargeSheetContentState
                             ),
                             textNormal(
                               "${S.of(context).paymentMethod}: ${_selectedPaymentMethod?.name}",
-                              pref!
+                              pref
                                   ? AppColors.whiteColor
                                   : AppColors.blackTextColor,
                               3.w,
@@ -767,7 +767,7 @@ class _MarketBuyChargeSheetContentState
                           height: 20.h,
                           width: 100.w,
                           decoration: BoxDecoration(
-                            color: pref!
+                            color: pref
                                 ? Colors.grey.withOpacity(0.2)
                                 : Colors.grey.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10),
@@ -784,14 +784,14 @@ class _MarketBuyChargeSheetContentState
                                     Icon(
                                       Icons.add_photo_alternate,
                                       size: 10.w,
-                                      color: pref!
+                                      color: pref
                                           ? AppColors.whiteColor
                                           : AppColors.blackTextColor,
                                     ),
                                     SizedBox(height: 1.h),
                                     textNormal(
                                       S.of(context).tapToUploadReceipt,
-                                      pref!
+                                      pref
                                           ? AppColors.whiteColor
                                           : AppColors.blackTextColor,
                                       3.w,
@@ -850,7 +850,7 @@ class _MarketBuyChargeSheetContentState
                                           showDialog(
                                             context: context,
                                             builder: (ctx) => AlertDialog(
-                                              backgroundColor: pref!
+                                              backgroundColor: pref
                                                   ? AppColors.blackColor
                                                   : AppColors.whiteColor,
                                               contentPadding:
@@ -879,7 +879,7 @@ class _MarketBuyChargeSheetContentState
                                                       fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.w600,
-                                                      color: pref!
+                                                      color: pref
                                                           ? AppColors.whiteColor
                                                           : AppColors
                                                               .blackTextColor,

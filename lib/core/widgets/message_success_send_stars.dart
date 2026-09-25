@@ -19,7 +19,7 @@ messageSuccessSendStars(context) {
           bottom: 35.h),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
-          color: pref! ? AppColors.darkcolor : AppColors.whiteColor),
+          color: pref ? AppColors.darkcolor : AppColors.whiteColor),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -28,12 +28,12 @@ messageSuccessSendStars(context) {
             fit: BoxFit.fill,
             height: 17.w,
             width: 18.w,
-            color: pref! ? AppColors.secondaryColor : null,
+            color: pref ? AppColors.secondaryColor : null,
           ),
           SizedBox(height: 2.h),
           textNormal(
               S.of(context).sentSuccessfully,
-              pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+              pref ? AppColors.whiteColor : AppColors.blackTextColor,
               4.w,
               FontWeight.w600),
           SizedBox(height: 2.h),
@@ -42,7 +42,7 @@ messageSuccessSendStars(context) {
             child: textNormal(
                 center: true,
                 S.of(context).starsSentSuccessfully,
-                pref! ? AppColors.inActiveColor : AppColors.black2TextColor,
+                pref ? AppColors.inActiveColor : AppColors.black2TextColor,
                 3.5.w,
                 FontWeight.w400),
           ),

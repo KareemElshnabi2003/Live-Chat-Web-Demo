@@ -1,10 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+import 'package:live_chat/core/constant/app_constant.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/core/services/audio/audio_service.dart';
 import 'package:live_chat/core/services/pusher/pusher_service.dart';
+import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
+import 'package:live_chat/features/chat/data/models/member_of_chat_model.dart';
+import 'package:live_chat/features/home/data/models/radio_model.dart';
+import '../../domain/entities/chat_attachment.dart';
 import '../../domain/repositories/chat_repository.dart';
 import 'chat_state.dart';
 
@@ -14,6 +20,7 @@ class ChatCubit extends Cubit<ChatState> {
   final AudioService audioService;
 
   String? _currentChatId;
+  StreamSubscription<PusherEvent>? _pusherSub;
 
   ChatCubit({
     required this.chatRepository,
@@ -25,16 +32,22 @@ class ChatCubit extends Cubit<ChatState> {
     _currentChatId = chatId;
     emit(ChatLoading());
 
-    // Initialize and subscribe to Pusher
-    await pusherService.init(onEvent: _handlePusherEvent);
-    await pusherService.subscribe("live-chat-ngoum-$chatId");
+    // Clean up any previous Pusher subscription
+    await _pusherSub?.cancel();
+    _pusherSub = null;
+
+    // Initialize and subscribe to Pusher channel stream
+    await pusherService.init();
+    final channelName = "live-chat-ngoum-$chatId";
+    await pusherService.subscribe(channelName);
+    _pusherSub = pusherService.eventStreamForChannel(channelName).listen(_handlePusherEvent);
 
     // Load initial messages and radios
     final messagesResult = await chatRepository.getMessages(chatId: chatId, page: 1);
     final radiosResult = await chatRepository.getRadios();
 
-    List<dynamic> messages = [];
-    List<dynamic> radios = [];
+    List<ChatMessage> messages = [];
+    List<RadioModel> radios = [];
 
     messagesResult.fold((_) {}, (r) => messages = r);
     radiosResult.fold((_) {}, (r) => radios = r);
@@ -51,12 +64,22 @@ class ChatCubit extends Cubit<ChatState> {
     if (event.eventName == "message-created" &&
         event.channelName == "live-chat-ngoum-$_currentChatId") {
       try {
-        final decoded = jsonDecode(event.data.toString());
-        if (state is ChatLoaded) {
+        final dynamic raw = event.data is String ? jsonDecode(event.data.toString()) : event.data;
+        if (raw is Map && state is ChatLoaded) {
           final current = state as ChatLoaded;
-          final updatedMessages = List<dynamic>.from(current.messages);
-          updatedMessages.insert(0, decoded);
-          emit(current.copyWith(messages: updatedMessages));
+          final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
+          final map = raw is Map<String, dynamic> ? raw : Map<String, dynamic>.from(raw);
+          final newMsg = ChatMessage.fromJson(map, currentUserId: currentUserId);
+
+          // Deduplication: prevent duplicate messages from entering the list
+          final isDuplicate = current.messages.any(
+            (m) => m.messageId == newMsg.messageId && newMsg.messageId.isNotEmpty,
+          );
+
+          if (!isDuplicate) {
+            final updatedMessages = List<ChatMessage>.from(current.messages)..insert(0, newMsg);
+            emit(current.copyWith(messages: updatedMessages));
+          }
         }
       } catch (e) {
         debugPrint("Error parsing pusher message: $e");
@@ -65,7 +88,7 @@ class ChatCubit extends Cubit<ChatState> {
   }
 
   Future<void> loadMoreMessages() async {
-    if (state is! ChatLoaded) return;
+    if (state is! ChatLoaded || _currentChatId == null) return;
     final current = state as ChatLoaded;
     if (current.isLoadingMore || !current.hasMoreMessages) return;
 
@@ -80,7 +103,11 @@ class ChatCubit extends Cubit<ChatState> {
     result.fold(
       (error) => emit(current.copyWith(isLoadingMore: false)),
       (newMessages) {
-        final updated = List<dynamic>.from(current.messages)..addAll(newMessages);
+        // Deduplicate incoming paged messages against current list
+        final existingIds = current.messages.map((m) => m.messageId).toSet();
+        final uniqueNew = newMessages.where((m) => !existingIds.contains(m.messageId)).toList();
+        final updated = List<ChatMessage>.from(current.messages)..addAll(uniqueNew);
+
         emit(current.copyWith(
           messages: updated,
           currentPage: nextPage,
@@ -96,7 +123,7 @@ class ChatCubit extends Cubit<ChatState> {
     await chatRepository.sendMessage(chatId: _currentChatId!, message: text.trim());
   }
 
-  Future<void> sendMediaMessage({required String messageType, MultipartFile? file}) async {
+  Future<void> sendMediaMessage({required String messageType, ChatAttachment? file}) async {
     if (_currentChatId == null) return;
     await chatRepository.sendMessageWithFile(
       chatId: _currentChatId!,
@@ -109,7 +136,7 @@ class ChatCubit extends Cubit<ChatState> {
     await chatRepository.sendReaction(messageId: messageId, react: react);
   }
 
-  void setReplyingToMessage(dynamic message) {
+  void setReplyingToMessage(ChatMessage? message) {
     if (state is ChatLoaded) {
       emit((state as ChatLoaded).copyWith(replyingToMessage: message));
     }
@@ -146,8 +173,8 @@ class ChatCubit extends Cubit<ChatState> {
 
   Future<bool> createGeneralChat({
     required Map<String, dynamic> data,
-    MultipartFile? imgChat,
-    MultipartFile? bgChat,
+    ChatAttachment? imgChat,
+    ChatAttachment? bgChat,
   }) async {
     final result = await chatRepository.createGeneralChat(
       data: data,
@@ -160,8 +187,8 @@ class ChatCubit extends Cubit<ChatState> {
   Future<bool> updateGeneralChat({
     required String chatId,
     required Map<String, dynamic> data,
-    MultipartFile? imgChat,
-    MultipartFile? bgChat,
+    ChatAttachment? imgChat,
+    ChatAttachment? bgChat,
   }) async {
     final result = await chatRepository.updateGeneralChat(
       chatId: chatId,
@@ -193,13 +220,15 @@ class ChatCubit extends Cubit<ChatState> {
     return result.fold((l) => false, (r) => true);
   }
 
-  Future<List<dynamic>> getMembers({required String chatId, int page = 1}) async {
+  Future<List<MemberOfChatModel>> getMembers({required String chatId, int page = 1}) async {
     final result = await chatRepository.getMembers(chatId: chatId, page: page);
     return result.fold((l) => [], (r) => r);
   }
 
   @override
   Future<void> close() async {
+    await _pusherSub?.cancel();
+    _pusherSub = null;
     if (_currentChatId != null) {
       await pusherService.unsubscribe("live-chat-ngoum-$_currentChatId");
     }

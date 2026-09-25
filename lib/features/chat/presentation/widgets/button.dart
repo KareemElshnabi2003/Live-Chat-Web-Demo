@@ -31,10 +31,10 @@ class Button extends StatelessWidget {
         height: 6.h,
         decoration: ShapeDecoration(
           color: isDisabled
-              ? (pref!
+              ? (pref
                   ? AppColors.secondaryColor.withOpacity(0.6)
                   : const Color(0xFF243C21).withOpacity(0.6))
-              : (pref! ? AppColors.secondaryColor : const Color(0xFF243C21)),
+              : (pref ? AppColors.secondaryColor : const Color(0xFF243C21)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius ?? 12),
           ),
@@ -47,13 +47,13 @@ class Button extends StatelessWidget {
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      pref! ? AppColors.blackColor : AppColors.whiteColor,
+                      pref ? AppColors.blackColor : AppColors.whiteColor,
                     ),
                   ),
                 )
               : textNormal(
                   text,
-                  pref! ? AppColors.blackColor : AppColors.whiteColor,
+                  pref ? AppColors.blackColor : AppColors.whiteColor,
                   4.w,
                   FontWeight.w500,
                 ),

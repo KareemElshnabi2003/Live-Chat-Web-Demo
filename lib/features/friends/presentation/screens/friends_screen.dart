@@ -67,7 +67,7 @@ Widget _buildProfileImage(ImageProvider img, String ttitle, bool imgUrl, bool is
       width: 19.w,
       height: 19.w,
       decoration: BoxDecoration(
-        color: pref! ? AppColors.darkcolor : AppColors.black2TextColor,
+        color: pref ? AppColors.darkcolor : AppColors.black2TextColor,
         image: imgUrl ? DecorationImage(image: img, fit: BoxFit.fill) : null,
         borderRadius: BorderRadius.circular(isFriendsSection ? 80 : 20),
       ),
@@ -82,11 +82,11 @@ Widget _buildChatDetails(BuildContext context, PowerModel? power, String ttitle,
     children: [
       power != null
           ? PowerTextWidget(powerModel: power, displyText: ttitle)
-          : textNormal(ttitle, pref! ? AppColors.whiteColor : AppColors.blackTextColor, 3.5.w, FontWeight.w400),
+          : textNormal(ttitle, pref ? AppColors.whiteColor : AppColors.blackTextColor, 3.5.w, FontWeight.w400),
       const Spacer(flex: 1),
-      textNormal(body, isFriend ? (pref! ? AppColors.inActiveColor : AppColors.black2TextColor) : AppColors.secondaryColor, 3.w, FontWeight.w500),
+      textNormal(body, isFriend ? (pref ? AppColors.inActiveColor : AppColors.black2TextColor) : AppColors.secondaryColor, 3.w, FontWeight.w500),
       const Spacer(flex: 2),
-      textClick(isFriend ? S.of(context).correspondent : S.of(context).cancel, false, onPressJoin, isFriend ? (pref! ? AppColors.secondaryColor : AppColors.primaryColor) : AppColors.redColor, 3.w),
+      textClick(isFriend ? S.of(context).correspondent : S.of(context).cancel, false, onPressJoin, isFriend ? (pref ? AppColors.secondaryColor : AppColors.primaryColor) : AppColors.redColor, 3.w),
     ],
   );
 }
@@ -99,7 +99,7 @@ Widget _buildActionButton(bool isEditing, bool isFriend, VoidCallback onPressRem
       height: 14.w,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isEditing ? (pref! ? AppColors.darkcolor : AppColors.bgColor) : (pref! ? AppColors.blackColor : AppColors.whiteColor),
+        color: isEditing ? (pref ? AppColors.darkcolor : AppColors.bgColor) : (pref ? AppColors.blackColor : AppColors.whiteColor),
         borderRadius: BorderRadius.only(
           topLeft: isRtl ? Radius.zero : const Radius.circular(20),
           bottomLeft: isRtl ? Radius.zero : const Radius.circular(20),
@@ -110,11 +110,11 @@ Widget _buildActionButton(bool isEditing, bool isFriend, VoidCallback onPressRem
       child: Container(
         height: 12.w,
         width: 12.w,
-        decoration: ShapeDecoration(color: pref! ? AppColors.blackColor : AppColors.bgColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+        decoration: ShapeDecoration(color: pref ? AppColors.blackColor : AppColors.bgColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
         child: Center(
           child: Icon(
             isEditing ? (isFriend ? IconsaxPlusLinear.profile_delete : Icons.close) : (isFriend ? (isRtl ? IconsaxPlusLinear.arrow_left : IconsaxPlusLinear.arrow_right) : Icons.close),
-            color: isEditing ? Colors.red : (pref! ? AppColors.whiteColor : AppColors.blackColor),
+            color: isEditing ? Colors.red : (pref ? AppColors.whiteColor : AppColors.blackColor),
             size: 6.w,
           ),
         ),
@@ -150,7 +150,7 @@ class _FriendsState extends State<Friends> {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
-      backgroundColor: pref! ? AppColors.blackColor : AppColors.bgColor,
+      backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
       body: Padding(
         padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0, top: 5.h, bottom: 2.h),
         child: BlocConsumer<FriendsCubit, FriendsState>(
@@ -174,7 +174,7 @@ class _FriendsState extends State<Friends> {
             return RefreshIndicator(
               onRefresh: () => context.read<FriendsCubit>().loadFriendsAndSuggestions(),
               color: AppColors.secondaryColor,
-              backgroundColor: pref! ? AppColors.darkcolor : AppColors.whiteColor,
+              backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
               child: ListView(
                 controller: _scrollController,
                 padding: EdgeInsets.zero,
@@ -201,10 +201,10 @@ class _FriendsState extends State<Friends> {
           children: [
             GestureDetector(
               onTap: () => Navigator.pop(context),
-              child: Icon(isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1, size: 5.5.w, color: pref! ? AppColors.whiteColor : AppColors.blackColor),
+              child: Icon(isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1, size: 5.5.w, color: pref ? AppColors.whiteColor : AppColors.blackColor),
             ),
             SizedBox(width: 2.w),
-            textNormal(S.of(context).yourFriends, pref! ? AppColors.whiteColor : AppColors.blackTextColor, 4.5.w, FontWeight.w500),
+            textNormal(S.of(context).yourFriends, pref ? AppColors.whiteColor : AppColors.blackTextColor, 4.5.w, FontWeight.w500),
           ],
         ),
         Row(
@@ -214,20 +214,20 @@ class _FriendsState extends State<Friends> {
               child: Row(
                 textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
                 children: [
-                  textClick(S.of(context).requests, true, () => context.push(Routes.friendRequestsScreen), pref! ? AppColors.whiteColor : AppColors.blackTextColor, 3.5.w),
+                  textClick(S.of(context).requests, true, () => context.push(Routes.friendRequestsScreen), pref ? AppColors.whiteColor : AppColors.blackTextColor, 3.5.w),
                   SizedBox(width: 1.5.w),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: pendingCount > 0
                           ? AppColors.redColor
-                          : (pref! ? AppColors.secondaryColor : AppColors.primaryColor),
+                          : (pref ? AppColors.secondaryColor : AppColors.primaryColor),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       "$pendingCount",
                       style: TextStyle(
-                        color: pendingCount > 0 ? Colors.white : (pref! ? AppColors.blackColor : Colors.white),
+                        color: pendingCount > 0 ? Colors.white : (pref ? AppColors.blackColor : Colors.white),
                         fontSize: 3.w,
                         fontWeight: FontWeight.bold,
                       ),
@@ -242,7 +242,7 @@ class _FriendsState extends State<Friends> {
                 isEditing ? S.of(context).cancel : S.of(context).edit,
                 true,
                 () => context.read<FriendsCubit>().toggleEditing(),
-                pref! ? AppColors.whiteColor : AppColors.blackTextColor,
+                pref ? AppColors.whiteColor : AppColors.blackTextColor,
                 3.5.w,
               ),
             ),
