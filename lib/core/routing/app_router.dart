@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:live_chat/View/Screens/Home/home_view.dart';
-import 'package:live_chat/View/Screens/Market/market_page.dart';
-import 'package:live_chat/View/Screens/auth/auth_view.dart';
-import 'package:live_chat/View/Screens/create%20chat/create_chat.dart';
-import 'package:live_chat/View/Screens/friends/friends.dart';
-import 'package:live_chat/View/Screens/friends/requests.dart';
-import 'package:live_chat/View/Screens/notifications/notifications.dart';
-import 'package:live_chat/View/Screens/settings/ads_with_us.dart';
-import 'package:live_chat/View/Screens/settings/language_view.dart';
-import 'package:live_chat/View/Screens/settings/my_account_view.dart';
-import 'package:live_chat/View/Screens/settings/night_mode.dart';
-import 'package:live_chat/View/Screens/settings/privacy.dart';
-import 'package:live_chat/View/Screens/settings/setting_view.dart';
-import 'package:live_chat/View/Screens/settings/term_condation.dart';
-import 'package:live_chat/View/Screens/splash/splash_screen.dart';
-import 'package:live_chat/View/Screens/start%20page/page_start.dart';
-import 'package:live_chat/View/Screens/suggession%20friends/suggession%20friends.dart';
+
+import 'package:live_chat/features/auth/presentation/screens/splash_screen.dart';
+import 'package:live_chat/features/auth/presentation/screens/page_start_screen.dart';
+import 'package:live_chat/features/auth/presentation/screens/auth_screen.dart';
+import 'package:live_chat/features/home/presentation/screens/home_screen.dart';
+import 'package:live_chat/features/chat/presentation/screens/chat_screen.dart';
+import 'package:live_chat/features/chat/presentation/screens/create_chat_screen.dart';
+import 'package:live_chat/features/friends/presentation/screens/friends_screen.dart';
+import 'package:live_chat/features/friends/presentation/screens/requests_screen.dart';
+import 'package:live_chat/features/friends/presentation/screens/suggested_friends_screen.dart';
+import 'package:live_chat/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:live_chat/features/market/presentation/screens/market_screen.dart';
+import 'package:live_chat/features/settings/presentation/screens/settings_screen.dart';
+import 'package:live_chat/features/settings/presentation/screens/privacy_screen.dart';
+import 'package:live_chat/features/settings/presentation/screens/term_condition_screen.dart';
+import 'package:live_chat/features/settings/presentation/screens/ads_with_us_screen.dart';
+import 'package:live_chat/features/settings/presentation/screens/language_screen.dart';
+import 'package:live_chat/features/settings/presentation/screens/night_mode_screen.dart';
+import 'package:live_chat/features/settings/presentation/screens/my_account_screen.dart';
+import 'package:live_chat/features/settings/presentation/screens/capabilities_screen.dart';
+import 'package:live_chat/features/chat/presentation/screens/shared_chats_screen.dart';
+
 import 'routes.dart';
 
 class AppRouter {
@@ -45,32 +50,43 @@ class AppRouter {
           builder: (context, state) => const PageStart(),
         ),
         GoRoute(
-          path: '/auth',
-          builder: (context, state) => const AuthView(),
+          path: Routes.authScreen,
+          builder: (context, state) => const AuthScreen(),
         ),
         GoRoute(
           path: Routes.homeScreen,
           builder: (context, state) => const HomeView(),
         ),
         GoRoute(
+          path: Routes.chatScreen,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return ChatView(
+              userChatModel: extra?['userChatModel'],
+              isPin: extra?['isPin'] ?? false,
+              isGust: extra?['isGust'] ?? false,
+            );
+          },
+        ),
+        GoRoute(
           path: Routes.createChatScreen,
-          builder: (context, state) => CreateChat(),
+          builder: (context, state) => const CreateChat(),
         ),
         GoRoute(
           path: Routes.friendsScreen,
-          builder: (context, state) => Friends(),
+          builder: (context, state) => const Friends(),
         ),
         GoRoute(
           path: Routes.friendRequestsScreen,
-          builder: (context, state) => Requests(),
+          builder: (context, state) => const Requests(),
         ),
         GoRoute(
           path: Routes.suggestedFriendsScreen,
-          builder: (context, state) => SuggessionChat(),
+          builder: (context, state) => const SuggessionChat(),
         ),
         GoRoute(
           path: Routes.notificationsScreen,
-          builder: (context, state) => Notifications(),
+          builder: (context, state) => const Notifications(),
         ),
         GoRoute(
           path: Routes.marketScreen,
@@ -94,15 +110,29 @@ class AppRouter {
         ),
         GoRoute(
           path: Routes.languageScreen,
-          builder: (context, state) => LanguageView(),
+          builder: (context, state) => const LanguageView(),
         ),
         GoRoute(
           path: Routes.nightModeScreen,
-          builder: (context, state) => NightModeView(),
+          builder: (context, state) => const NightModeView(),
         ),
         GoRoute(
           path: Routes.myAccountScreen,
-          builder: (context, state) => MyAccountView(),
+          builder: (context, state) => const MyAccountView(),
+        ),
+        GoRoute(
+          path: Routes.capabilitiesScreen,
+          builder: (context, state) => const Capabilities(),
+        ),
+        GoRoute(
+          path: Routes.sharedChatsScreen,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return SharedChatsScreen(
+              title: extra?['title'] ?? '',
+              chatType: extra?['type'] ?? 'recent',
+            );
+          },
         ),
       ],
     );

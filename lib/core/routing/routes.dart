@@ -1,6 +1,7 @@
 class Routes {
   static const String splashScreen = '/';
   static const String startPageScreen = '/start';
+  static const String authScreen = '/auth';
   static const String homeScreen = '/home';
   static const String chatScreen = '/chat';
   static const String createChatScreen = '/create-chat';
@@ -17,4 +18,6 @@ class Routes {
   static const String languageScreen = '/language';
   static const String nightModeScreen = '/night-mode';
   static const String myAccountScreen = '/my-account';
+  static const String capabilitiesScreen = '/capabilities';
+  static const String sharedChatsScreen = '/shared-chats';
 }

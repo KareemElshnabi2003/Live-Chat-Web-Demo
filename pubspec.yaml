@@ -14,11 +14,9 @@ dependencies:
   cached_network_image: 
   path: 
   url_launcher: ^6.3.2 
-  get: 
   google_fonts:
   flutter_otp_text_field: 
   device_preview: 
-  http: 
   shared_preferences: 
   dartz: 
   dotted_border: ^2.1.0

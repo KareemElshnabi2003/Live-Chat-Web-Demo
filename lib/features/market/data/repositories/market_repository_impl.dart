@@ -39,6 +39,21 @@ class MarketRepositoryImpl implements MarketRepository {
   }
 
   @override
+  Future<Either<String, List<dynamic>>> getUserPowers() async {
+    try {
+      final response = await remoteDataSource.getUserPowers();
+      if (response != null && response is Map && response['data'] is List) {
+        return Right(response['data'] as List<dynamic>);
+      }
+      return const Right([]);
+    } on ServerException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
   Future<Either<String, dynamic>> closePower({required String powerId, required String status}) async {
     try {
       final response = await remoteDataSource.closePower(powerId: powerId, status: status);
@@ -126,6 +141,21 @@ class MarketRepositoryImpl implements MarketRepository {
         conversationId: conversationId,
         date: date,
         timeSlots: timeSlots,
+      );
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, dynamic>> buyPower({required int powerId, int storeId = 9}) async {
+    try {
+      final response = await remoteDataSource.buyPower(
+        powerId: powerId,
+        storeId: storeId,
       );
       return Right(response);
     } on ServerException catch (e) {

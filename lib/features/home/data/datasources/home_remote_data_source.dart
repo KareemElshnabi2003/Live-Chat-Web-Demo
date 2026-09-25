@@ -9,6 +9,7 @@ abstract class HomeRemoteDataSource {
   Future<dynamic> getSystemChats({int page = 1, int perPage = 8});
   Future<dynamic> getRecentChats({int page = 1, int perPage = 15});
   Future<dynamic> getUserChats({int page = 1, int perPage = 15});
+  Future<dynamic> joinToChat({required dynamic chatId});
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -51,6 +52,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   Future<dynamic> getUserChats({int page = 1, int perPage = 15}) async {
     return await api.get(
       "${EndPoints.getUsersChatUrl}?per_page=$perPage&page=$page",
+    );
+  }
+
+  @override
+  Future<dynamic> joinToChat({required dynamic chatId}) async {
+    return await api.post(
+      "${EndPoints.joinChatUrl}/$chatId?device_id=$_deviceId",
+      data: {},
     );
   }
 }

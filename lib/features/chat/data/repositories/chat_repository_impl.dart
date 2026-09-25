@@ -103,4 +103,115 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, List<dynamic>>> getThemes() async {
+    try {
+      final response = await remoteDataSource.getThemes();
+      if (response != null && response is Map && response['data'] is List) {
+        return Right(response['data'] as List<dynamic>);
+      }
+      return const Right([]);
+    } on ServerException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, dynamic>> createGeneralChat({
+    required Map<String, dynamic> data,
+    MultipartFile? imgChat,
+    MultipartFile? bgChat,
+  }) async {
+    try {
+      final response = await remoteDataSource.createGeneralChat(
+        data: data,
+        imgChat: imgChat,
+        bgChat: bgChat,
+      );
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, dynamic>> updateGeneralChat({
+    required String chatId,
+    required Map<String, dynamic> data,
+    MultipartFile? imgChat,
+    MultipartFile? bgChat,
+  }) async {
+    try {
+      final response = await remoteDataSource.updateGeneralChat(
+        chatId: chatId,
+        data: data,
+        imgChat: imgChat,
+        bgChat: bgChat,
+      );
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, dynamic>> deleteChat({required String chatId}) async {
+    try {
+      final response = await remoteDataSource.deleteChat(chatId: chatId);
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, dynamic>> acceptMemberToChat({
+    required String chatId,
+    required String userId,
+  }) async {
+    try {
+      final response = await remoteDataSource.acceptMemberToChat(chatId: chatId, userId: userId);
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, dynamic>> blockOrUnBlock({
+    required int status,
+    required String userId,
+  }) async {
+    try {
+      final response = await remoteDataSource.blockOrUnBlock(status: status, userId: userId);
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, dynamic>> createChatFriend({required int friendId}) async {
+    try {
+      final response = await remoteDataSource.createChatFriend(friendId: friendId);
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

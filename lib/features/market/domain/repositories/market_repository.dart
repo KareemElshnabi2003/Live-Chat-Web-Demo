@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 abstract class MarketRepository {
   Future<Either<String, Map<String, dynamic>>> getProfile();
   Future<Either<String, List<dynamic>>> getStorePowers({int page = 1, int perPage = 20});
+  Future<Either<String, List<dynamic>>> getUserPowers();
   Future<Either<String, dynamic>> closePower({required String powerId, required String status});
   Future<Either<String, dynamic>> getPaymentOptions();
   Future<Either<String, dynamic>> getPaymentMethods();
@@ -20,4 +21,5 @@ abstract class MarketRepository {
     required String date,
     required List<String> timeSlots,
   });
+  Future<Either<String, dynamic>> buyPower({required int powerId, int storeId = 9});
 }

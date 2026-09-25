@@ -7,6 +7,7 @@ import 'package:live_chat/core/helper/cache_helper.dart';
 abstract class MarketRemoteDataSource {
   Future<dynamic> getProfile();
   Future<dynamic> getStorePowers({int page = 1, int perPage = 20});
+  Future<dynamic> getUserPowers();
   Future<dynamic> closePower({required String powerId, required String status});
   Future<dynamic> getPaymentOptions();
   Future<dynamic> getPaymentMethods();
@@ -24,6 +25,7 @@ abstract class MarketRemoteDataSource {
     required String date,
     required List<String> timeSlots,
   });
+  Future<dynamic> buyPower({required int powerId, int storeId = 9});
 }
 
 class MarketRemoteDataSourceImpl implements MarketRemoteDataSource {
@@ -43,6 +45,13 @@ class MarketRemoteDataSourceImpl implements MarketRemoteDataSource {
   Future<dynamic> getStorePowers({int page = 1, int perPage = 20}) async {
     return await api.get(
       "${EndPoints.storePower}?per_page=$perPage&page=$page",
+    );
+  }
+
+  @override
+  Future<dynamic> getUserPowers() async {
+    return await api.get(
+      "${EndPoints.getUserPower}?device_id=$_deviceId",
     );
   }
 
@@ -117,6 +126,17 @@ class MarketRemoteDataSourceImpl implements MarketRemoteDataSource {
         "date": date,
         "time_slots": timeSlots,
         "device_id": _deviceId,
+      },
+    );
+  }
+
+  @override
+  Future<dynamic> buyPower({required int powerId, int storeId = 9}) async {
+    return await api.post(
+      "${EndPoints.stores}/$powerId/buy_power",
+      data: {
+        'power_id': powerId,
+        'store_id': storeId,
       },
     );
   }

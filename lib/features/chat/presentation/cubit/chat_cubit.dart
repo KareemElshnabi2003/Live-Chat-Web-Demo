@@ -109,6 +109,18 @@ class ChatCubit extends Cubit<ChatState> {
     await chatRepository.sendReaction(messageId: messageId, react: react);
   }
 
+  void setReplyingToMessage(dynamic message) {
+    if (state is ChatLoaded) {
+      emit((state as ChatLoaded).copyWith(replyingToMessage: message));
+    }
+  }
+
+  void cancelReply() {
+    if (state is ChatLoaded) {
+      emit((state as ChatLoaded).copyWith(clearReply: true));
+    }
+  }
+
   Future<void> playRadio(String url) async {
     if (state is! ChatLoaded) return;
     final current = state as ChatLoaded;
@@ -125,6 +137,65 @@ class ChatCubit extends Cubit<ChatState> {
     final current = state as ChatLoaded;
     await audioService.stopAudio();
     emit(current.copyWith(isRadioPlaying: false, currentRadioUrl: null));
+  }
+
+  Future<List<dynamic>> getThemes() async {
+    final result = await chatRepository.getThemes();
+    return result.fold((l) => [], (r) => r);
+  }
+
+  Future<bool> createGeneralChat({
+    required Map<String, dynamic> data,
+    MultipartFile? imgChat,
+    MultipartFile? bgChat,
+  }) async {
+    final result = await chatRepository.createGeneralChat(
+      data: data,
+      imgChat: imgChat,
+      bgChat: bgChat,
+    );
+    return result.fold((l) => false, (r) => true);
+  }
+
+  Future<bool> updateGeneralChat({
+    required String chatId,
+    required Map<String, dynamic> data,
+    MultipartFile? imgChat,
+    MultipartFile? bgChat,
+  }) async {
+    final result = await chatRepository.updateGeneralChat(
+      chatId: chatId,
+      data: data,
+      imgChat: imgChat,
+      bgChat: bgChat,
+    );
+    return result.fold((l) => false, (r) => true);
+  }
+
+  Future<bool> deleteChat({required String chatId}) async {
+    final result = await chatRepository.deleteChat(chatId: chatId);
+    return result.fold((l) => false, (r) => true);
+  }
+
+  Future<bool> acceptMemberToChat({
+    required String chatId,
+    required String userId,
+  }) async {
+    final result = await chatRepository.acceptMemberToChat(chatId: chatId, userId: userId);
+    return result.fold((l) => false, (r) => true);
+  }
+
+  Future<bool> blockOrUnBlock({
+    required int status,
+    required String userId,
+  }) async {
+    final result = await chatRepository.blockOrUnBlock(status: status, userId: userId);
+    return result.fold((l) => false, (r) => true);
+  }
+
+  Future<List<dynamic>> getMembers({required String chatId, int page = 1}) async {
+    final result = await chatRepository.getMembers(chatId: chatId, page: page);
+    return result.fold((l) => [], (r) => r);
   }
 
   @override

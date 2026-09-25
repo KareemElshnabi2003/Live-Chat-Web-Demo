@@ -12,6 +12,7 @@ class ChatLoaded extends ChatState {
   final List<dynamic> radios;
   final bool isRadioPlaying;
   final String? currentRadioUrl;
+  final dynamic replyingToMessage;
 
   ChatLoaded({
     this.messages = const [],
@@ -21,6 +22,7 @@ class ChatLoaded extends ChatState {
     this.radios = const [],
     this.isRadioPlaying = false,
     this.currentRadioUrl,
+    this.replyingToMessage,
   });
 
   ChatLoaded copyWith({
@@ -31,6 +33,8 @@ class ChatLoaded extends ChatState {
     List<dynamic>? radios,
     bool? isRadioPlaying,
     String? currentRadioUrl,
+    dynamic replyingToMessage,
+    bool clearReply = false,
   }) {
     return ChatLoaded(
       messages: messages ?? this.messages,
@@ -40,6 +44,7 @@ class ChatLoaded extends ChatState {
       radios: radios ?? this.radios,
       isRadioPlaying: isRadioPlaying ?? this.isRadioPlaying,
       currentRadioUrl: currentRadioUrl ?? this.currentRadioUrl,
+      replyingToMessage: clearReply ? null : (replyingToMessage ?? this.replyingToMessage),
     );
   }
 }

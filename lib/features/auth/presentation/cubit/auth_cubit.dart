@@ -4,13 +4,30 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/helper/cache_helper.dart';
-import '../../domain/repositories/auth_repository.dart';
+import '../../domain/usecases/check_otp_use_case.dart';
+import '../../domain/usecases/login_use_case.dart';
+import '../../domain/usecases/logout_use_case.dart';
+import '../../domain/usecases/register_use_case.dart';
+import '../../domain/usecases/resend_otp_use_case.dart';
+import '../../domain/usecases/verify_guest_use_case.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  final AuthRepository authRepository;
+  final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
+  final CheckOtpUseCase checkOtpUseCase;
+  final ResendOtpUseCase resendOtpUseCase;
+  final VerifyGuestUseCase verifyGuestUseCase;
+  final LogoutUseCase logoutUseCase;
 
-  AuthCubit({required this.authRepository}) : super(AuthInitial());
+  AuthCubit({
+    required this.loginUseCase,
+    required this.registerUseCase,
+    required this.checkOtpUseCase,
+    required this.resendOtpUseCase,
+    required this.verifyGuestUseCase,
+    required this.logoutUseCase,
+  }) : super(AuthInitial());
 
   Future<void> initDeviceIdAndToken() async {
     try {
@@ -34,7 +51,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> login({required String email}) async {
     emit(AuthLoading());
-    final result = await authRepository.login(email: email);
+    final result = await loginUseCase(email: email);
     result.fold(
       (error) => emit(AuthError(message: error)),
       (_) => emit(AuthCodeSent(email: email, isRegister: false)),
@@ -47,7 +64,7 @@ class AuthCubit extends Cubit<AuthState> {
     required String email,
   }) async {
     emit(AuthLoading());
-    final result = await authRepository.register(
+    final result = await registerUseCase(
       name: name,
       userName: userName,
       email: email,
@@ -59,7 +76,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> resendOTP({required String email}) async {
-    final result = await authRepository.resendOTP(email: email);
+    final result = await resendOtpUseCase(email: email);
     result.fold(
       (error) => emit(AuthError(message: error)),
       (_) {},
@@ -72,7 +89,7 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     emit(AuthLoading());
     final fcmToken = CacheHelper.getString(key: "deviceToken");
-    final result = await authRepository.checkOTP(
+    final result = await checkOtpUseCase(
       email: email,
       otp: otp,
       fcmToken: fcmToken,
@@ -115,7 +132,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> verifyGuest() async {
     emit(AuthLoading());
-    final result = await authRepository.verifyGuest();
+    final result = await verifyGuestUseCase();
     result.fold(
       (error) => emit(AuthError(message: error)),
       (response) async {
@@ -136,10 +153,12 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> logOut() async {
     emit(AuthLoading());
-    await authRepository.logOut();
+    await logoutUseCase();
     await CacheHelper.clearData();
     // Keep deviceId after logout
     await initDeviceIdAndToken();
     emit(AuthLoggedOut());
   }
+
+  Future<void> logout() => logOut();
 }

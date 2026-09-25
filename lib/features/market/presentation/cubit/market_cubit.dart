@@ -39,6 +39,10 @@ class MarketCubit extends Cubit<MarketState> {
       perPage: _perPage,
     );
 
+    final userPowersResult = await marketRepository.getUserPowers();
+    List<dynamic> userPowers = [];
+    userPowersResult.fold((_) {}, (powers) => userPowers = powers);
+
     powersResult.fold(
       (error) {
         if (_currentPage == 1) {
@@ -57,10 +61,30 @@ class MarketCubit extends Cubit<MarketState> {
         emit(MarketLoaded(
           userProfile: _userProfile,
           storePowers: _storePowers,
+          userPowers: userPowers,
           numOfStars: _numOfStars,
           hasMore: _hasMore,
           currentPage: _currentPage,
         ));
+      },
+    );
+  }
+
+  Future<void> loadUserPowers() async {
+    final result = await marketRepository.getUserPowers();
+    result.fold(
+      (error) => null,
+      (userPowers) {
+        if (state is MarketLoaded) {
+          emit((state as MarketLoaded).copyWith(userPowers: userPowers));
+        } else {
+          emit(MarketLoaded(
+            userProfile: _userProfile,
+            storePowers: _storePowers,
+            userPowers: userPowers,
+            numOfStars: _numOfStars,
+          ));
+        }
       },
     );
   }
@@ -104,6 +128,11 @@ class MarketCubit extends Cubit<MarketState> {
       (_) => loadMarketData(isRefresh: true),
     );
   }
+
+  Future<void> closePower({
+    required String powerId,
+    required String status,
+  }) => togglePower(powerId: powerId, status: status);
 
   Future<void> submitManualPayment({
     required List<int> imageBytes,
@@ -149,6 +178,20 @@ class MarketCubit extends Cubit<MarketState> {
       (data) {
         emit(PaymentSuccess(data: data));
         loadMarketData(isRefresh: true);
+      },
+    );
+  }
+
+  Future<bool> buyPower({required int powerId, int storeId = 9}) async {
+    final result = await marketRepository.buyPower(
+      powerId: powerId,
+      storeId: storeId,
+    );
+    return result.fold(
+      (error) => false,
+      (_) {
+        loadMarketData(isRefresh: true);
+        return true;
       },
     );
   }

@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:live_chat/core/errors/server_exceptions.dart';
 import '../../domain/repositories/friends_repository.dart';
 import '../datasources/friends_remote_data_source.dart';
+import '../models/friend_suggest_model.dart';
 
 class FriendsRepositoryImpl implements FriendsRepository {
   final FriendsRemoteDataSource remoteDataSource;
@@ -9,11 +10,14 @@ class FriendsRepositoryImpl implements FriendsRepository {
   FriendsRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<String, List<dynamic>>> getFriends({int page = 1, int perPage = 15}) async {
+  Future<Either<String, List<SuggestFreindModel>>> getFriends({int page = 1, int perPage = 15}) async {
     try {
       final response = await remoteDataSource.getFriends(page: page, perPage: perPage);
       if (response != null && response is Map && response['data'] is List) {
-        return Right(response['data'] as List<dynamic>);
+        final list = (response['data'] as List)
+            .map((e) => SuggestFreindModel.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+        return Right(list);
       }
       return const Right([]);
     } on ServerException catch (e) {
@@ -24,11 +28,14 @@ class FriendsRepositoryImpl implements FriendsRepository {
   }
 
   @override
-  Future<Either<String, List<dynamic>>> getSuggestedFriends({int page = 1, int perPage = 15}) async {
+  Future<Either<String, List<SuggestFreindModel>>> getSuggestedFriends({int page = 1, int perPage = 15}) async {
     try {
       final response = await remoteDataSource.getSuggestedFriends(page: page, perPage: perPage);
       if (response != null && response is Map && response['data'] is List) {
-        return Right(response['data'] as List<dynamic>);
+        final list = (response['data'] as List)
+            .map((e) => SuggestFreindModel.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+        return Right(list);
       }
       return const Right([]);
     } on ServerException catch (e) {

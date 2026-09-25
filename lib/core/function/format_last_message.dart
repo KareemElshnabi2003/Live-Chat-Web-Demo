@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:live_chat/Data/Model/user_chat_model.dart';
+import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/main.dart'; // for sharedPreferences
 
