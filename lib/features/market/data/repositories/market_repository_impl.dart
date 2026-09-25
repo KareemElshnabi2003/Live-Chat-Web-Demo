@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/errors/server_exceptions.dart';
+import 'package:live_chat/core/errors/server_exceptions.dart';
 import '../../domain/repositories/market_repository.dart';
 import '../datasources/market_remote_data_source.dart';
 

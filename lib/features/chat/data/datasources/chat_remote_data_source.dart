@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import '../../../../core/api/api_consumer.dart';
-import '../../../../core/api/end_points.dart';
-import '../../../../core/constant/app_constant.dart';
-import '../../../../core/helper/cache_helper.dart';
+import 'package:live_chat/core/api/api_consumer.dart';
+import 'package:live_chat/core/api/end_points.dart';
+import 'package:live_chat/core/constant/app_constant.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
 
 abstract class ChatRemoteDataSource {
   Future<dynamic> getMessages({required String chatId, int page = 1});

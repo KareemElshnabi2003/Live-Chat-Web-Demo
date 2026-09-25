@@ -3,8 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
-import '../../../../core/services/audio/audio_service.dart';
-import '../../../../core/services/pusher/pusher_service.dart';
+import 'package:live_chat/core/services/audio/audio_service.dart';
+import 'package:live_chat/core/services/pusher/pusher_service.dart';
 import '../../domain/repositories/chat_repository.dart';
 import 'chat_state.dart';
 

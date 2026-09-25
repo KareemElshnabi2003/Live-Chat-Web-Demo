@@ -4,12 +4,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:live_chat/Core/Constant/app_api.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_api.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
 import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
-import 'package:live_chat/Core/utils/responsive_nums.dart';
+import 'package:live_chat/core/utils/responsive_nums.dart';
 
 import 'package:flutter_html/flutter_html.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
 import 'package:live_chat/main.dart';
 
 class CustomSidebarNavigation extends StatelessWidget {

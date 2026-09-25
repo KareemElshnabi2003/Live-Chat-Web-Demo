@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
 import 'package:live_chat/Data/Model/power_model.dart';
 import 'package:live_chat/View/Widget/PublicWidget/storetext.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_click_widget.dart';

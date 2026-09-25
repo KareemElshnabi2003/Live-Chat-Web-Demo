@@ -3,14 +3,14 @@ import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/Controller/Home_navigator_controller.dart';
 import 'package:live_chat/Controller/capabilities_controller.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
-import 'package:live_chat/Core/class/status_request.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/class/status_request.dart';
 import 'package:live_chat/View/Screens/Market%20Bottom%20Sheet/more_settings.dart';
 import 'package:live_chat/View/Widget/PublicWidget/storetext.dart';
 import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
-import 'package:live_chat/Core/utils/responsive_nums.dart';
+import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 

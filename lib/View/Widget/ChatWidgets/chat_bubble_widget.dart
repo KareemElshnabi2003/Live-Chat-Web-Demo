@@ -7,13 +7,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:live_chat/Controller/chat_controller.dart'; // added
-import 'package:live_chat/Core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
 import 'package:live_chat/Data/Model/chat_message_model.dart';
 import 'package:live_chat/View/Widget/ChatWidgets/audio_message_widget.dart';
 import 'package:live_chat/View/Widget/ChatWidgets/show_reaction_message_bottom_sheet_widget.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/main.dart';
-import 'package:live_chat/Core/utils/responsive_nums.dart';
+import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:swipe_to/swipe_to.dart'; // added
 
 class ChatBubbleWidget extends StatelessWidget {

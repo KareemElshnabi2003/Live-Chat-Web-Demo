@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:get/get.dart';
-import 'package:live_chat/Core/Class/api.dart';
-import 'package:live_chat/Core/Constant/app_api.dart';
+import 'package:live_chat/core/Class/api.dart';
+import 'package:live_chat/core/Constant/app_api.dart';
 import 'package:live_chat/main.dart';
 
 class StarsPurchaseService {

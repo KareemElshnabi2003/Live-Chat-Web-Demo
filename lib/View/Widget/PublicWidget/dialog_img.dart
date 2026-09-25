@@ -2,12 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
 import 'package:live_chat/Data/Model/user_chat_model.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:live_chat/Core/utils/responsive_nums.dart';
+import 'package:live_chat/core/utils/responsive_nums.dart';
 
 dialogImgWidget(
     {required UserChatModel? userChatModel,

@@ -6,9 +6,9 @@ import 'package:get/get.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/Controller/Home_navigator_controller.dart';
 import 'package:live_chat/Controller/requests_controller.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
-import 'package:live_chat/Core/Constant/app_images.dart';
-import 'package:live_chat/Core/class/status_request.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_images.dart';
+import 'package:live_chat/core/class/status_request.dart';
 import 'package:live_chat/Data/Model/power_model.dart';
 import 'package:live_chat/View/Screens/friends/friends.dart';
 import 'package:live_chat/View/Widget/PublicWidget/dialog_img.dart';
@@ -19,7 +19,7 @@ import 'package:live_chat/View/Widget/PublicWidget/no_data.dart';
 import 'package:live_chat/View/Widget/PublicWidget/storetext.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
-import 'package:live_chat/Core/utils/responsive_nums.dart';
+import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 // 🌟 دالة مساعدة مركزية للصور

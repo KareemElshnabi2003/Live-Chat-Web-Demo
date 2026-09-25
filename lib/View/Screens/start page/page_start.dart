@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:live_chat/Controller/page_start_controller.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
-import 'package:live_chat/Core/Constant/app_images.dart';
-import 'package:live_chat/Core/class/status_request.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_images.dart';
+import 'package:live_chat/core/class/status_request.dart';
 import 'package:live_chat/View/Widget/PublicWidget/chat_card_widget.dart';
 import 'package:live_chat/View/Widget/PublicWidget/dialog_img.dart';
 import 'package:live_chat/View/Widget/PublicWidget/no_data.dart';
@@ -15,7 +15,7 @@ import 'package:live_chat/View/Widget/PublicWidget/shimmer_skeletons.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:live_chat/Core/utils/responsive_nums.dart';
+import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 class PageStart extends StatelessWidget {

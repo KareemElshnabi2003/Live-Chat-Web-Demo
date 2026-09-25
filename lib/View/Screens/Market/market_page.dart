@@ -4,8 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:live_chat/Controller/market_controller.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
-import 'package:live_chat/Core/Constant/app_images.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_images.dart';
 import 'package:live_chat/Data/Model/power_model.dart';
 import 'package:live_chat/View/Screens/Home/show_bottom_sheet_pin_chat_widget.dart';
 import 'package:live_chat/View/Screens/Market%20Bottom%20Sheet/market_buy_charge_bottom_sheet.dart';
@@ -17,7 +17,7 @@ import 'package:live_chat/View/Widget/PublicWidget/storetext.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:live_chat/Core/utils/responsive_nums.dart';
+import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 class MarketPage extends StatefulWidget {

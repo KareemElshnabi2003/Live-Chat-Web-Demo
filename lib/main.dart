@@ -33,17 +33,17 @@ import 'View/Screens/settings/night_mode.dart';
 import 'View/Screens/settings/my_account_view.dart';
 import 'generated/l10n.dart';
 
-import 'core/di/service_locator.dart';
-import 'core/helper/cache_helper.dart';
-import 'core/network/network_cubit.dart';
-import 'core/theme/theme_cubit.dart';
-import 'features/auth/presentation/cubit/auth_cubit.dart';
-import 'features/chat/presentation/cubit/chat_cubit.dart';
-import 'features/friends/presentation/cubit/friends_cubit.dart';
-import 'features/home/presentation/cubit/home_cubit.dart';
-import 'features/market/presentation/cubit/market_cubit.dart';
-import 'features/notifications/presentation/cubit/notifications_cubit.dart';
-import 'features/settings/presentation/cubit/settings_cubit.dart';
+import 'package:live_chat/core/di/service_locator.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
+import 'package:live_chat/core/network/network_cubit.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
+import 'package:live_chat/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
+import 'package:live_chat/features/friends/presentation/cubit/friends_cubit.dart';
+import 'package:live_chat/features/home/presentation/cubit/home_cubit.dart';
+import 'package:live_chat/features/market/presentation/cubit/market_cubit.dart';
+import 'package:live_chat/features/notifications/presentation/cubit/notifications_cubit.dart';
+import 'package:live_chat/features/settings/presentation/cubit/settings_cubit.dart';
 
 SharedPreferences? sharedPreferences;
 bool? pref;

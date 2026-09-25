@@ -1,4 +1,4 @@
-import 'package:live_chat/Core/class/status_request.dart';
+import 'package:live_chat/core/class/status_request.dart';
 
 import 'custom_exception.dart';
 

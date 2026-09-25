@@ -5,12 +5,12 @@ import 'package:get/get.dart';
 import 'package:live_chat/Controller/bottm_sheet__controller.dart';
 import 'package:live_chat/Controller/capabilities_controller.dart';
 import 'package:live_chat/Controller/market_controller.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_click_widget.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:live_chat/Core/utils/responsive_nums.dart';
+import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 showBottomSheetmore({

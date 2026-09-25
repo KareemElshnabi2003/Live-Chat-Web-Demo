@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:live_chat/Core/Class/api.dart';
-import 'package:live_chat/Core/Constant/app_api.dart';
+import 'package:live_chat/core/Class/api.dart';
+import 'package:live_chat/core/Constant/app_api.dart';
 
 class TestRemoteData {
   Api api;

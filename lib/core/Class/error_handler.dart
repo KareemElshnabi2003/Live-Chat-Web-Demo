@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:live_chat/Core/Class/api.dart';
-import 'package:live_chat/Core/class/status_request.dart';
+import 'package:live_chat/core/Class/api.dart';
+import 'package:live_chat/core/class/status_request.dart';
 
 StatuesRequest? _lastErrorStatus;
 DateTime? _lastErrorTime;

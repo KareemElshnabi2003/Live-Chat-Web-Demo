@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:live_chat/Controller/page_start_controller.dart';
-import 'package:live_chat/Core/Constant/app_color.dart';
-import 'package:live_chat/Core/Constant/app_images.dart';
-import 'package:live_chat/Core/class/status_request.dart';
+import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/Constant/app_images.dart';
+import 'package:live_chat/core/class/status_request.dart';
 import 'package:live_chat/View/Widget/PublicWidget/loading.dart';
 import 'package:live_chat/View/Widget/PublicWidget/otp_widget.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_click_widget.dart';
 import 'package:live_chat/View/Widget/PublicWidget/text_field_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:live_chat/generated/l10n.dart';
-import 'package:live_chat/Core/utils/responsive_nums.dart';
+import 'package:live_chat/core/utils/responsive_nums.dart';
 
 class AuthView extends StatelessWidget {
   const AuthView({Key? key}) : super(key: key);

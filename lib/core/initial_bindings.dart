@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:live_chat/Core/Class/api.dart';
+import 'package:live_chat/core/Class/api.dart';
 
 class InitialBindings extends Bindings {
   @override

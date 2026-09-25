@@ -11,8 +11,8 @@ import 'package:dartz/dartz.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import 'package:live_chat/Core/class/status_request.dart';
-import 'package:live_chat/Core/function/handle_exception.dart';
+import 'package:live_chat/core/class/status_request.dart';
+import 'package:live_chat/core/function/handle_exception.dart';
 import 'package:live_chat/View/Screens/start%20page/page_start.dart';
 import 'package:live_chat/main.dart';
 
