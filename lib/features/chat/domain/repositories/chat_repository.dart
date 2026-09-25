@@ -1,12 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:live_chat/core/errors/failures.dart';
-import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
-import 'package:live_chat/features/chat/data/models/member_of_chat_model.dart';
-import 'package:live_chat/features/home/data/models/radio_model.dart';
 import '../entities/chat_attachment.dart';
+import '../entities/chat_message_entity.dart';
+import '../entities/member_entity.dart';
+import '../entities/radio_entity.dart';
+import '../entities/chat_theme_entity.dart';
 
 abstract class ChatRepository {
-  Future<Either<Failure, List<ChatMessage>>> getMessages({required String chatId, int page = 1});
+  Future<Either<Failure, List<ChatMessageEntity>>> getMessages({required String chatId, int page = 1});
   Future<Either<Failure, dynamic>> sendMessage({
     required String chatId,
     required String message,
@@ -20,9 +21,9 @@ abstract class ChatRepository {
     required String messageId,
     required String react,
   });
-  Future<Either<Failure, List<MemberOfChatModel>>> getMembers({required String chatId, int page = 1});
-  Future<Either<Failure, List<RadioModel>>> getRadios();
-  Future<Either<Failure, List<dynamic>>> getThemes();
+  Future<Either<Failure, List<MemberEntity>>> getMembers({required String chatId, int page = 1});
+  Future<Either<Failure, List<RadioEntity>>> getRadios();
+  Future<Either<Failure, List<ChatThemeEntity>>> getThemes();
   Future<Either<Failure, dynamic>> createGeneralChat({
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,

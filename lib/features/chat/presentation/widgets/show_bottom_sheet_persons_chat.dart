@@ -1,4 +1,4 @@
-﻿// ignore_for_file: camel_case_types, use_build_context_synchronously
+// ignore_for_file: camel_case_types, use_build_context_synchronously
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/routing/routes.dart';
+import 'package:live_chat/features/chat/domain/entities/member_entity.dart';
 import 'package:live_chat/features/chat/data/models/member_of_chat_model.dart';
 import 'package:live_chat/features/market/data/models/power_model.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
@@ -14,8 +15,10 @@ import 'package:live_chat/core/widgets/storetext.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/friends/presentation/cubit/friends_cubit.dart';
+import 'package:live_chat/core/constant/app_constant.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/generated/l10n.dart';
-import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 
@@ -30,7 +33,7 @@ void showBottomSheetControlPersonWidget({
 
   showModalBottomSheet(
     isScrollControlled: true,
-    backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
+    backgroundColor: context.isDarkMode ? AppColors.blackColor : AppColors.bgColor,
     context: context,
     builder: (ctx) => ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: kIsWeb ? 600 : double.infinity),
@@ -70,8 +73,9 @@ class _ControlPersonBottomSheetContent extends StatefulWidget {
 
 class _ControlPersonBottomSheetContentState
     extends State<_ControlPersonBottomSheetContent> {
+  bool get pref => widget.parentContext.isDarkMode;
   final ScrollController _scrollController = ScrollController();
-  List<MemberOfChatModel> _members = [];
+  List<MemberEntity> _members = [];
   bool _isLoading = false;
 
   @override
@@ -206,7 +210,7 @@ class _ControlPersonBottomSheetContentState
                                     isAdmin: isAdmin,
                                     isOwner: isOwner,
                                     isNeedAccept: widget.isNeedAccept,
-                                    power: member.power,
+                                    power: member is MemberOfChatModel ? member.power : null,
                                     onPressChat: () => _chatWithMember(member.id!),
                                     onPressAdd: () => _sendFriendRequest(member.id!),
                                     onPressAccept: () => _acceptMember(member.id!),
@@ -254,8 +258,9 @@ class _CardPersonItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool pref = context.isDarkMode;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final currentUserId = sharedPreferences?.getString("id") ?? '';
+    final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey) ?? '';
     final shouldShowActionButtons = !isOwner && !isNeedAccept && !isGust && currentUserId != idPerson;
 
     return Row(

@@ -1,9 +1,10 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/core/Constant/app_images.dart';
 import 'package:live_chat/core/routing/routes.dart';
 import 'package:live_chat/features/home/presentation/widgets/show_bottom_sheet_pin_chat_widget.dart';
@@ -16,7 +17,8 @@ import 'package:live_chat/core/widgets/chat_card_widget.dart';
 import 'package:live_chat/core/widgets/shimmer_skeletons.dart';
 import 'package:live_chat/core/widgets/storetext.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
-import 'package:live_chat/main.dart';
+import 'package:live_chat/core/constant/app_constant.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
@@ -29,6 +31,7 @@ class MarketPage extends StatefulWidget {
 }
 
 class _MarketPageState extends State<MarketPage> {
+  bool get pref => context.isDarkMode;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -218,18 +221,17 @@ class _MarketPageState extends State<MarketPage> {
 
   Widget _buildUserGreeting(bool isRtl) {
     PowerModel? powerModel;
-    if (sharedPreferences!.getString("powermodel") != null &&
-        sharedPreferences!.getString("powermodel").toString() != "null" &&
-        sharedPreferences!.getString("powermodel")!.isNotEmpty) {
+    final powerString = CacheHelper.getString(key: "powermodel");
+    if (powerString != null && powerString != "null" && powerString.isNotEmpty) {
       try {
-        final power = jsonDecode(sharedPreferences!.getString("powermodel")!)
-            as Map<String, dynamic>;
+        final power = jsonDecode(powerString) as Map<String, dynamic>;
         powerModel = PowerModel.fromJson(power);
       } catch (_) {}
     }
 
-    final imgUrl = sharedPreferences!.getString("img");
+    final imgUrl = CacheHelper.getString(key: AppConstants.userImageKey);
     final hasImg = imgUrl != null && imgUrl.trim().isNotEmpty && imgUrl != "null";
+    final username = CacheHelper.getString(key: AppConstants.usernameKey) ?? "User";
 
     return Row(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -248,7 +250,7 @@ class _MarketPageState extends State<MarketPage> {
           children: [
             powerModel == null
                 ? textNormal(
-                    sharedPreferences!.getString("username") ?? "User",
+                    username,
                     pref ? AppColors.whiteColor : AppColors.blackColor,
                     3.5.w,
                     FontWeight.w400,
@@ -256,7 +258,7 @@ class _MarketPageState extends State<MarketPage> {
                   )
                 : PowerTextWidget(
                     powerModel: powerModel,
-                    displyText: sharedPreferences!.getString("username") ?? "User",
+                    displyText: username,
                   )
           ],
         ),
@@ -372,7 +374,7 @@ class _MarketPageState extends State<MarketPage> {
   }
 
   Widget _buildStoreInformation(List<PowerModel> storePowers, bool isRtl) {
-    final String? name = sharedPreferences!.getString("username");
+    final String? name = CacheHelper.getString(key: AppConstants.usernameKey);
     final String displayName =
         (name != null && name.isNotEmpty) ? name : "Guest";
 
@@ -426,7 +428,7 @@ class _MarketPageState extends State<MarketPage> {
                           : showBottomSheetMarketMoreWidget(
                               context: context,
                               isBuy: power.isPurches == 0 ? false : true,
-                              name: sharedPreferences!.getString("name") ?? "Guest",
+                              name: CacheHelper.getString(key: AppConstants.nameKey) ?? "Guest",
                               price: "${power.price} ${S.of(context).points}",
                               afterParhes: SizedBox(
                                 width: 30.w,

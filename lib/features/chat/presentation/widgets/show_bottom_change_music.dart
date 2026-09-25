@@ -6,7 +6,7 @@ import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_state.dart';
-import 'package:live_chat/features/home/data/models/radio_model.dart';
+import 'package:live_chat/features/chat/domain/entities/radio_entity.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
@@ -42,7 +42,7 @@ class _BottomSheetContent extends StatelessWidget {
       bloc: context.read<ChatCubit>(),
       builder: (ctx, state) {
         final cubit = context.read<ChatCubit>();
-        List<RadioModel> radios = [];
+        List<RadioEntity> radios = [];
         bool isRadioPlaying = false;
         String? currentRadioUrl;
 

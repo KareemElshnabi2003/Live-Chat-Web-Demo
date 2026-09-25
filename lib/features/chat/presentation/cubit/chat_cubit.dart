@@ -7,10 +7,12 @@ import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/core/services/audio/audio_service.dart';
 import 'package:live_chat/core/services/pusher/pusher_service.dart';
-import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
-import 'package:live_chat/features/chat/data/models/member_of_chat_model.dart';
-import 'package:live_chat/features/home/data/models/radio_model.dart';
 import '../../domain/entities/chat_attachment.dart';
+import '../../domain/entities/chat_message_entity.dart';
+import '../../domain/entities/member_entity.dart';
+import '../../domain/entities/radio_entity.dart';
+import '../../domain/entities/chat_theme_entity.dart';
+import '../../data/models/chat_message_model.dart';
 import '../../domain/usecases/chat_use_cases.dart';
 import 'chat_state.dart';
 
@@ -68,22 +70,20 @@ class ChatCubit extends Cubit<ChatState> {
     await pusherService.subscribe(channelName);
     _pusherSub = pusherService.eventStreamForChannel(channelName).listen(_handlePusherEvent);
 
-    // 3. Parallel API fetch for Messages and Radios (Future.wait)
-    final results = await Future.wait([
-      getMessagesUseCase(chatId: chatId, page: 1),
-      getRadiosUseCase(),
-    ]);
+    // 3. Parallel API fetch for Messages and Radios
+    final messagesFuture = getMessagesUseCase(chatId: chatId, page: 1);
+    final radiosFuture = getRadiosUseCase();
 
-    final messagesResult = results[0];
-    final radiosResult = results[1];
+    final messagesResult = await messagesFuture;
+    final radiosResult = await radiosFuture;
 
-    List<ChatMessage> messages = [];
-    List<RadioModel> radios = [];
+    List<ChatMessageEntity> messages = [];
+    List<RadioEntity> radios = [];
 
     messagesResult.fold(
       (failure) => debugPrint("Failed to fetch messages: ${failure.message}"),
       (msgs) {
-        messages = msgs as List<ChatMessage>;
+        messages = msgs;
         for (final m in messages) {
           if (m.messageId.isNotEmpty) {
             _messageIdSet.add(m.messageId);
@@ -95,7 +95,7 @@ class ChatCubit extends Cubit<ChatState> {
     radiosResult.fold(
       (failure) => debugPrint("Failed to fetch radios: ${failure.message}"),
       (rads) {
-        radios = rads as List<RadioModel>;
+        radios = rads;
       },
     );
 
@@ -116,7 +116,7 @@ class ChatCubit extends Cubit<ChatState> {
           final current = state as ChatLoaded;
           final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
           final map = raw is Map<String, dynamic> ? raw : Map<String, dynamic>.from(raw);
-          final newMsg = ChatMessage.fromJson(map, currentUserId: currentUserId);
+          final newMsg = ChatMessageModel.fromJson(map, currentUserId: currentUserId);
 
           // Fast O(1) deduplication using Set
           if (newMsg.messageId.isNotEmpty) {
@@ -126,7 +126,7 @@ class ChatCubit extends Cubit<ChatState> {
             _messageIdSet.add(newMsg.messageId);
           }
 
-          final updatedMessages = List<ChatMessage>.from(current.messages)..insert(0, newMsg);
+          final updatedMessages = List<ChatMessageEntity>.from(current.messages)..insert(0, newMsg);
           emit(current.copyWith(messages: updatedMessages));
         }
       } catch (e) {
@@ -154,7 +154,7 @@ class ChatCubit extends Cubit<ChatState> {
         emit(current.copyWith(isLoadingMore: false));
       },
       (newMessages) {
-        final List<ChatMessage> uniqueNew = [];
+        final List<ChatMessageEntity> uniqueNew = [];
         for (final m in newMessages) {
           if (m.messageId.isNotEmpty) {
             if (!_messageIdSet.contains(m.messageId)) {
@@ -166,7 +166,7 @@ class ChatCubit extends Cubit<ChatState> {
           }
         }
 
-        final allMessages = List<ChatMessage>.from(current.messages)..addAll(uniqueNew);
+        final allMessages = List<ChatMessageEntity>.from(current.messages)..addAll(uniqueNew);
         emit(current.copyWith(
           messages: allMessages,
           currentPage: nextPage,
@@ -210,7 +210,7 @@ class ChatCubit extends Cubit<ChatState> {
     );
   }
 
-  void setReplyingToMessage(ChatMessage message) {
+  void setReplyingToMessage(ChatMessageEntity message) {
     if (state is ChatLoaded) {
       emit((state as ChatLoaded).copyWith(replyingToMessage: message));
     }
@@ -247,7 +247,7 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-  Future<List<dynamic>> getThemes() async {
+  Future<List<ChatThemeEntity>> getThemes() async {
     final result = await getThemesUseCase();
     return result.fold((l) => [], (r) => r);
   }
@@ -301,7 +301,7 @@ class ChatCubit extends Cubit<ChatState> {
     return result.fold((l) => false, (r) => true);
   }
 
-  Future<List<MemberOfChatModel>> getMembers({required String chatId, int page = 1}) async {
+  Future<List<MemberEntity>> getMembers({required String chatId, int page = 1}) async {
     final result = await getMembersUseCase(chatId: chatId, page: page);
     return result.fold((l) => [], (r) => r);
   }

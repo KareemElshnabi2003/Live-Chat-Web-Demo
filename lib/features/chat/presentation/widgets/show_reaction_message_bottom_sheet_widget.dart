@@ -3,7 +3,7 @@ import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/theme/theme_cubit.dart';
-import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
+import 'package:live_chat/features/chat/domain/entities/chat_message_entity.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';

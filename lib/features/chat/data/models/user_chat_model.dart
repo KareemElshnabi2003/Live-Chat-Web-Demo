@@ -1,4 +1,4 @@
-
+import 'package:live_chat/features/chat/domain/entities/chat_message_entity.dart';
 import 'package:live_chat/features/chat/data/models/message_model.dart';
 
 class UserChatModel {
@@ -116,13 +116,9 @@ class UserChatModel {
   }
 }
 
-class User {
-  int? id;
-  String? name;
-  String? username;
+class User extends MessageReactionUserEntity {
   String? email;
   String? phone;
-  String? image;
   String? gender;
   String? age;
   int? countryId;
@@ -130,12 +126,12 @@ class User {
   int? numberOfStars;
 
   User({
-    this.id,
-    this.name,
-    this.username,
+    super.id,
+    super.name,
+    super.username,
     this.email,
     this.phone,
-    this.image,
+    super.image,
     this.gender,
     this.age,
     this.countryId,
@@ -143,19 +139,20 @@ class User {
     this.numberOfStars,
   });
 
-  User.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    username = json['username'];
-    email = json['email'];
-    phone = json['phone'];
-    image = json['image'];
-    gender = json['gender'];
-    age = json['age'];
-    countryId = json['country_id'];
-    countryName = json['country_name'];
-    numberOfStars = json['number_of_stars'];
-  }
+  User.fromJson(Map<String, dynamic> json)
+      : email = json['email'],
+        phone = json['phone'],
+        gender = json['gender'],
+        age = json['age'],
+        countryId = json['country_id'],
+        countryName = json['country_name'],
+        numberOfStars = json['number_of_stars'],
+        super(
+          id: json['id'],
+          name: json['name'],
+          username: json['username'],
+          image: json['image'],
+        );
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};

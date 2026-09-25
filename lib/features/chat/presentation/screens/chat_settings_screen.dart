@@ -13,6 +13,8 @@ import 'package:live_chat/core/widgets/text_click_widget.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
 import 'package:live_chat/features/chat/domain/entities/chat_attachment.dart';
+import 'package:live_chat/features/chat/domain/entities/chat_theme_entity.dart';
+import 'package:live_chat/features/chat/domain/entities/member_entity.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/widgets/button.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -44,8 +46,8 @@ class _SettingsState extends State<Settings> {
   String _selectedCanChat = "";
   String? _selectedThemeId;
 
-  List<dynamic> _themes = [];
-  List<dynamic> _members = [];
+  List<ChatThemeEntity> _themes = [];
+  List<MemberEntity> _members = [];
   final Set<String> _selectedAdminIds = {};
 
   bool _isLoadingThemes = false;
@@ -523,8 +525,8 @@ class _SettingsState extends State<Settings> {
               separatorBuilder: (_, __) => const Divider(height: 8),
               itemBuilder: (context, index) {
                 final member = _members[index];
-                final memberId = member['id']?.toString() ?? '';
-                final memberName = member['name']?.toString() ?? member['username']?.toString() ?? 'User';
+                final memberId = member.id?.toString() ?? '';
+                final memberName = member.displayName;
                 final isSelectedAdmin = _selectedAdminIds.contains(memberId);
 
                 return ListTile(
@@ -639,9 +641,9 @@ class _SettingsState extends State<Settings> {
                           ),
                         ),
                       ..._themes.map((theme) {
-                        final themeIdStr = theme['id']?.toString() ?? '';
+                        final themeIdStr = theme.id.toString();
                         final isSelected = _selectedThemeId == themeIdStr;
-                        final themeUrl = theme['theme']?.toString() ?? '';
+                        final themeUrl = theme.theme;
 
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 1.w),

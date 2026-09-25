@@ -1,16 +1,17 @@
 import 'package:dartz/dartz.dart';
 import 'package:live_chat/core/errors/failures.dart';
-import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
-import 'package:live_chat/features/chat/data/models/member_of_chat_model.dart';
-import 'package:live_chat/features/home/data/models/radio_model.dart';
 import '../entities/chat_attachment.dart';
+import '../entities/chat_message_entity.dart';
+import '../entities/member_entity.dart';
+import '../entities/radio_entity.dart';
+import '../entities/chat_theme_entity.dart';
 import '../repositories/chat_repository.dart';
 
 class GetMessagesUseCase {
   final ChatRepository repository;
   GetMessagesUseCase(this.repository);
 
-  Future<Either<Failure, List<ChatMessage>>> call({required String chatId, int page = 1}) {
+  Future<Either<Failure, List<ChatMessageEntity>>> call({required String chatId, int page = 1}) {
     return repository.getMessages(chatId: chatId, page: page);
   }
 }
@@ -54,7 +55,7 @@ class GetMembersUseCase {
   final ChatRepository repository;
   GetMembersUseCase(this.repository);
 
-  Future<Either<Failure, List<MemberOfChatModel>>> call({required String chatId, int page = 1}) {
+  Future<Either<Failure, List<MemberEntity>>> call({required String chatId, int page = 1}) {
     return repository.getMembers(chatId: chatId, page: page);
   }
 }
@@ -63,7 +64,7 @@ class GetRadiosUseCase {
   final ChatRepository repository;
   GetRadiosUseCase(this.repository);
 
-  Future<Either<Failure, List<RadioModel>>> call() {
+  Future<Either<Failure, List<RadioEntity>>> call() {
     return repository.getRadios();
   }
 }
@@ -72,7 +73,7 @@ class GetThemesUseCase {
   final ChatRepository repository;
   GetThemesUseCase(this.repository);
 
-  Future<Either<Failure, List<dynamic>>> call() {
+  Future<Either<Failure, List<ChatThemeEntity>>> call() {
     return repository.getThemes();
   }
 }

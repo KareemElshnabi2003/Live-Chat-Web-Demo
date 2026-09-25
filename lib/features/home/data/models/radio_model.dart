@@ -1,12 +1,10 @@
-class RadioModel {
-  final int id;
-  final String radioUrl;
-  final String name;
+import 'package:live_chat/features/chat/domain/entities/radio_entity.dart';
 
-  RadioModel({
-    required this.id,
-    required this.radioUrl,
-    required this.name,
+class RadioModel extends RadioEntity {
+  const RadioModel({
+    required super.id,
+    required super.radioUrl,
+    required super.name,
   });
 
   factory RadioModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +22,8 @@ class RadioModel {
       'name': name,
     };
   }
+
+  RadioEntity toEntity() => this;
 
   @override
   String toString() {

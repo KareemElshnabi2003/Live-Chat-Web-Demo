@@ -11,6 +11,7 @@ import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/widgets/loading.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
 import 'package:live_chat/features/chat/domain/entities/chat_attachment.dart';
+import 'package:live_chat/features/chat/domain/entities/chat_theme_entity.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/widgets/button.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -38,7 +39,7 @@ class _CreateChatState extends State<CreateChat> {
   String _selectedCanChat = "";
   String? _selectedThemeId;
 
-  List<dynamic> _themes = [];
+  List<ChatThemeEntity> _themes = [];
   bool _isLoadingThemes = false;
   bool _isSubmitting = false;
 
@@ -62,7 +63,7 @@ class _CreateChatState extends State<CreateChat> {
         _themes = themes;
         _isLoadingThemes = false;
         if (_themes.isNotEmpty && _selectedThemeId == null) {
-          _selectedThemeId = _themes.first['id']?.toString();
+          _selectedThemeId = _themes.first.id.toString();
         }
       });
     }
@@ -445,9 +446,9 @@ class _CreateChatState extends State<CreateChat> {
                           ),
                         ),
                       ..._themes.map((theme) {
-                        final themeIdStr = theme['id']?.toString() ?? '';
+                        final themeIdStr = theme.id.toString();
                         final isSelected = _selectedThemeId == themeIdStr;
-                        final themeUrl = theme['theme']?.toString() ?? '';
+                        final themeUrl = theme.theme;
 
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 1.w),

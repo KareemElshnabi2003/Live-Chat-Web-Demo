@@ -1,40 +1,44 @@
+import 'package:live_chat/features/chat/domain/entities/member_entity.dart';
 import 'package:live_chat/features/market/data/models/power_model.dart';
 
-class MemberOfChatModel {
-  int? id;
-  String? username;
-  String? image;
-  bool? isGuest;
-  String? memberStatus;
-  String? requestStatus;
-  int? isAdmin;
-  PowerModel? power;
+class MemberOfChatModel extends MemberEntity {
+  final PowerModel? power;
 
-  MemberOfChatModel(
-      {this.id,
-      this.username,
-      this.image,
-      this.isGuest,
-      this.memberStatus,
-      this.requestStatus,
-      this.isAdmin,
-      this.power});
+  const MemberOfChatModel({
+    super.id,
+    super.username,
+    super.name,
+    super.image,
+    super.isGuest,
+    super.memberStatus,
+    super.requestStatus,
+    super.isAdmin,
+    this.power,
+  });
 
-  MemberOfChatModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    username = json['username'];
-    image = json['image'];
-    isGuest = json['is_guest'];
-    memberStatus = json['member_status'];
-    requestStatus = json['request_status'];
-    isAdmin = json['is_admin'];
-    power = json['power'] != null ? PowerModel.fromJson(json['power']) : null;
+  factory MemberOfChatModel.fromJson(Map<String, dynamic> json) {
+    return MemberOfChatModel(
+      id: json['id'] is int ? json['id'] : (int.tryParse(json['id']?.toString() ?? '')),
+      username: json['username']?.toString(),
+      name: json['name']?.toString() ?? json['username']?.toString(),
+      image: json['image']?.toString(),
+      isGuest: json['is_guest'] == true || json['is_guest'] == 1,
+      memberStatus: json['member_status']?.toString(),
+      requestStatus: json['request_status']?.toString(),
+      isAdmin: json['is_admin'] is int ? json['is_admin'] : (int.tryParse(json['is_admin']?.toString() ?? '')),
+      power: json['power'] != null
+          ? PowerModel.fromJson(json['power'] is Map<String, dynamic>
+              ? json['power']
+              : Map<String, dynamic>.from(json['power']))
+          : null,
+    );
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['username'] = username;
+    data['name'] = name;
     data['image'] = image;
     data['is_guest'] = isGuest;
     data['member_status'] = memberStatus;
@@ -45,4 +49,6 @@ class MemberOfChatModel {
     }
     return data;
   }
+
+  MemberEntity toEntity() => this;
 }

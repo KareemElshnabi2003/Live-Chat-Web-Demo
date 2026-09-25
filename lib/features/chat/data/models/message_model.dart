@@ -1,3 +1,4 @@
+import 'package:live_chat/features/chat/domain/entities/chat_message_entity.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
 
 class MessageModel {
@@ -58,18 +59,18 @@ class MessageModel {
   }
 }
 
-class MessageReactions {
-  int? id;
-  String? react;
-  User? user;
+class MessageReactions extends MessageReactionEntity {
+  @override
+  User? get user => super.user as User?;
 
-  MessageReactions({this.id, this.react, this.user});
+  MessageReactions({super.id, super.react, User? user}) : super(user: user);
 
-  MessageReactions.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    react = json['react'];
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
-  }
+  MessageReactions.fromJson(Map<String, dynamic> json)
+      : super(
+          id: json['id'],
+          react: json['react'],
+          user: json['user'] != null ? User.fromJson(json['user']) : null,
+        );
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};

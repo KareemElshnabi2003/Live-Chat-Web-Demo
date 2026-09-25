@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
-import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
+import 'package:live_chat/features/chat/domain/entities/chat_message_entity.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/widgets/audio_message_widget.dart';
 import 'package:live_chat/features/chat/presentation/widgets/show_reaction_message_bottom_sheet_widget.dart';

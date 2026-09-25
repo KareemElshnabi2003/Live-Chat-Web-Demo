@@ -1,4 +1,4 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +11,9 @@ import 'package:live_chat/features/chat/presentation/screens/chat_settings_scree
 import 'package:live_chat/features/chat/presentation/widgets/show_bottom_change_music.dart';
 import 'package:live_chat/features/chat/presentation/widgets/show_bottom_sheet_persons_chat.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
-import 'package:live_chat/main.dart';
+import 'package:live_chat/core/constant/app_constant.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 
@@ -29,6 +31,7 @@ class ChatAppBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool pref = context.isDarkMode;
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgColor,
@@ -97,7 +100,7 @@ class ChatAppBarWidget extends StatelessWidget {
   }
 
   Widget _buildAppBarActions(BuildContext context) {
-    final currentUserId = sharedPreferences?.getString("id") ?? '';
+    final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey) ?? '';
     final isCurrentUser = (userChatModel.user != null)
         ? userChatModel.user!.id.toString() == currentUserId
         : false;
@@ -126,6 +129,7 @@ class ChatAppBarWidget extends StatelessWidget {
   }
 
   Widget _buildMoreMenu(BuildContext context, bool isGroup, bool canShareGroup, bool canMusic, bool isCurrentUser) {
+    final bool pref = context.isDarkMode;
     return PopupMenuButton<String>(
       color: pref ? AppColors.blackColor : Colors.white,
       borderRadius: BorderRadius.circular(10),
@@ -184,38 +188,38 @@ class ChatAppBarWidget extends StatelessWidget {
         if (canShareGroup)
           PopupMenuItem(
               value: 'share',
-              child: _menuItem(S.of(context).share, IconsaxPlusLinear.share)),
+              child: _menuItem(context, S.of(context).share, IconsaxPlusLinear.share)),
         if (canMusic)
           PopupMenuItem(
               value: 'music',
-              child: _menuItem(S.of(context).music, IconsaxPlusLinear.music)),
+              child: _menuItem(context, S.of(context).music, IconsaxPlusLinear.music)),
         if (isGroup && isCurrentUser)
           PopupMenuItem(
               value: 'profile',
-              child: _menuItem(S.of(context).profile, IconsaxPlusLinear.profile)),
+              child: _menuItem(context, S.of(context).profile, IconsaxPlusLinear.profile)),
         if (isGroup && isCurrentUser)
           PopupMenuItem(
               value: 'settings',
-              child: _menuItem(S.of(context).settings, IconsaxPlusLinear.setting)),
+              child: _menuItem(context, S.of(context).settings, IconsaxPlusLinear.setting)),
         if (!isGroup)
           PopupMenuItem(
               value: 'block',
-              child: _menuItem(S.of(context).block, Icons.block)),
+              child: _menuItem(context, S.of(context).block, Icons.block)),
       ],
       child: Icon(Icons.more_vert,
           size: 5.5.w,
-          color: pref ? AppColors.blackColor : AppColors.blackColor),
+          color: context.isDarkMode ? AppColors.whiteColor : AppColors.blackColor),
     );
   }
 
-  Widget _menuItem(String title, IconData icon) => Row(
+  Widget _menuItem(BuildContext context, String title, IconData icon) => Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Icon(icon,
               size: 5.w,
-              color: pref ? AppColors.whiteColor : AppColors.blackColor),
+              color: context.isDarkMode ? AppColors.whiteColor : AppColors.blackColor),
           SizedBox(width: 3.w),
-          textNormal(title, pref ? AppColors.whiteColor : AppColors.blackColor,
+          textNormal(title, context.isDarkMode ? AppColors.whiteColor : AppColors.blackColor,
               3.5.w, FontWeight.w500),
         ],
       );
@@ -228,7 +232,7 @@ class ChatAppBarWidget extends StatelessWidget {
         },
         child: Icon(IconsaxPlusLinear.call_calling,
             size: 5.5.w,
-            color: pref ? AppColors.blackColor : AppColors.blackColor),
+            color: context.isDarkMode ? AppColors.whiteColor : AppColors.blackColor),
       );
 
   Widget _buildVideoCallIcon(BuildContext context) => GestureDetector(
@@ -239,6 +243,6 @@ class ChatAppBarWidget extends StatelessWidget {
         },
         child: Icon(IconsaxPlusLinear.video,
             size: 5.5.w,
-            color: pref ? AppColors.blackColor : AppColors.blackColor),
+            color: context.isDarkMode ? AppColors.whiteColor : AppColors.blackColor),
       );
 }

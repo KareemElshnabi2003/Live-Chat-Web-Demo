@@ -1,5 +1,5 @@
-import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
-import 'package:live_chat/features/home/data/models/radio_model.dart';
+import 'package:live_chat/features/chat/domain/entities/chat_message_entity.dart';
+import 'package:live_chat/features/chat/domain/entities/radio_entity.dart';
 
 abstract class ChatState {}
 
@@ -8,14 +8,14 @@ class ChatInitial extends ChatState {}
 class ChatLoading extends ChatState {}
 
 class ChatLoaded extends ChatState {
-  final List<ChatMessage> messages;
+  final List<ChatMessageEntity> messages;
   final bool isLoadingMore;
   final bool hasMoreMessages;
   final int currentPage;
-  final List<RadioModel> radios;
+  final List<RadioEntity> radios;
   final bool isRadioPlaying;
   final String? currentRadioUrl;
-  final ChatMessage? replyingToMessage;
+  final ChatMessageEntity? replyingToMessage;
 
   ChatLoaded({
     this.messages = const [],
@@ -29,14 +29,14 @@ class ChatLoaded extends ChatState {
   });
 
   ChatLoaded copyWith({
-    List<ChatMessage>? messages,
+    List<ChatMessageEntity>? messages,
     bool? isLoadingMore,
     bool? hasMoreMessages,
     int? currentPage,
-    List<RadioModel>? radios,
+    List<RadioEntity>? radios,
     bool? isRadioPlaying,
     String? currentRadioUrl,
-    ChatMessage? replyingToMessage,
+    ChatMessageEntity? replyingToMessage,
     bool clearReply = false,
   }) {
     return ChatLoaded(

@@ -1,33 +1,24 @@
+import 'package:live_chat/features/chat/domain/entities/chat_message_entity.dart';
 import 'package:live_chat/features/chat/data/models/message_model.dart';
 
-class ChatMessage {
-  final String message;
-  final bool isFromSender;
-  final String timestamp;
-  final String? imageUrl;
-  final String? senderName;
-  final String messageId;
-  final List<MessageReactions> reaction;
-  final String messageType;
-  final bool isPending;
-
-  ChatMessage({
-    required this.senderName,
-    required this.message,
-    required this.isFromSender,
-    required this.timestamp,
-    required this.imageUrl,
-    required this.reaction,
-    required this.messageId,
-    required this.messageType,
-    required this.isPending,
+class ChatMessageModel extends ChatMessageEntity {
+  const ChatMessageModel({
+    required super.message,
+    required super.isFromSender,
+    required super.timestamp,
+    super.imageUrl,
+    super.senderName,
+    required super.messageId,
+    super.reaction,
+    super.messageType = 'text',
+    super.isPending = false,
   });
 
-  factory ChatMessage.fromJson(Map<String, dynamic> json, {String? currentUserId}) {
+  factory ChatMessageModel.fromJson(Map<String, dynamic> json, {String? currentUserId}) {
     final senderId = json['sender_id']?.toString() ?? json['senderId']?.toString() ?? '';
     final isMe = currentUserId != null && currentUserId.isNotEmpty && senderId == currentUserId;
 
-    List<MessageReactions> reactions = [];
+    List<MessageReactionEntity> reactions = [];
     if (json['message_reactions'] != null && json['message_reactions'] is List) {
       reactions = (json['message_reactions'] as List)
           .map((v) => MessageReactions.fromJson(
@@ -40,7 +31,7 @@ class ChatMessage {
           .toList();
     }
 
-    return ChatMessage(
+    return ChatMessageModel(
       senderName: json['sender_name']?.toString() ?? json['senderName']?.toString() ?? '',
       message: json['message']?.toString() ?? '',
       isFromSender: isMe,
@@ -53,11 +44,11 @@ class ChatMessage {
     );
   }
 
-  factory ChatMessage.fromModel(MessageModel model, {String? currentUserId}) {
+  factory ChatMessageModel.fromModel(MessageModel model, {String? currentUserId}) {
     final senderId = model.senderId?.toString() ?? '';
     final isMe = currentUserId != null && currentUserId.isNotEmpty && senderId == currentUserId;
 
-    return ChatMessage(
+    return ChatMessageModel(
       senderName: model.senderName ?? '',
       message: model.message ?? '',
       isFromSender: isMe,
@@ -70,29 +61,21 @@ class ChatMessage {
     );
   }
 
-  ChatMessage copyWith({
-    String? message,
-    bool? isFromSender,
-    String? timestamp,
-    String? imageUrl,
-    String? senderName,
-    String? messageId,
-    List<MessageReactions>? reaction,
-    String? messageType,
-    bool? isPending,
-  }) {
-    return ChatMessage(
-      message: message ?? this.message,
-      isFromSender: isFromSender ?? this.isFromSender,
-      timestamp: timestamp ?? this.timestamp,
-      imageUrl: imageUrl ?? this.imageUrl,
-      senderName: senderName ?? this.senderName,
-      messageId: messageId ?? this.messageId,
-      reaction: reaction ?? this.reaction,
-      messageType: messageType ?? this.messageType,
-      isPending: isPending ?? this.isPending,
+  factory ChatMessageModel.fromEntity(ChatMessageEntity entity) {
+    return ChatMessageModel(
+      message: entity.message,
+      isFromSender: entity.isFromSender,
+      timestamp: entity.timestamp,
+      imageUrl: entity.imageUrl,
+      senderName: entity.senderName,
+      messageId: entity.messageId,
+      reaction: entity.reaction,
+      messageType: entity.messageType,
+      isPending: entity.isPending,
     );
   }
+
+  ChatMessageEntity toEntity() => this;
 
   Map<String, dynamic> toJson() {
     return {
@@ -102,7 +85,17 @@ class ChatMessage {
       'imageUrl': imageUrl,
       'senderName': senderName,
       'messageId': messageId,
-      'reaction': reaction.map((r) => r.toJson()).toList(),
+      'reaction': reaction.map((r) => {
+        'id': r.id,
+        'react': r.react,
+        if (r.user != null)
+          'user': {
+            'id': r.user!.id,
+            'name': r.user!.name,
+            'username': r.user!.username,
+            'image': r.user!.image,
+          },
+      }).toList(),
       'messageType': messageType,
       'isPending': isPending,
     };

@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
+import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/core/routing/routes.dart';
 import 'package:live_chat/core/widgets/shimmer_skeletons.dart';
 import 'package:live_chat/core/widgets/storetext.dart';
@@ -11,7 +12,8 @@ import 'package:live_chat/features/market/data/models/power_model.dart';
 import 'package:live_chat/features/market/presentation/cubit/market_cubit.dart';
 import 'package:live_chat/features/market/presentation/cubit/market_state.dart';
 import 'package:live_chat/features/market/presentation/widgets/more_settings.dart';
-import 'package:live_chat/main.dart';
+import 'package:live_chat/core/constant/app_constant.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
@@ -23,6 +25,7 @@ class Capabilities extends StatefulWidget {
 }
 
 class _CapabilitiesState extends State<Capabilities> {
+  bool get pref => context.isDarkMode;
   @override
   void initState() {
     super.initState();
@@ -169,7 +172,7 @@ class _CapabilitiesState extends State<Capabilities> {
   Widget _buildStoreInformation(BuildContext context, List<PowerModel> powers) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     final powerName =
-        sharedPreferences!.getString("username") ?? "Unknown Power";
+        CacheHelper.getString(key: AppConstants.usernameKey) ?? "Unknown Power";
 
     return Column(
       children: powers.map((power) {

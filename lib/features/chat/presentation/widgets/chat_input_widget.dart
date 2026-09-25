@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/features/chat/domain/entities/chat_attachment.dart';
-import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
+import 'package:live_chat/features/chat/domain/entities/chat_message_entity.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_state.dart';

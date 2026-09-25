@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:screen_go/screen_go.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/di/service_locator.dart';
@@ -24,7 +23,6 @@ import 'package:live_chat/features/notifications/presentation/cubit/notification
 import 'package:live_chat/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:live_chat/generated/l10n.dart';
 
-SharedPreferences? sharedPreferences;
 
 bool get pref => sl.isRegistered<ThemeCubit>()
     ? sl<ThemeCubit>().isDarkMode
@@ -41,7 +39,6 @@ void main() async {
 
   // 1. Initialize Clean Architecture Service Locator (GetIt & SharedPreferences singleton)
   await initServiceLocator();
-  sharedPreferences = sl<SharedPreferences>();
 
   try {
     await Firebase.initializeApp(
