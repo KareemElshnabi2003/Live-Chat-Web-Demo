@@ -1,8 +1,8 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/routing/app_router.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -10,7 +10,7 @@ import 'package:live_chat/core/utils/responsive_nums.dart';
 
 void dialogImgWidget({
   BuildContext? context,
-  required UserChatModel? userChatModel,
+  required UserChatEntity? userChatModel,
   required String title,
   required dynamic img,
   required VoidCallback onPressChat,

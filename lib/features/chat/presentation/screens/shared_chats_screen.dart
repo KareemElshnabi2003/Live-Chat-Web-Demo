@@ -1,4 +1,4 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +12,7 @@ import 'package:live_chat/core/widgets/dialog_img.dart';
 import 'package:live_chat/core/widgets/no_data.dart';
 import 'package:live_chat/core/widgets/shimmer_skeletons.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/home/domain/repositories/home_repository.dart';
 import 'package:live_chat/main.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
@@ -37,7 +37,7 @@ class _SharedChatsScreenState extends State<SharedChatsScreen> {
   final HomeRepository _homeRepository = sl<HomeRepository>();
   final ScrollController _scrollController = ScrollController();
 
-  List<UserChatModel> _chatsList = [];
+  List<UserChatEntity> _chatsList = [];
   bool _isLoading = true;
   bool _isLoadingMore = false;
   bool _hasMoreData = true;
@@ -132,9 +132,9 @@ class _SharedChatsScreenState extends State<SharedChatsScreen> {
     return url != null && url.trim().isNotEmpty && url.trim() != "null" && url.trim() != "image";
   }
 
-  Future<void> _onChatTap(UserChatModel chat) async {
+  Future<void> _onChatTap(UserChatEntity chat) async {
     if (chat.status == "Public" || chat.status == "Private") {
-      final joined = await _homeRepository.joinToChat(chatId: chat.id);
+      final joined = await _homeRepository.joinToChat(chatId: chat.id?.toString() ?? '');
       final canEnter = joined.fold((l) => false, (r) => r);
       if (!canEnter && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

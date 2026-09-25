@@ -1,71 +1,57 @@
 import 'dart:convert';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import '../../domain/entities/pin_chat_entity.dart';
 
-class PinChatModel {
-  int? id;
-  int? conversationId;
-  int? numberOfStars;
-  int? hasAd;
-  String? adTitle;
-  String? adLink;
-  String? adImage;
-  int? status;
-  String? pinDate;
-  // 🌟 التعديل 1: غيرنا النوع لـ List عشان يقرا المصفوفة صح
+class PinChatModel extends PinChatEntity {
   List<PinHour>? pinHours;
-  UserChatModel? conversation;
 
-  PinChatModel(
-      {this.id,
-        this.conversationId,
-        this.numberOfStars,
-        this.hasAd,
-        this.adTitle,
-        this.adLink,
-        this.adImage,
-        this.status,
-        this.pinDate,
-        this.pinHours,
-        this.conversation});
+  @override
+  UserChatModel? get conversation => super.conversation as UserChatModel?;
 
-  PinChatModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    conversationId = json['conversation_id'];
-    numberOfStars = json['number_of_stars'];
-    hasAd = json['has_ad'];
-    adTitle = json['ad_title'];
-    adLink = json['ad_link'];
-    adImage = json['ad_image'];
-    status = json['status'];
-    pinDate = json['pin_date'];
+  PinChatModel({
+    super.id,
+    super.conversationId,
+    super.numberOfStars,
+    super.hasAd,
+    super.adTitle,
+    super.adLink,
+    super.adImage,
+    super.status,
+    super.pinDate,
+    this.pinHours,
+    super.conversation,
+  });
 
-    // 🌟 التعديل 2: معالجة ذكية للـ pin_hours (سواء رجعت List أو String)
-    if (json['pin_hours'] != null) {
-      pinHours = [];
-      if (json['pin_hours'] is List) {
-        // لو راجعة مصفوفة طبيعية
-        json['pin_hours'].forEach((v) {
-          pinHours!.add(PinHour.fromJson(v));
-        });
-      } else if (json['pin_hours'] is String) {
-        // لو الباك إند رجعها كنص بالغلط
-        try {
-          var decoded = jsonDecode(json['pin_hours']);
-          if (decoded is List) {
-            for (var v in decoded) {
-              pinHours!.add(PinHour.fromJson(v));
-            }
-          }
-        } catch (e) {
-          print("Error parsing pin_hours string: $e");
+  PinChatModel.fromJson(Map<String, dynamic> json)
+      : pinHours = _parsePinHours(json['pin_hours']),
+        super(
+          id: json['id'],
+          conversationId: json['conversation_id'],
+          numberOfStars: json['number_of_stars'],
+          hasAd: json['has_ad'],
+          adTitle: json['ad_title'],
+          adLink: json['ad_link'],
+          adImage: json['ad_image'],
+          status: json['status'],
+          pinDate: json['pin_date'],
+          conversation: json['conversation'] != null
+              ? UserChatModel.fromJson(json['conversation'])
+              : null,
+        );
+
+  static List<PinHour>? _parsePinHours(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is List) {
+      return raw.map((v) => PinHour.fromJson(v)).toList();
+    } else if (raw is String) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) {
+          return decoded.map((v) => PinHour.fromJson(v)).toList();
         }
-      }
+      } catch (_) {}
     }
-
-    // 🌟 فحص الـ conversation زي ما عملنا قبل كده
-    conversation = json['conversation'] != null
-        ? UserChatModel.fromJson(json['conversation'])
-        : null;
+    return null;
   }
 
   Map<String, dynamic> toJson() {

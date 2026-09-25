@@ -1,12 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:live_chat/core/helper/cache_helper.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/home/domain/repositories/home_repository.dart';
 import 'package:live_chat/features/market/domain/repositories/market_repository.dart';
 
 class PinChatState {
-  final List<UserChatModel> userChats;
+  final List<UserChatEntity> userChats;
   final String selectedChatId;
   final String selectedDate;
   final List<Map<String, dynamic>> availableTimeSlots;
@@ -35,7 +35,7 @@ class PinChatState {
   });
 
   PinChatState copyWith({
-    List<UserChatModel>? userChats,
+    List<UserChatEntity>? userChats,
     String? selectedChatId,
     String? selectedDate,
     List<Map<String, dynamic>>? availableTimeSlots,
@@ -80,7 +80,7 @@ class PinChatCubit extends Cubit<PinChatState> {
     final currentUserId = CacheHelper.getString(key: 'id') ?? '';
     final result = await homeRepository.getUserChats(page: 1, perPage: 30);
     result.fold(
-      (error) => emit(state.copyWith(isLoading: false, errorMessage: error)),
+      (error) => emit(state.copyWith(isLoading: false, errorMessage: error.message)),
       (chats) {
         final filtered = chats.where((element) {
           final isOwner = element.user?.id?.toString() == currentUserId;

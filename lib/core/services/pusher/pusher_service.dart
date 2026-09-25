@@ -13,6 +13,8 @@ class PusherService {
 
   PusherChannelsFlutter? _pusher;
   bool _isInitialized = false;
+  Future<void>? _initFuture;
+  StreamSubscription<PusherEvent>? _initSubscription;
   final Set<String> _subscribedChannels = {};
   final StreamController<PusherEvent> _eventController = StreamController<PusherEvent>.broadcast();
 
@@ -32,10 +34,21 @@ class PusherService {
 
   Future<void> init({void Function(PusherEvent)? onEvent}) async {
     if (onEvent != null) {
-      _eventController.stream.listen(onEvent);
+      await _initSubscription?.cancel();
+      _initSubscription = _eventController.stream.listen(onEvent);
     }
     if (_isInitialized) return;
+    if (_initFuture != null) return _initFuture;
 
+    _initFuture = _doInit();
+    try {
+      await _initFuture;
+    } finally {
+      _initFuture = null;
+    }
+  }
+
+  Future<void> _doInit() async {
     try {
       _pusher = PusherChannelsFlutter.getInstance();
       await _pusher!.init(
@@ -98,6 +111,8 @@ class PusherService {
   }
 
   Future<void> disconnect() async {
+    await _initSubscription?.cancel();
+    _initSubscription = null;
     if (_pusher != null) {
       for (final channel in _subscribedChannels.toList()) {
         await unsubscribe(channel);

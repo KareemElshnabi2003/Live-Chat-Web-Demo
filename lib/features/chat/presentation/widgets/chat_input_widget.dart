@@ -8,7 +8,7 @@ import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/features/chat/domain/entities/chat_attachment.dart';
 import 'package:live_chat/features/chat/domain/entities/chat_message_entity.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_state.dart';
 import 'package:live_chat/core/widgets/text_click_widget.dart';
@@ -19,7 +19,7 @@ import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 
 class ChatInputWidget extends StatefulWidget {
-  final UserChatModel userChatModel;
+  final UserChatEntity userChatModel;
   final bool isRtl;
   final VoidCallback onScrollToBottom;
 

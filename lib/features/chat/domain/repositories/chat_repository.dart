@@ -5,44 +5,45 @@ import '../entities/chat_message_entity.dart';
 import '../entities/member_entity.dart';
 import '../entities/radio_entity.dart';
 import '../entities/chat_theme_entity.dart';
+import '../entities/user_chat_entity.dart';
 
 abstract class ChatRepository {
   Future<Either<Failure, List<ChatMessageEntity>>> getMessages({required String chatId, int page = 1});
-  Future<Either<Failure, dynamic>> sendMessage({
+  Future<Either<Failure, Unit>> sendMessage({
     required String chatId,
     required String message,
   });
-  Future<Either<Failure, dynamic>> sendMessageWithFile({
+  Future<Either<Failure, Unit>> sendMessageWithFile({
     required String chatId,
     required String messageType,
     ChatAttachment? file,
   });
-  Future<Either<Failure, dynamic>> sendReaction({
+  Future<Either<Failure, Unit>> sendReaction({
     required String messageId,
     required String react,
   });
   Future<Either<Failure, List<MemberEntity>>> getMembers({required String chatId, int page = 1});
   Future<Either<Failure, List<RadioEntity>>> getRadios();
   Future<Either<Failure, List<ChatThemeEntity>>> getThemes();
-  Future<Either<Failure, dynamic>> createGeneralChat({
+  Future<Either<Failure, Unit>> createGeneralChat({
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
   });
-  Future<Either<Failure, dynamic>> updateGeneralChat({
+  Future<Either<Failure, Unit>> updateGeneralChat({
     required String chatId,
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
   });
-  Future<Either<Failure, dynamic>> deleteChat({required String chatId});
-  Future<Either<Failure, dynamic>> acceptMemberToChat({
+  Future<Either<Failure, Unit>> deleteChat({required String chatId});
+  Future<Either<Failure, Unit>> acceptMemberToChat({
     required String chatId,
     required String userId,
   });
-  Future<Either<Failure, dynamic>> blockOrUnBlock({
+  Future<Either<Failure, Unit>> blockOrUnBlock({
     required int status,
     required String userId,
   });
-  Future<Either<Failure, dynamic>> createChatFriend({required int friendId});
+  Future<Either<Failure, UserChatEntity>> createChatFriend({required int friendId});
 }

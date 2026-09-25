@@ -5,6 +5,7 @@ import '../entities/chat_message_entity.dart';
 import '../entities/member_entity.dart';
 import '../entities/radio_entity.dart';
 import '../entities/chat_theme_entity.dart';
+import '../entities/user_chat_entity.dart';
 import '../repositories/chat_repository.dart';
 
 class GetMessagesUseCase {
@@ -20,7 +21,7 @@ class SendMessageUseCase {
   final ChatRepository repository;
   SendMessageUseCase(this.repository);
 
-  Future<Either<Failure, dynamic>> call({required String chatId, required String message}) {
+  Future<Either<Failure, Unit>> call({required String chatId, required String message}) {
     return repository.sendMessage(chatId: chatId, message: message);
   }
 }
@@ -29,7 +30,7 @@ class SendMessageWithFileUseCase {
   final ChatRepository repository;
   SendMessageWithFileUseCase(this.repository);
 
-  Future<Either<Failure, dynamic>> call({
+  Future<Either<Failure, Unit>> call({
     required String chatId,
     required String messageType,
     ChatAttachment? file,
@@ -46,7 +47,7 @@ class SendReactionUseCase {
   final ChatRepository repository;
   SendReactionUseCase(this.repository);
 
-  Future<Either<Failure, dynamic>> call({required String messageId, required String react}) {
+  Future<Either<Failure, Unit>> call({required String messageId, required String react}) {
     return repository.sendReaction(messageId: messageId, react: react);
   }
 }
@@ -82,7 +83,7 @@ class CreateGeneralChatUseCase {
   final ChatRepository repository;
   CreateGeneralChatUseCase(this.repository);
 
-  Future<Either<Failure, dynamic>> call({
+  Future<Either<Failure, Unit>> call({
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
@@ -95,7 +96,7 @@ class UpdateGeneralChatUseCase {
   final ChatRepository repository;
   UpdateGeneralChatUseCase(this.repository);
 
-  Future<Either<Failure, dynamic>> call({
+  Future<Either<Failure, Unit>> call({
     required String chatId,
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
@@ -114,7 +115,7 @@ class DeleteChatUseCase {
   final ChatRepository repository;
   DeleteChatUseCase(this.repository);
 
-  Future<Either<Failure, dynamic>> call({required String chatId}) {
+  Future<Either<Failure, Unit>> call({required String chatId}) {
     return repository.deleteChat(chatId: chatId);
   }
 }
@@ -123,7 +124,7 @@ class AcceptMemberToChatUseCase {
   final ChatRepository repository;
   AcceptMemberToChatUseCase(this.repository);
 
-  Future<Either<Failure, dynamic>> call({
+  Future<Either<Failure, Unit>> call({
     required String chatId,
     required String userId,
   }) {
@@ -135,7 +136,7 @@ class BlockOrUnBlockUseCase {
   final ChatRepository repository;
   BlockOrUnBlockUseCase(this.repository);
 
-  Future<Either<Failure, dynamic>> call({
+  Future<Either<Failure, Unit>> call({
     required int status,
     required String userId,
   }) {
@@ -147,7 +148,7 @@ class CreateChatFriendUseCase {
   final ChatRepository repository;
   CreateChatFriendUseCase(this.repository);
 
-  Future<Either<Failure, dynamic>> call({required int friendId}) {
+  Future<Either<Failure, UserChatEntity>> call({required int friendId}) {
     return repository.createChatFriend(friendId: friendId);
   }
 }

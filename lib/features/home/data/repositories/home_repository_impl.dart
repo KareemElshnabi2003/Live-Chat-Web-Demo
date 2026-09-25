@@ -1,8 +1,12 @@
 import 'package:dartz/dartz.dart';
+import 'package:live_chat/core/errors/failures.dart';
 import 'package:live_chat/core/errors/server_exceptions.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import '../../data/models/ads_model.dart';
 import '../../data/models/pin_chat_model.dart';
+import '../../domain/entities/ad_entity.dart';
+import '../../domain/entities/pin_chat_entity.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../datasources/home_remote_data_source.dart';
 
@@ -12,7 +16,7 @@ class HomeRepositoryImpl implements HomeRepository {
   HomeRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<String, List<AdsModel>>> getAds() async {
+  Future<Either<Failure, List<AdEntity>>> getAds() async {
     try {
       final response = await remoteDataSource.getAds();
       if (response != null && response is Map && response['data'] is List) {
@@ -23,14 +27,14 @@ class HomeRepositoryImpl implements HomeRepository {
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, PinChatModel?>> getPinnedChat() async {
+  Future<Either<Failure, PinChatEntity?>> getPinnedChat() async {
     try {
       final response = await remoteDataSource.getPinnedChat();
       if (response != null && response is Map && response['data'] != null) {
@@ -45,14 +49,14 @@ class HomeRepositoryImpl implements HomeRepository {
       }
       return const Right(null);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, List<UserChatModel>>> getSystemChats({int page = 1, int perPage = 8}) async {
+  Future<Either<Failure, List<UserChatEntity>>> getSystemChats({int page = 1, int perPage = 8}) async {
     try {
       final response = await remoteDataSource.getSystemChats(page: page, perPage: perPage);
       if (response != null && response is Map && response['data'] is List) {
@@ -63,14 +67,14 @@ class HomeRepositoryImpl implements HomeRepository {
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, List<UserChatModel>>> getRecentChats({int page = 1, int perPage = 15}) async {
+  Future<Either<Failure, List<UserChatEntity>>> getRecentChats({int page = 1, int perPage = 15}) async {
     try {
       final response = await remoteDataSource.getRecentChats(page: page, perPage: perPage);
       if (response != null && response is Map && response['data'] is List) {
@@ -81,14 +85,14 @@ class HomeRepositoryImpl implements HomeRepository {
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, List<UserChatModel>>> getUserChats({int page = 1, int perPage = 15}) async {
+  Future<Either<Failure, List<UserChatEntity>>> getUserChats({int page = 1, int perPage = 15}) async {
     try {
       final response = await remoteDataSource.getUserChats(page: page, perPage: perPage);
       if (response != null && response is Map && response['data'] is List) {
@@ -99,24 +103,24 @@ class HomeRepositoryImpl implements HomeRepository {
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, bool>> joinToChat({required dynamic chatId}) async {
+  Future<Either<Failure, bool>> joinToChat({required String chatId}) async {
     try {
       final response = await remoteDataSource.joinToChat(chatId: chatId);
       if (response != null && response is Map && response['status'] == 'forbiddenException') {
-        return const Left('forbiddenException');
+        return const Left(ServerFailure('forbiddenException'));
       }
       return const Right(true);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 }

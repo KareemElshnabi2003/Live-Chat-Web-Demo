@@ -1,6 +1,6 @@
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
-import '../../data/models/ads_model.dart';
-import '../../data/models/pin_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
+import '../../domain/entities/ad_entity.dart';
+import '../../domain/entities/pin_chat_entity.dart';
 
 abstract class HomeState {}
 
@@ -9,13 +9,13 @@ class HomeInitial extends HomeState {}
 class HomeLoading extends HomeState {}
 
 class HomeLoaded extends HomeState {
-  final List<AdsModel> ads;
-  final PinChatModel? pinnedChat;
-  final List<UserChatModel> systemChats;
-  final List<UserChatModel> recentChats;
-  final List<UserChatModel> userChats;
+  final List<AdEntity> ads;
+  final PinChatEntity? pinnedChat;
+  final List<UserChatEntity> systemChats;
+  final List<UserChatEntity> recentChats;
+  final List<UserChatEntity> userChats;
   final int selectedNavIndex;
-  final UserChatModel? selectedChat;
+  final UserChatEntity? selectedChat;
   final bool isSelectedChatPin;
   final bool isSelectedChatGust;
 
@@ -32,13 +32,13 @@ class HomeLoaded extends HomeState {
   });
 
   HomeLoaded copyWith({
-    List<AdsModel>? ads,
-    PinChatModel? pinnedChat,
-    List<UserChatModel>? systemChats,
-    List<UserChatModel>? recentChats,
-    List<UserChatModel>? userChats,
+    List<AdEntity>? ads,
+    PinChatEntity? pinnedChat,
+    List<UserChatEntity>? systemChats,
+    List<UserChatEntity>? recentChats,
+    List<UserChatEntity>? userChats,
     int? selectedNavIndex,
-    UserChatModel? selectedChat,
+    UserChatEntity? selectedChat,
     bool? isSelectedChatPin,
     bool? isSelectedChatGust,
     bool clearSelectedChat = false,
@@ -61,3 +61,4 @@ class HomeError extends HomeState {
   final String message;
   HomeError({required this.message});
 }
+

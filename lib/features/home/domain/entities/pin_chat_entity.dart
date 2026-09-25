@@ -1,3 +1,5 @@
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
+
 class PinChatEntity {
   final int? id;
   final int? conversationId;
@@ -8,7 +10,7 @@ class PinChatEntity {
   final String? adImage;
   final int? status;
   final String? pinDate;
-  final dynamic conversation;
+  final UserChatEntity? conversation;
 
   const PinChatEntity({
     this.id,

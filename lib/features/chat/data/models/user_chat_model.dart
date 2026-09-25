@@ -1,85 +1,74 @@
 import 'package:live_chat/features/chat/domain/entities/chat_message_entity.dart';
-import 'package:live_chat/features/chat/data/models/message_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 
-class UserChatModel {
-  int? id;
-  String? name;
-  String? image;
-  String? slug;
-  String? status;
-  String? accept;
-  String? chatLink;
-  User? user;
-  List<ChatAdmins>? chatAdmins;
-  ThemeId? themeId;
-  String? userTheme;
-  int? membersCount;
-  int? messagesCount;
-  String? createdAt;
-  String? updatedAt;
-  String? adLink;
-  String? adTitle;
-  String? adImage; // Added ad_image field
-  List<MessageModel>? messages;
-  LastMessage? lastMessage;
-  int? unreadCount;
-  String? isBlocked;
+class UserChatModel extends UserChatEntity {
+  @override
+  User? get user => super.user as User?;
+
+  @override
+  List<ChatAdmins>? get chatAdmins => super.chatAdmins?.cast<ChatAdmins>();
+
+  @override
+  ThemeId? get themeId => super.themeId as ThemeId?;
+
+  @override
+  LastMessage? get lastMessage => super.lastMessage as LastMessage?;
 
   UserChatModel({
-    this.id,
-    this.isBlocked,
-    this.name,
-    this.image,
-    this.lastMessage,
-    this.unreadCount,
-    this.slug,
-    this.status,
-    this.accept,
-    this.chatLink,
-    this.user,
-    this.chatAdmins,
-    this.themeId,
-    this.userTheme,
-    this.membersCount,
-    this.messagesCount,
-    this.createdAt,
-    this.adLink,
-    this.adTitle,
-    this.adImage, // Added ad_image parameter
-    this.updatedAt,
+    super.id,
+    super.isBlocked,
+    super.name,
+    super.image,
+    super.lastMessage,
+    super.unreadCount,
+    super.slug,
+    super.status,
+    super.accept,
+    super.chatLink,
+    super.user,
+    super.chatAdmins,
+    super.themeId,
+    super.userTheme,
+    super.membersCount,
+    super.messagesCount,
+    super.createdAt,
+    super.adLink,
+    super.adTitle,
+    super.adImage,
+    super.updatedAt,
+    super.messages,
   });
 
-  UserChatModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    isBlocked = json['is_blocked'];
-    adLink = json['ad_link'];
-    adTitle = json['ad_title'];
-    adImage = json['ad_image']; // Parse ad_image from JSON
-    name = json['name'];
-    image = json['image'];
-    slug = json['slug'];
-    status = json['status'].toString();
-    accept = json['accept'].toString();
-    lastMessage = json['last_message'] != null
-        ? LastMessage.fromJson(json['last_message'])
-        : null;
-    unreadCount = json['unread_count'];
-    chatLink = json['chat_link'];
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
-    if (json['chat_admins'] != null) {
-      chatAdmins = <ChatAdmins>[];
-      json['chat_admins'].forEach((v) {
-        chatAdmins!.add(ChatAdmins.fromJson(v));
-      });
-    }
-    themeId = json['theme'] != null ? ThemeId.fromJson(json['theme']) : null;
-    userTheme = json['user_theme'];
-    membersCount = json['members_count'];
-
-    messagesCount = json['messages_count'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-  }
+  UserChatModel.fromJson(Map<String, dynamic> json)
+      : super(
+          id: json['id'],
+          isBlocked: json['is_blocked'],
+          adLink: json['ad_link'],
+          adTitle: json['ad_title'],
+          adImage: json['ad_image'],
+          name: json['name'],
+          image: json['image'],
+          slug: json['slug'],
+          status: json['status']?.toString(),
+          accept: json['accept']?.toString(),
+          lastMessage: json['last_message'] != null
+              ? LastMessage.fromJson(json['last_message'])
+              : null,
+          unreadCount: json['unread_count'],
+          chatLink: json['chat_link'],
+          user: json['user'] != null ? User.fromJson(json['user']) : null,
+          chatAdmins: json['chat_admins'] != null
+              ? (json['chat_admins'] as List)
+                  .map((v) => ChatAdmins.fromJson(v))
+                  .toList()
+              : null,
+          themeId: json['theme'] != null ? ThemeId.fromJson(json['theme']) : null,
+          userTheme: json['user_theme'],
+          membersCount: json['members_count'],
+          messagesCount: json['messages_count'],
+          createdAt: json['created_at'],
+          updatedAt: json['updated_at'],
+        );
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -97,7 +86,7 @@ class UserChatModel {
     data['unread_count'] = unreadCount;
     data['ad_link'] = adLink;
     data['ad_title'] = adTitle;
-    data['ad_image'] = adImage; // Include ad_image in toJson
+    data['ad_image'] = adImage;
     if (user != null) {
       data['user'] = user!.toJson();
     }

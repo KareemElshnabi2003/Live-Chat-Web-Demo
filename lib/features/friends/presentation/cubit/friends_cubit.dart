@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:live_chat/core/di/service_locator.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/chat/domain/repositories/chat_repository.dart';
 import '../../data/models/friend_suggest_model.dart';
 import '../../domain/repositories/friends_repository.dart';
@@ -85,7 +85,7 @@ class FriendsCubit extends Cubit<FriendsState> {
   Future<void> sendFriendRequest({required int friendId}) =>
       sendRequest(friendId.toString());
 
-  Future<UserChatModel?> createChatFriend({required int friendId}) async {
+  Future<UserChatEntity?> createChatFriend({required int friendId}) async {
     final result =
         await sl<ChatRepository>().createChatFriend(friendId: friendId);
     return result.fold(
@@ -93,12 +93,7 @@ class FriendsCubit extends Cubit<FriendsState> {
         emit(FriendsError(message: error.message));
         return null;
       },
-      (data) {
-        if (data is Map && data['data'] != null) {
-          return UserChatModel.fromJson(data['data']);
-        }
-        return null;
-      },
+      (chat) => chat,
     );
   }
 }

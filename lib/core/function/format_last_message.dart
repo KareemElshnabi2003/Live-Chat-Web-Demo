@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/helper/cache_helper.dart';
 
-String formatLastMessage(BuildContext context, UserChatModel chat) {
+String formatLastMessage(BuildContext context, UserChatEntity chat) {
   if (chat.lastMessage == null || chat.lastMessage.toString() == "null") {
     return "${chat.membersCount ?? 0} ${S.of(context).engaged_people}";
   }
 
   final isRtl = Directionality.of(context) == TextDirection.rtl;
   final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
-  final isMe = chat.lastMessage!.senderId.toString() == currentUserId;
+  final isMe = chat.lastMessage?.senderId?.toString() == currentUserId;
   final prefix = isMe ? "${S.of(context).you}: " : "";
   
-  String msgType = chat.lastMessage!.messageType ?? "text";
-  String msgContent = chat.lastMessage!.message ?? "";
+  String msgType = chat.lastMessage?.messageType?.toString() ?? "text";
+  String msgContent = chat.lastMessage?.message?.toString() ?? "";
 
   // Parse Reply or tags in text messages
   if (msgType == 'text') {

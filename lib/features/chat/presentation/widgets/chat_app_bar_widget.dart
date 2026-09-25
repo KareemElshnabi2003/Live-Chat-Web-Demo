@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/routing/routes.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/screens/chat_settings_screen.dart';
@@ -18,7 +19,7 @@ import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 
 class ChatAppBarWidget extends StatelessWidget {
-  final UserChatModel userChatModel;
+  final UserChatEntity userChatModel;
   final bool isGust;
   final bool isRtl;
 
@@ -144,7 +145,7 @@ class ChatAppBarWidget extends StatelessWidget {
         } else if (value == 'profile') {
           showBottomSheetControlPersonWidget(
             context: context,
-            idAdmins: userChatModel.chatAdmins ?? [],
+            idAdmins: userChatModel.chatAdmins?.cast<ChatAdmins>() ?? [],
             isNeedAccept: userChatModel.accept == "1",
             idOwner: userChatModel.user?.id.toString() ?? '',
             chatId: userChatModel.id?.toString(),

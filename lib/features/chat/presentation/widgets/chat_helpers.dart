@@ -1,15 +1,15 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/main.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 
 class ChatHelpers {
   // 🌟 استخراج الخلفية
-  static DecorationImage? getBackgroundImage(UserChatModel model) {
+  static DecorationImage? getBackgroundImage(UserChatEntity model) {
     if (model.userTheme != null && model.userTheme.toString().trim() != "null" && model.userTheme.toString().trim().isNotEmpty) {
       return DecorationImage(image: CachedNetworkImageProvider("${model.userTheme}"), fit: BoxFit.cover);
     } else if (model.themeId != null && model.themeId?.theme != null && model.themeId!.theme.toString().trim() != "null" && model.themeId!.theme.toString().trim().isNotEmpty) {
@@ -19,7 +19,7 @@ class ChatHelpers {
   }
 
   // 🌟 فحص الإعلان
-  static bool hasAd(UserChatModel model) {
+  static bool hasAd(UserChatEntity model) {
     bool hasValidImage = model.adImage != null && model.adImage!.trim().isNotEmpty && model.adImage != "null" && model.adImage != "image";
     return (model.adTitle != null && model.adTitle!.trim().isNotEmpty && model.adTitle != "null") ||
         (model.adLink != null && model.adLink!.trim().isNotEmpty && model.adLink != "null") ||

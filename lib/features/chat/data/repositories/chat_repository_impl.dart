@@ -12,6 +12,8 @@ import '../../domain/entities/chat_message_entity.dart';
 import '../../domain/entities/member_entity.dart';
 import '../../domain/entities/radio_entity.dart';
 import '../../domain/entities/chat_theme_entity.dart';
+import '../../domain/entities/user_chat_entity.dart';
+import '../models/user_chat_model.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/chat_remote_data_source.dart';
 
@@ -45,13 +47,13 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> sendMessage({
+  Future<Either<Failure, Unit>> sendMessage({
     required String chatId,
     required String message,
   }) async {
     try {
-      final response = await remoteDataSource.sendMessage(chatId: chatId, message: message);
-      return Right(response);
+      await remoteDataSource.sendMessage(chatId: chatId, message: message);
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
     } catch (e) {
@@ -60,18 +62,18 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> sendMessageWithFile({
+  Future<Either<Failure, Unit>> sendMessageWithFile({
     required String chatId,
     required String messageType,
     ChatAttachment? file,
   }) async {
     try {
-      final response = await remoteDataSource.sendMessageWithFile(
+      await remoteDataSource.sendMessageWithFile(
         chatId: chatId,
         messageType: messageType,
         file: file,
       );
-      return Right(response);
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
     } catch (e) {
@@ -80,13 +82,13 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> sendReaction({
+  Future<Either<Failure, Unit>> sendReaction({
     required String messageId,
     required String react,
   }) async {
     try {
-      final response = await remoteDataSource.sendReaction(messageId: messageId, react: react);
-      return Right(response);
+      await remoteDataSource.sendReaction(messageId: messageId, react: react);
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
     } catch (e) {
@@ -164,18 +166,18 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> createGeneralChat({
+  Future<Either<Failure, Unit>> createGeneralChat({
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
   }) async {
     try {
-      final response = await remoteDataSource.createGeneralChat(
+      await remoteDataSource.createGeneralChat(
         data: data,
         imgChat: imgChat,
         bgChat: bgChat,
       );
-      return Right(response);
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
     } catch (e) {
@@ -184,20 +186,20 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> updateGeneralChat({
+  Future<Either<Failure, Unit>> updateGeneralChat({
     required String chatId,
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
   }) async {
     try {
-      final response = await remoteDataSource.updateGeneralChat(
+      await remoteDataSource.updateGeneralChat(
         chatId: chatId,
         data: data,
         imgChat: imgChat,
         bgChat: bgChat,
       );
-      return Right(response);
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
     } catch (e) {
@@ -206,10 +208,10 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> deleteChat({required String chatId}) async {
+  Future<Either<Failure, Unit>> deleteChat({required String chatId}) async {
     try {
-      final response = await remoteDataSource.deleteChat(chatId: chatId);
-      return Right(response);
+      await remoteDataSource.deleteChat(chatId: chatId);
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
     } catch (e) {
@@ -218,13 +220,13 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> acceptMemberToChat({
+  Future<Either<Failure, Unit>> acceptMemberToChat({
     required String chatId,
     required String userId,
   }) async {
     try {
-      final response = await remoteDataSource.acceptMemberToChat(chatId: chatId, userId: userId);
-      return Right(response);
+      await remoteDataSource.acceptMemberToChat(chatId: chatId, userId: userId);
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
     } catch (e) {
@@ -233,13 +235,13 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> blockOrUnBlock({
+  Future<Either<Failure, Unit>> blockOrUnBlock({
     required int status,
     required String userId,
   }) async {
     try {
-      final response = await remoteDataSource.blockOrUnBlock(status: status, userId: userId);
-      return Right(response);
+      await remoteDataSource.blockOrUnBlock(status: status, userId: userId);
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
     } catch (e) {
@@ -248,10 +250,16 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, dynamic>> createChatFriend({required int friendId}) async {
+  Future<Either<Failure, UserChatEntity>> createChatFriend({required int friendId}) async {
     try {
       final response = await remoteDataSource.createChatFriend(friendId: friendId);
-      return Right(response);
+      if (response != null && response is Map && response['data'] != null) {
+        final data = response['data'] is Map<String, dynamic>
+            ? response['data'] as Map<String, dynamic>
+            : Map<String, dynamic>.from(response['data'] as Map);
+        return Right(UserChatModel.fromJson(data));
+      }
+      return const Left(ServerFailure('Failed to create friend chat: empty response'));
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
     } catch (e) {

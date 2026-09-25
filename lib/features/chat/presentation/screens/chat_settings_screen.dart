@@ -11,7 +11,7 @@ import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/widgets/loading.dart';
 import 'package:live_chat/core/widgets/text_click_widget.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/chat/domain/entities/chat_attachment.dart';
 import 'package:live_chat/features/chat/domain/entities/chat_theme_entity.dart';
 import 'package:live_chat/features/chat/domain/entities/member_entity.dart';
@@ -23,7 +23,7 @@ import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
 
 class Settings extends StatefulWidget {
-  final UserChatModel? userChatModel;
+  final UserChatEntity? userChatModel;
 
   const Settings({super.key, this.userChatModel});
 

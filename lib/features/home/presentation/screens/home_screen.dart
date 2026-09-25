@@ -1,4 +1,4 @@
-﻿// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print
 
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -24,7 +24,7 @@ import 'package:live_chat/features/home/presentation/cubit/home_state.dart';
 import 'package:live_chat/features/home/presentation/widgets/nav_bar.dart';
 import 'package:live_chat/features/home/presentation/widgets/sidebar_nav.dart';
 import 'package:live_chat/features/home/presentation/widgets/show_bottom_sheet_pin_chat_widget.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/chat/presentation/screens/chat_screen.dart';
 import 'package:live_chat/features/friends/presentation/cubit/friends_cubit.dart';
 import 'package:live_chat/features/friends/presentation/cubit/friends_state.dart';
@@ -62,7 +62,7 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  Future<void> _handleChatTap(BuildContext context, UserChatModel chat, {bool isPin = false}) async {
+  Future<void> _handleChatTap(BuildContext context, UserChatEntity chat, {bool isPin = false}) async {
     final isDesktop = ResponsiveLayout.isDesktop(context);
     if (chat.status == "Public" || chat.status == "Private") {
       final joined = await context.read<HomeCubit>().joinToChat(chatId: chat.id);
@@ -274,7 +274,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildPinnedChat(UserChatModel pinnedChat) {
+  Widget _buildPinnedChat(UserChatEntity pinnedChat) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     final hasValidImage = pinnedChat.image != null &&
         pinnedChat.image!.trim().isNotEmpty &&
@@ -329,7 +329,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildOtherConversationSection(List<UserChatModel> systemChats) {
+  Widget _buildOtherConversationSection(List<UserChatEntity> systemChats) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Column(
@@ -398,7 +398,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildPrivateChatsSection(List<UserChatModel> userChats) {
+  Widget _buildPrivateChatsSection(List<UserChatEntity> userChats) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Column(
