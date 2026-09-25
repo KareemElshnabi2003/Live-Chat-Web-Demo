@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
@@ -23,12 +21,13 @@ class AudioMessageWidget extends StatefulWidget {
 }
 
 class _AudioMessageWidgetState extends State<AudioMessageWidget> {
-  late AudioPlayer _player;
+  late final AudioPlayer _player;
   bool isPlaying = false;
   bool _isLoaded = false;
   Duration? duration = Duration.zero;
-  Duration position = Duration.zero;
   double playbackSpeed = 1.0;
+
+  final ValueNotifier<Duration> _positionNotifier = ValueNotifier<Duration>(Duration.zero);
 
   StreamSubscription? _durationSub;
   StreamSubscription? _positionSub;
@@ -43,18 +42,23 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget> {
 
   void _setupListeners() {
     _durationSub = _player.durationStream.listen((d) {
-      if (mounted) setState(() => duration = d ?? Duration.zero);
+      if (mounted && d != duration) {
+        setState(() => duration = d ?? Duration.zero);
+      }
     });
+
+    // Narrow update: only notify listener, do NOT trigger full widget setState
     _positionSub = _player.positionStream.listen((p) {
-      if (mounted) setState(() => position = p);
+      _positionNotifier.value = p;
     });
+
     _playerStateSub = _player.playerStateStream.listen((state) {
       if (mounted) {
         setState(() {
           isPlaying = state.playing;
           if (state.processingState == ProcessingState.completed) {
             isPlaying = false;
-            position = Duration.zero;
+            _positionNotifier.value = Duration.zero;
             _player.seek(Duration.zero);
             _player.stop();
           }
@@ -67,14 +71,6 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget> {
     if (_isLoaded) return;
     try {
       await _player.setLoopMode(LoopMode.off);
-      if (!kIsWeb && widget.localPath != null && widget.localPath!.isNotEmpty) {
-        final file = File(widget.localPath!);
-        if (await file.exists()) {
-          await _player.setFilePath(widget.localPath!);
-          _isLoaded = true;
-          return;
-        }
-      }
       if (widget.url.isNotEmpty) {
         await _player.setUrl(widget.url);
         _isLoaded = true;
@@ -96,6 +92,7 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget> {
     _durationSub?.cancel();
     _positionSub?.cancel();
     _playerStateSub?.cancel();
+    _positionNotifier.dispose();
     _player.dispose();
     super.dispose();
   }
@@ -115,11 +112,6 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget> {
     final Color unplayedLineColor = isDarkMode ? Colors.white : Colors.black38;
     final Color textColor = isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700;
     final Color speedBtnBg = isDarkMode ? Colors.white.withOpacity(0.12) : Colors.black.withOpacity(0.05);
-
-    double progress = (duration?.inMilliseconds ?? 0) > 0
-        ? position.inMilliseconds / duration!.inMilliseconds
-        : 0.0;
-    progress = progress.clamp(0.0, 1.0);
 
     return Container(
       width: 65.w,
@@ -157,55 +149,67 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Stack(
-                  alignment: isRtl ? Alignment.centerRight : Alignment.centerLeft,
-                  children: [
-                    ShaderMask(
-                      shaderCallback: (Rect bounds) {
-                        return LinearGradient(
-                          begin: isRtl ? Alignment.centerRight : Alignment.centerLeft,
-                          end: isRtl ? Alignment.centerLeft : Alignment.centerRight,
-                          colors: [activeColor, unplayedLineColor],
-                          stops: [progress, progress],
-                        ).createShader(bounds);
-                      },
-                      blendMode: BlendMode.srcATop,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: List.generate(20, (index) {
-                          double height = [10, 15, 20, 12, 25, 18, 10, 30, 22, 14, 28, 16, 20, 12, 26, 18, 14, 22, 10, 15][index].toDouble();
-                          return Container(
-                            width: 3.5,
-                            height: height,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-                    SliderTheme(
-                      data: const SliderThemeData(
-                        trackHeight: 30,
-                        activeTrackColor: Colors.transparent,
-                        inactiveTrackColor: Colors.transparent,
-                        thumbColor: Colors.transparent,
-                        overlayColor: Colors.transparent,
-                        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0),
-                        overlayShape: RoundSliderOverlayShape(overlayRadius: 0),
-                      ),
-                      child: Slider(
-                        value: position.inSeconds.toDouble(),
-                        max: duration?.inSeconds.toDouble() ?? 1.0,
-                        onChanged: (value) async {
-                          await _ensureAudioLoaded();
-                          await _player.seek(Duration(seconds: value.toInt()));
-                          setState(() => position = Duration(seconds: value.toInt()));
-                        },
-                      ),
-                    ),
-                  ],
+                // Narrow position-listening widget for waveform progress
+                ValueListenableBuilder<Duration>(
+                  valueListenable: _positionNotifier,
+                  builder: (context, currentPosition, _) {
+                    double progress = (duration?.inMilliseconds ?? 0) > 0
+                        ? currentPosition.inMilliseconds / duration!.inMilliseconds
+                        : 0.0;
+                    progress = progress.clamp(0.0, 1.0);
+
+                    return Stack(
+                      alignment: isRtl ? Alignment.centerRight : Alignment.centerLeft,
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (Rect bounds) {
+                            return LinearGradient(
+                              begin: isRtl ? Alignment.centerRight : Alignment.centerLeft,
+                              end: isRtl ? Alignment.centerLeft : Alignment.centerRight,
+                              colors: [activeColor, unplayedLineColor],
+                              stops: [progress, progress],
+                            ).createShader(bounds);
+                          },
+                          blendMode: BlendMode.srcATop,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: List.generate(20, (index) {
+                              double height = [10, 15, 20, 12, 25, 18, 10, 30, 22, 14, 28, 16, 20, 12, 26, 18, 14, 22, 10, 15][index].toDouble();
+                              return Container(
+                                width: 3.5,
+                                height: height,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                        SliderTheme(
+                          data: const SliderThemeData(
+                            trackHeight: 30,
+                            activeTrackColor: Colors.transparent,
+                            inactiveTrackColor: Colors.transparent,
+                            thumbColor: Colors.transparent,
+                            overlayColor: Colors.transparent,
+                            thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0),
+                            overlayShape: RoundSliderOverlayShape(overlayRadius: 0),
+                          ),
+                          child: Slider(
+                            value: currentPosition.inSeconds.toDouble().clamp(0.0, duration?.inSeconds.toDouble() ?? 1.0),
+                            max: (duration?.inSeconds.toDouble() ?? 1.0) > 0 ? (duration?.inSeconds.toDouble() ?? 1.0) : 1.0,
+                            onChanged: (value) async {
+                              await _ensureAudioLoaded();
+                              final target = Duration(seconds: value.toInt());
+                              await _player.seek(target);
+                              _positionNotifier.value = target;
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 6),
                 Row(
@@ -229,9 +233,14 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget> {
                         ),
                       ),
                     ),
-                    Text(
-                      _formatDuration(position),
-                      style: TextStyle(fontSize: 3.w, color: textColor),
+                    ValueListenableBuilder<Duration>(
+                      valueListenable: _positionNotifier,
+                      builder: (context, pos, _) {
+                        return Text(
+                          _formatDuration(pos),
+                          style: TextStyle(fontSize: 3.w, color: textColor),
+                        );
+                      },
                     ),
                   ],
                 ),

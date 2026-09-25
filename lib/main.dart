@@ -38,8 +38,10 @@ set pref(bool? value) {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  sharedPreferences = await SharedPreferences.getInstance();
-  CacheHelper.sharedPreferences = sharedPreferences!;
+
+  // 1. Initialize Clean Architecture Service Locator (GetIt & SharedPreferences singleton)
+  await initServiceLocator();
+  sharedPreferences = sl<SharedPreferences>();
 
   try {
     await Firebase.initializeApp(
@@ -56,9 +58,6 @@ void main() async {
   } catch (e) {
     debugPrint("Firebase init note: $e");
   }
-
-  // 1. Initialize Clean Architecture Service Locator (GetIt)
-  await initServiceLocator();
 
   // 2. Initialize device ID & FCM token via AuthCubit
   await sl<AuthCubit>().initDeviceIdAndToken();

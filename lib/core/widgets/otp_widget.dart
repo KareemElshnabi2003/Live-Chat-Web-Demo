@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:live_chat/core/constant/app_color.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/main.dart';
 

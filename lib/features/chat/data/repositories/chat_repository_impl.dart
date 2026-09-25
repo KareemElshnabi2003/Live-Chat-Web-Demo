@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:live_chat/core/constant/app_constant.dart';
+import 'package:live_chat/core/errors/failures.dart';
 import 'package:live_chat/core/errors/server_exceptions.dart';
 import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
@@ -15,7 +16,7 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<String, List<ChatMessage>>> getMessages({required String chatId, int page = 1}) async {
+  Future<Either<Failure, List<ChatMessage>>> getMessages({required String chatId, int page = 1}) async {
     try {
       final response = await remoteDataSource.getMessages(chatId: chatId, page: page);
       if (response != null && response is Map && response['data'] is List) {
@@ -32,14 +33,14 @@ class ChatRepositoryImpl implements ChatRepository {
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> sendMessage({
+  Future<Either<Failure, dynamic>> sendMessage({
     required String chatId,
     required String message,
   }) async {
@@ -47,14 +48,14 @@ class ChatRepositoryImpl implements ChatRepository {
       final response = await remoteDataSource.sendMessage(chatId: chatId, message: message);
       return Right(response);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> sendMessageWithFile({
+  Future<Either<Failure, dynamic>> sendMessageWithFile({
     required String chatId,
     required String messageType,
     ChatAttachment? file,
@@ -67,14 +68,14 @@ class ChatRepositoryImpl implements ChatRepository {
       );
       return Right(response);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> sendReaction({
+  Future<Either<Failure, dynamic>> sendReaction({
     required String messageId,
     required String react,
   }) async {
@@ -82,14 +83,14 @@ class ChatRepositoryImpl implements ChatRepository {
       final response = await remoteDataSource.sendReaction(messageId: messageId, react: react);
       return Right(response);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, List<MemberOfChatModel>>> getMembers({required String chatId, int page = 1}) async {
+  Future<Either<Failure, List<MemberOfChatModel>>> getMembers({required String chatId, int page = 1}) async {
     try {
       final response = await remoteDataSource.getMembers(chatId: chatId, page: page);
       if (response != null && response is Map && response['data'] is List) {
@@ -105,14 +106,14 @@ class ChatRepositoryImpl implements ChatRepository {
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, List<RadioModel>>> getRadios() async {
+  Future<Either<Failure, List<RadioModel>>> getRadios() async {
     try {
       final response = await remoteDataSource.getRadios();
       if (response != null && response is Map && response['data'] is List) {
@@ -128,14 +129,14 @@ class ChatRepositoryImpl implements ChatRepository {
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, List<dynamic>>> getThemes() async {
+  Future<Either<Failure, List<dynamic>>> getThemes() async {
     try {
       final response = await remoteDataSource.getThemes();
       if (response != null && response is Map && response['data'] is List) {
@@ -143,14 +144,14 @@ class ChatRepositoryImpl implements ChatRepository {
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> createGeneralChat({
+  Future<Either<Failure, dynamic>> createGeneralChat({
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
@@ -163,14 +164,14 @@ class ChatRepositoryImpl implements ChatRepository {
       );
       return Right(response);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> updateGeneralChat({
+  Future<Either<Failure, dynamic>> updateGeneralChat({
     required String chatId,
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
@@ -185,26 +186,26 @@ class ChatRepositoryImpl implements ChatRepository {
       );
       return Right(response);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> deleteChat({required String chatId}) async {
+  Future<Either<Failure, dynamic>> deleteChat({required String chatId}) async {
     try {
       final response = await remoteDataSource.deleteChat(chatId: chatId);
       return Right(response);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> acceptMemberToChat({
+  Future<Either<Failure, dynamic>> acceptMemberToChat({
     required String chatId,
     required String userId,
   }) async {
@@ -212,14 +213,14 @@ class ChatRepositoryImpl implements ChatRepository {
       final response = await remoteDataSource.acceptMemberToChat(chatId: chatId, userId: userId);
       return Right(response);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> blockOrUnBlock({
+  Future<Either<Failure, dynamic>> blockOrUnBlock({
     required int status,
     required String userId,
   }) async {
@@ -227,21 +228,21 @@ class ChatRepositoryImpl implements ChatRepository {
       final response = await remoteDataSource.blockOrUnBlock(status: status, userId: userId);
       return Right(response);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> createChatFriend({required int friendId}) async {
+  Future<Either<Failure, dynamic>> createChatFriend({required int friendId}) async {
     try {
       final response = await remoteDataSource.createChatFriend(friendId: friendId);
       return Right(response);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 }

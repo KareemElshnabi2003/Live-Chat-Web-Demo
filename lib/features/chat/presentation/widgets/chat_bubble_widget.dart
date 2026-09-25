@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/widgets/audio_message_widget.dart';
@@ -417,7 +417,17 @@ class ChatBubbleWidget extends StatelessWidget {
       case 'image':
         Widget imageWidget;
         if (content.startsWith('http') && !content.startsWith('blob:')) {
-           imageWidget = CachedNetworkImage(imageUrl: content);
+           imageWidget = CachedNetworkImage(
+             imageUrl: content,
+             memCacheWidth: 800,
+             placeholder: (_, __) => Container(
+               width: 50.w,
+               height: 25.h,
+               alignment: Alignment.center,
+               child: const CircularProgressIndicator(strokeWidth: 2),
+             ),
+             errorWidget: (_, __, ___) => const Icon(Icons.broken_image, size: 36),
+           );
         } else if (kIsWeb && content.startsWith('blob:')) {
            imageWidget = Image.network(content);
         } else {

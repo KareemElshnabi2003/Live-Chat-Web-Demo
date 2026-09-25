@@ -11,46 +11,93 @@ import 'package:live_chat/features/chat/data/models/chat_message_model.dart';
 import 'package:live_chat/features/chat/data/models/member_of_chat_model.dart';
 import 'package:live_chat/features/home/data/models/radio_model.dart';
 import '../../domain/entities/chat_attachment.dart';
-import '../../domain/repositories/chat_repository.dart';
+import '../../domain/usecases/chat_use_cases.dart';
 import 'chat_state.dart';
 
 class ChatCubit extends Cubit<ChatState> {
-  final ChatRepository chatRepository;
+  final GetMessagesUseCase getMessagesUseCase;
+  final SendMessageUseCase sendMessageUseCase;
+  final SendMessageWithFileUseCase sendMessageWithFileUseCase;
+  final SendReactionUseCase sendReactionUseCase;
+  final GetMembersUseCase getMembersUseCase;
+  final GetRadiosUseCase getRadiosUseCase;
+  final GetThemesUseCase getThemesUseCase;
+  final CreateGeneralChatUseCase createGeneralChatUseCase;
+  final UpdateGeneralChatUseCase updateGeneralChatUseCase;
+  final DeleteChatUseCase deleteChatUseCase;
+  final AcceptMemberToChatUseCase acceptMemberToChatUseCase;
+  final BlockOrUnBlockUseCase blockOrUnBlockUseCase;
+  final CreateChatFriendUseCase createChatFriendUseCase;
   final PusherService pusherService;
   final AudioService audioService;
 
   String? _currentChatId;
   StreamSubscription<PusherEvent>? _pusherSub;
+  final Set<String> _messageIdSet = {};
 
   ChatCubit({
-    required this.chatRepository,
+    required this.getMessagesUseCase,
+    required this.sendMessageUseCase,
+    required this.sendMessageWithFileUseCase,
+    required this.sendReactionUseCase,
+    required this.getMembersUseCase,
+    required this.getRadiosUseCase,
+    required this.getThemesUseCase,
+    required this.createGeneralChatUseCase,
+    required this.updateGeneralChatUseCase,
+    required this.deleteChatUseCase,
+    required this.acceptMemberToChatUseCase,
+    required this.blockOrUnBlockUseCase,
+    required this.createChatFriendUseCase,
     required this.pusherService,
     required this.audioService,
   }) : super(ChatInitial());
 
   Future<void> initChat({required String chatId}) async {
     _currentChatId = chatId;
+    _messageIdSet.clear();
     emit(ChatLoading());
 
-    // Clean up any previous Pusher subscription
+    // 1. Clean up any previous Pusher subscription and listeners
     await _pusherSub?.cancel();
     _pusherSub = null;
 
-    // Initialize and subscribe to Pusher channel stream
+    // 2. Initialize and subscribe to Pusher channel stream
     await pusherService.init();
     final channelName = "live-chat-ngoum-$chatId";
     await pusherService.subscribe(channelName);
     _pusherSub = pusherService.eventStreamForChannel(channelName).listen(_handlePusherEvent);
 
-    // Load initial messages and radios
-    final messagesResult = await chatRepository.getMessages(chatId: chatId, page: 1);
-    final radiosResult = await chatRepository.getRadios();
+    // 3. Parallel API fetch for Messages and Radios (Future.wait)
+    final results = await Future.wait([
+      getMessagesUseCase(chatId: chatId, page: 1),
+      getRadiosUseCase(),
+    ]);
+
+    final messagesResult = results[0];
+    final radiosResult = results[1];
 
     List<ChatMessage> messages = [];
     List<RadioModel> radios = [];
 
-    messagesResult.fold((_) {}, (r) => messages = r);
-    radiosResult.fold((_) {}, (r) => radios = r);
+    messagesResult.fold(
+      (failure) => debugPrint("Failed to fetch messages: ${failure.message}"),
+      (msgs) {
+        messages = msgs as List<ChatMessage>;
+        for (final m in messages) {
+          if (m.messageId.isNotEmpty) {
+            _messageIdSet.add(m.messageId);
+          }
+        }
+      },
+    );
+
+    radiosResult.fold(
+      (failure) => debugPrint("Failed to fetch radios: ${failure.message}"),
+      (rads) {
+        radios = rads as List<RadioModel>;
+      },
+    );
 
     emit(ChatLoaded(
       messages: messages,
@@ -71,15 +118,16 @@ class ChatCubit extends Cubit<ChatState> {
           final map = raw is Map<String, dynamic> ? raw : Map<String, dynamic>.from(raw);
           final newMsg = ChatMessage.fromJson(map, currentUserId: currentUserId);
 
-          // Deduplication: prevent duplicate messages from entering the list
-          final isDuplicate = current.messages.any(
-            (m) => m.messageId == newMsg.messageId && newMsg.messageId.isNotEmpty,
-          );
-
-          if (!isDuplicate) {
-            final updatedMessages = List<ChatMessage>.from(current.messages)..insert(0, newMsg);
-            emit(current.copyWith(messages: updatedMessages));
+          // Fast O(1) deduplication using Set
+          if (newMsg.messageId.isNotEmpty) {
+            if (_messageIdSet.contains(newMsg.messageId)) {
+              return; // Ignore duplicate
+            }
+            _messageIdSet.add(newMsg.messageId);
           }
+
+          final updatedMessages = List<ChatMessage>.from(current.messages)..insert(0, newMsg);
+          emit(current.copyWith(messages: updatedMessages));
         }
       } catch (e) {
         debugPrint("Error parsing pusher message: $e");
@@ -95,48 +143,74 @@ class ChatCubit extends Cubit<ChatState> {
     emit(current.copyWith(isLoadingMore: true));
 
     final nextPage = current.currentPage + 1;
-    final result = await chatRepository.getMessages(
+    final result = await getMessagesUseCase(
       chatId: _currentChatId!,
       page: nextPage,
     );
 
     result.fold(
-      (error) => emit(current.copyWith(isLoadingMore: false)),
+      (failure) {
+        debugPrint("Failed to load more messages: ${failure.message}");
+        emit(current.copyWith(isLoadingMore: false));
+      },
       (newMessages) {
-        // Deduplicate incoming paged messages against current list
-        final existingIds = current.messages.map((m) => m.messageId).toSet();
-        final uniqueNew = newMessages.where((m) => !existingIds.contains(m.messageId)).toList();
-        final updated = List<ChatMessage>.from(current.messages)..addAll(uniqueNew);
+        final List<ChatMessage> uniqueNew = [];
+        for (final m in newMessages) {
+          if (m.messageId.isNotEmpty) {
+            if (!_messageIdSet.contains(m.messageId)) {
+              _messageIdSet.add(m.messageId);
+              uniqueNew.add(m);
+            }
+          } else {
+            uniqueNew.add(m);
+          }
+        }
 
+        final allMessages = List<ChatMessage>.from(current.messages)..addAll(uniqueNew);
         emit(current.copyWith(
-          messages: updated,
+          messages: allMessages,
           currentPage: nextPage,
-          isLoadingMore: false,
           hasMoreMessages: newMessages.length >= 20,
+          isLoadingMore: false,
         ));
       },
     );
   }
 
-  Future<void> sendMessage(String text) async {
-    if (_currentChatId == null || text.trim().isEmpty) return;
-    await chatRepository.sendMessage(chatId: _currentChatId!, message: text.trim());
+  Future<void> sendMessage(String message) async {
+    if (_currentChatId == null) return;
+    final result = await sendMessageUseCase(chatId: _currentChatId!, message: message);
+    result.fold(
+      (failure) => debugPrint("Failed to send message: ${failure.message}"),
+      (_) {},
+    );
   }
 
-  Future<void> sendMediaMessage({required String messageType, ChatAttachment? file}) async {
+  Future<void> sendMediaMessage({
+    required String messageType,
+    ChatAttachment? file,
+  }) async {
     if (_currentChatId == null) return;
-    await chatRepository.sendMessageWithFile(
+    final result = await sendMessageWithFileUseCase(
       chatId: _currentChatId!,
       messageType: messageType,
       file: file,
     );
+    result.fold(
+      (failure) => debugPrint("Failed to send file: ${failure.message}"),
+      (_) {},
+    );
   }
 
   Future<void> sendReaction({required String messageId, required String react}) async {
-    await chatRepository.sendReaction(messageId: messageId, react: react);
+    final result = await sendReactionUseCase(messageId: messageId, react: react);
+    result.fold(
+      (failure) => debugPrint("Failed to send reaction: ${failure.message}"),
+      (_) {},
+    );
   }
 
-  void setReplyingToMessage(ChatMessage? message) {
+  void setReplyingToMessage(ChatMessage message) {
     if (state is ChatLoaded) {
       emit((state as ChatLoaded).copyWith(replyingToMessage: message));
     }
@@ -151,12 +225,8 @@ class ChatCubit extends Cubit<ChatState> {
   Future<void> playRadio(String url) async {
     if (state is! ChatLoaded) return;
     final current = state as ChatLoaded;
-    try {
-      await audioService.playAudioFromUrl(url);
-      emit(current.copyWith(isRadioPlaying: true, currentRadioUrl: url));
-    } catch (e) {
-      debugPrint("Radio error: $e");
-    }
+    await audioService.playAudioFromUrl(url);
+    emit(current.copyWith(isRadioPlaying: true, currentRadioUrl: url));
   }
 
   Future<void> stopRadio() async {
@@ -166,8 +236,19 @@ class ChatCubit extends Cubit<ChatState> {
     emit(current.copyWith(isRadioPlaying: false, currentRadioUrl: null));
   }
 
+  Future<void> toggleRadio(String? url) async {
+    if (state is! ChatLoaded) return;
+    final current = state as ChatLoaded;
+
+    if (current.isRadioPlaying && current.currentRadioUrl == url) {
+      await stopRadio();
+    } else if (url != null && url.isNotEmpty) {
+      await playRadio(url);
+    }
+  }
+
   Future<List<dynamic>> getThemes() async {
-    final result = await chatRepository.getThemes();
+    final result = await getThemesUseCase();
     return result.fold((l) => [], (r) => r);
   }
 
@@ -176,7 +257,7 @@ class ChatCubit extends Cubit<ChatState> {
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
   }) async {
-    final result = await chatRepository.createGeneralChat(
+    final result = await createGeneralChatUseCase(
       data: data,
       imgChat: imgChat,
       bgChat: bgChat,
@@ -190,7 +271,7 @@ class ChatCubit extends Cubit<ChatState> {
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
   }) async {
-    final result = await chatRepository.updateGeneralChat(
+    final result = await updateGeneralChatUseCase(
       chatId: chatId,
       data: data,
       imgChat: imgChat,
@@ -200,7 +281,7 @@ class ChatCubit extends Cubit<ChatState> {
   }
 
   Future<bool> deleteChat({required String chatId}) async {
-    final result = await chatRepository.deleteChat(chatId: chatId);
+    final result = await deleteChatUseCase(chatId: chatId);
     return result.fold((l) => false, (r) => true);
   }
 
@@ -208,7 +289,7 @@ class ChatCubit extends Cubit<ChatState> {
     required String chatId,
     required String userId,
   }) async {
-    final result = await chatRepository.acceptMemberToChat(chatId: chatId, userId: userId);
+    final result = await acceptMemberToChatUseCase(chatId: chatId, userId: userId);
     return result.fold((l) => false, (r) => true);
   }
 
@@ -216,12 +297,12 @@ class ChatCubit extends Cubit<ChatState> {
     required int status,
     required String userId,
   }) async {
-    final result = await chatRepository.blockOrUnBlock(status: status, userId: userId);
+    final result = await blockOrUnBlockUseCase(status: status, userId: userId);
     return result.fold((l) => false, (r) => true);
   }
 
   Future<List<MemberOfChatModel>> getMembers({required String chatId, int page = 1}) async {
-    final result = await chatRepository.getMembers(chatId: chatId, page: page);
+    final result = await getMembersUseCase(chatId: chatId, page: page);
     return result.fold((l) => [], (r) => r);
   }
 
@@ -232,6 +313,7 @@ class ChatCubit extends Cubit<ChatState> {
     if (_currentChatId != null) {
       await pusherService.unsubscribe("live-chat-ngoum-$_currentChatId");
     }
+    _messageIdSet.clear();
     await audioService.stopAudio();
     return super.close();
   }

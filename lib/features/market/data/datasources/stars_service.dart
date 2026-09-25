@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:live_chat/core/api/api_consumer.dart';
 import 'package:live_chat/core/api/end_points.dart';
@@ -41,7 +40,7 @@ class StarsPurchaseService {
   }
 
   Future<dynamic> submitManualPayment({
-    dynamic image, // can be File, XFile, or Uint8List
+    dynamic image, // can be XFile, Uint8List, or String
     required int price,
     required String paymentAddress,
     required String paymentType,
@@ -50,12 +49,10 @@ class StarsPurchaseService {
     try {
       dynamic fileField;
       if (image != null) {
-        if (image is String) {
-          fileField = await MultipartFile.fromFile(image);
-        } else if (image is File) {
-          fileField = await MultipartFile.fromFile(image.path);
-        } else if (image is List<int>) {
+        if (image is List<int>) {
           fileField = MultipartFile.fromBytes(image, filename: 'receipt.jpg');
+        } else if (image is String) {
+          fileField = await MultipartFile.fromFile(image);
         }
       }
 

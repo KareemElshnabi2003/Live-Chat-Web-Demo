@@ -90,7 +90,7 @@ class FriendsCubit extends Cubit<FriendsState> {
         await sl<ChatRepository>().createChatFriend(friendId: friendId);
     return result.fold(
       (error) {
-        emit(FriendsError(message: error));
+        emit(FriendsError(message: error.message));
         return null;
       },
       (data) {

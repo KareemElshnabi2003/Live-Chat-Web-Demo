@@ -1,9 +1,9 @@
-//region PinnedAdWidget - Refined and Crash-Proof
+﻿//region PinnedAdWidget - Refined and Crash-Proof
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';

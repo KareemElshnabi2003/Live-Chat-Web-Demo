@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+﻿// ignore_for_file: avoid_print
 
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:live_chat/core/Constant/app_color.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/Constant/app_images.dart';
 import 'package:live_chat/core/function/format_last_message.dart';
 import 'package:live_chat/core/routing/routes.dart';

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:live_chat/core/Constant/app_color.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';

@@ -23,6 +23,13 @@ class PusherService {
   Stream<PusherEvent> eventStreamForChannel(String channelName) =>
       _eventController.stream.where((event) => event.channelName == channelName);
 
+  StreamSubscription<PusherEvent> listenToChannel({
+    required String channelName,
+    required void Function(PusherEvent event) onEvent,
+  }) {
+    return eventStreamForChannel(channelName).listen(onEvent);
+  }
+
   Future<void> init({void Function(PusherEvent)? onEvent}) async {
     if (onEvent != null) {
       _eventController.stream.listen(onEvent);
@@ -78,6 +85,18 @@ class PusherService {
     }
   }
 
+  Future<void> reconnect() async {
+    if (_pusher != null) {
+      try {
+        await _pusher!.connect();
+      } catch (e) {
+        debugPrint("Pusher reconnect error: $e");
+      }
+    } else {
+      await init();
+    }
+  }
+
   Future<void> disconnect() async {
     if (_pusher != null) {
       for (final channel in _subscribedChannels.toList()) {
@@ -93,6 +112,7 @@ class PusherService {
   }
 
   void dispose() {
+    disconnect();
     _eventController.close();
   }
 }

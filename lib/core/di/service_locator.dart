@@ -152,10 +152,29 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton<SendReactionUseCase>(() => SendReactionUseCase(sl<ChatRepository>()));
   sl.registerLazySingleton<GetMembersUseCase>(() => GetMembersUseCase(sl<ChatRepository>()));
   sl.registerLazySingleton<GetRadiosUseCase>(() => GetRadiosUseCase(sl<ChatRepository>()));
+  sl.registerLazySingleton<GetThemesUseCase>(() => GetThemesUseCase(sl<ChatRepository>()));
+  sl.registerLazySingleton<CreateGeneralChatUseCase>(() => CreateGeneralChatUseCase(sl<ChatRepository>()));
+  sl.registerLazySingleton<UpdateGeneralChatUseCase>(() => UpdateGeneralChatUseCase(sl<ChatRepository>()));
+  sl.registerLazySingleton<DeleteChatUseCase>(() => DeleteChatUseCase(sl<ChatRepository>()));
+  sl.registerLazySingleton<AcceptMemberToChatUseCase>(() => AcceptMemberToChatUseCase(sl<ChatRepository>()));
+  sl.registerLazySingleton<BlockOrUnBlockUseCase>(() => BlockOrUnBlockUseCase(sl<ChatRepository>()));
+  sl.registerLazySingleton<CreateChatFriendUseCase>(() => CreateChatFriendUseCase(sl<ChatRepository>()));
 
   sl.registerFactory<ChatCubit>(
     () => ChatCubit(
-      chatRepository: sl<ChatRepository>(),
+      getMessagesUseCase: sl<GetMessagesUseCase>(),
+      sendMessageUseCase: sl<SendMessageUseCase>(),
+      sendMessageWithFileUseCase: sl<SendMessageWithFileUseCase>(),
+      sendReactionUseCase: sl<SendReactionUseCase>(),
+      getMembersUseCase: sl<GetMembersUseCase>(),
+      getRadiosUseCase: sl<GetRadiosUseCase>(),
+      getThemesUseCase: sl<GetThemesUseCase>(),
+      createGeneralChatUseCase: sl<CreateGeneralChatUseCase>(),
+      updateGeneralChatUseCase: sl<UpdateGeneralChatUseCase>(),
+      deleteChatUseCase: sl<DeleteChatUseCase>(),
+      acceptMemberToChatUseCase: sl<AcceptMemberToChatUseCase>(),
+      blockOrUnBlockUseCase: sl<BlockOrUnBlockUseCase>(),
+      createChatFriendUseCase: sl<CreateChatFriendUseCase>(),
       pusherService: sl<PusherService>(),
       audioService: sl<AudioService>(),
     ),
