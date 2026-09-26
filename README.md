@@ -4,12 +4,16 @@ A Flutter Web chat application focused on real-time communication, responsive UI
 
 The project was refactored from a legacy controller-based implementation into a feature-based architecture using Cubit, GetIt, Dio, Repository Pattern, and Pusher.
 
-Note: The application consumes an existing backend API. Because browser requests are subject to CORS restrictions, the production Web deployment uses a same-origin proxy layer where required.
+Note: The application consumes an existing backend API. Because browser requests are subject to CORS restrictions, the Web client uses a same-origin proxy layer where required.
 
-🌐 API Proxy & Web Demo
+🌐 Web Deployment & API Proxy
 
-- **Cloudflare Worker Proxy:** `https://live-chat-web-demo.kelsayed2012003.workers.dev`
-- Enables full CORS-free communication with the external backend API for Flutter Web.
+Cloudflare Worker Proxy:
+https://live-chat-web-demo.kelsayed2012003.workers.dev
+
+The Cloudflare Worker acts as a proxy between the Flutter Web client and the external backend API, allowing browser requests to be handled without disabling browser security.
+
+Live Demo: The Flutter Web application is not currently published as a standalone public demo URL. The Worker URL above is the API proxy, not the application itself.
 
 ✨ Features
 
@@ -59,7 +63,7 @@ Audio message playback
 
 Automatic cleanup of listeners and media resources
 
-Additional Features
+Additional Modules
 
 Friends and friend requests
 
@@ -69,11 +73,11 @@ Notifications
 
 Chat themes
 
-Radio/audio content
+Audio / Radio content
 
 Settings and account management
 
-Market-related functionality from the original application structure
+Market features
 
 🏗️ Architecture
 
@@ -207,7 +211,7 @@ Arabic and English localization
 
 The project includes several optimizations aimed at keeping the Web client responsive during chat usage:
 
-Message IDs are tracked with a Set<String> for constant-time membership checks.
+Message IDs are tracked using a Set<String> for average O(1) membership checks.
 
 Chat history is paginated rather than loaded indefinitely in one request.
 
@@ -229,34 +233,31 @@ The Web image cache has an explicit memory limit.
 
 The backend API is an external service and cannot be modified for Web CORS configuration.
 
-For local Web development, the browser may block cross-origin API requests depending on the backend's CORS configuration. The production deployment therefore uses a same-origin proxy between the Flutter Web application and the external API.
+For local Web development, the browser may block cross-origin API requests depending on the backend's CORS configuration. The production Web setup therefore uses a same-origin proxy between the Flutter Web application and the external API.
 
 Flutter Web
     ↓
-Same-Origin Proxy
+Same-Origin Proxy (Cloudflare Worker)
     ↓
 External REST API
 
-This keeps the Flutter Web application usable from a normal browser without disabling browser security.
+This avoids relying on browser launches with disabled Web security.
 
 ✅ Verification
 
-The project has been verified with the following commands:
+The current build has been verified successfully with:
 
 flutter analyze
 flutter test
 flutter build web --release
 
-Expected results:
+Results:
 
-flutter analyze
-→ No issues found
+flutter analyze → No issues found
 
-flutter test
-→ All tests passed
+flutter test → All tests passed
 
-flutter build web --release
-→ Built build/web
+flutter build web --release → Build succeeded
 
 📦 Getting Started
 
@@ -268,15 +269,13 @@ Dart SDK compatible with the project environment
 
 Chrome or another supported Web browser
 
-Access to the backend API / required services
+Access to the required backend API and services
 
 Installation
 
-```bash
 git clone https://github.com/KareemElshnabi2003/Live-Chat-Web-Demo.git
 cd Live-Chat-Web-Demo
 flutter pub get
-```
 
 Run on Web
 
@@ -286,7 +285,7 @@ Build Release Web
 
 flutter build web --release
 
-The production build will be generated in:
+The production build is generated in:
 
 build/web
 
@@ -330,6 +329,8 @@ The refactor replaced the previous GetX/controller-oriented implementation with 
 Pusher is isolated behind a dedicated service to keep real-time transport concerns separate from UI state.
 
 Data models are kept in the Data layer while Domain logic works with entities and repository abstractions.
+
+The Web deployment uses a Cloudflare Worker proxy because the external backend cannot currently be changed to provide the required browser CORS configuration.
 
 👨‍💻 Author
 
