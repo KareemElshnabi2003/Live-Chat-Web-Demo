@@ -1,4 +1,4 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +8,7 @@ import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/core/routing/routes.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
-import 'package:live_chat/features/notifications/data/models/notify_model.dart';
+import 'package:live_chat/features/notifications/domain/entities/notify_entity.dart';
 import 'package:live_chat/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:live_chat/features/notifications/presentation/cubit/notifications_state.dart';
 import 'package:live_chat/core/widgets/shimmer_skeletons.dart';
@@ -94,7 +94,7 @@ class _NotificationsState extends State<Notifications> {
 
                   final notifications = state is NotificationsLoaded
                       ? state.notifications
-                      : <NotifyModel>[];
+                      : <NotifyEntity>[];
 
                   if (notifications.isEmpty) {
                     return _buildEmptyState(context);
@@ -122,7 +122,7 @@ class _NotificationsState extends State<Notifications> {
     );
   }
 
-  Widget _buildNotificationCard(NotifyModel notification, bool isRtl, bool langAr) {
+  Widget _buildNotificationCard(NotifyEntity notification, bool isRtl, bool langAr) {
     String title = '';
     String body = '';
 

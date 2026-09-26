@@ -4,21 +4,21 @@ import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/helper/cache_helper.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<dynamic> login({required String email});
-  Future<dynamic> register({
+  Future<Map<String, dynamic>> login({required String email});
+  Future<Map<String, dynamic>> register({
     required String name,
     required String userName,
     required String email,
   });
-  Future<dynamic> checkOTP({
+  Future<Map<String, dynamic>> checkOTP({
     required String otp,
     required String email,
     String? fcmToken,
   });
-  Future<dynamic> sendOTP({required String email});
-  Future<dynamic> resendOTP({required String email});
-  Future<dynamic> verifyGuest();
-  Future<dynamic> logOut();
+  Future<Map<String, dynamic>> sendOTP({required String email});
+  Future<Map<String, dynamic>> resendOTP({required String email});
+  Future<Map<String, dynamic>> verifyGuest();
+  Future<Map<String, dynamic>> logOut();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -34,24 +34,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           ? "dark"
           : "light";
 
+  Map<String, dynamic> _toMap(dynamic response) {
+    if (response is Map<String, dynamic>) return response;
+    if (response is Map) return Map<String, dynamic>.from(response);
+    return <String, dynamic>{};
+  }
+
   @override
-  Future<dynamic> login({required String email}) async {
-    return await api.post(
+  Future<Map<String, dynamic>> login({required String email}) async {
+    final response = await api.post(
       "${EndPoints.loginUrl}?device_id=$_deviceId",
       data: {
         "email": email,
         "remember": 1,
       },
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> register({
+  Future<Map<String, dynamic>> register({
     required String name,
     required String userName,
     required String email,
   }) async {
-    return await api.post(
+    final response = await api.post(
       "${EndPoints.registerUrl}?device_id=$_deviceId",
       data: {
         "email": email,
@@ -59,15 +66,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         "username": userName,
       },
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> checkOTP({
+  Future<Map<String, dynamic>> checkOTP({
     required String otp,
     required String email,
     String? fcmToken,
   }) async {
-    return await api.post(
+    final response = await api.post(
       "${EndPoints.checkOTPUrl}?device_id=$_deviceId",
       data: {
         "email": email,
@@ -76,37 +84,42 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         "mobile_theme": _mobileTheme,
       },
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> sendOTP({required String email}) async {
-    return await api.post(
+  Future<Map<String, dynamic>> sendOTP({required String email}) async {
+    final response = await api.post(
       "${EndPoints.sendOTPUrl}?device_id=$_deviceId",
       data: {"email": email},
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> resendOTP({required String email}) async {
-    return await api.post(
+  Future<Map<String, dynamic>> resendOTP({required String email}) async {
+    final response = await api.post(
       "${EndPoints.resendOTPUrl}?device_id=$_deviceId",
       data: {"email": email},
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> verifyGuest() async {
-    return await api.post(
+  Future<Map<String, dynamic>> verifyGuest() async {
+    final response = await api.post(
       EndPoints.guestUrl,
       data: {"device_id": _deviceId},
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> logOut() async {
-    return await api.post(
+  Future<Map<String, dynamic>> logOut() async {
+    final response = await api.post(
       "${EndPoints.logoutUrl}?device_id=$_deviceId",
       data: {},
     );
+    return _toMap(response);
   }
 }

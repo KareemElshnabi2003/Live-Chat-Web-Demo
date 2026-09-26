@@ -19,17 +19,8 @@ class PusherService {
 
   bool get isInitialized => _isInitialized;
 
-  Stream<PusherEvent> get eventStream => _eventController.stream;
-
   Stream<PusherEvent> eventStreamForChannel(String channelName) =>
       _eventController.stream.where((event) => event.channelName == channelName);
-
-  StreamSubscription<PusherEvent> listenToChannel({
-    required String channelName,
-    required void Function(PusherEvent event) onEvent,
-  }) {
-    return eventStreamForChannel(channelName).listen(onEvent);
-  }
 
   Future<void> init() async {
     if (_isInitialized) return;

@@ -1,39 +1,45 @@
-class NotifyModel {
-  int? id;
-  String? title;
-  String? content;
-  String? date;
-  Map<String, dynamic>? additionalData;
+import '../../domain/entities/notify_entity.dart';
 
-  NotifyModel({
-    this.id,
-    this.title,
-    this.content,
-    this.date,
-    this.additionalData,
+class NotifyModel extends NotifyEntity {
+  const NotifyModel({
+    super.id,
+    super.title,
+    super.content,
+    super.date,
+    super.additionalData,
   });
 
-  NotifyModel.fromJson(Map<String, dynamic> json) {
+  factory NotifyModel.fromJson(Map<String, dynamic> json) {
+    int? id;
+    String? title;
+    String? content;
+    String? date;
+    Map<String, dynamic>? additionalData;
+
     try {
       id = json['id'];
       title = json['title'];
       content = json['content'];
       date = json['date'];
 
-      // Handle additional_data safely
-      if (json['additional_data'] != null) {
-        if (json['additional_data'] is Map) {
-          additionalData = Map<String, dynamic>.from(json['additional_data']);
-        }
+      if (json['additional_data'] != null && json['additional_data'] is Map) {
+        additionalData = Map<String, dynamic>.from(json['additional_data']);
       }
-    } catch (e) {
-      // Set default values on error
+    } catch (_) {
       id = null;
       title = '';
       content = '';
       date = '';
       additionalData = null;
     }
+
+    return NotifyModel(
+      id: id,
+      title: title,
+      content: content,
+      date: date,
+      additionalData: additionalData,
+    );
   }
 
   Map<String, dynamic> toJson() {

@@ -1,4 +1,4 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,9 +6,9 @@ import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/Constant/app_images.dart';
 import 'package:live_chat/core/routing/routes.dart';
-import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
-import 'package:live_chat/features/friends/data/models/friend_suggest_model.dart';
 import 'package:live_chat/features/market/data/models/power_model.dart';
+import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
+import 'package:live_chat/features/friends/domain/entities/friend_suggest_entity.dart';
 import 'package:live_chat/features/friends/presentation/cubit/friends_cubit.dart';
 import 'package:live_chat/features/friends/presentation/cubit/friends_state.dart';
 import 'package:live_chat/core/widgets/dialog_img.dart';
@@ -241,8 +241,8 @@ class _RequestsState extends State<Requests> {
               }
             },
             builder: (context, state) {
-              final received = state is FriendsLoaded ? state.receivedRequests : <SuggestFreindModel>[];
-              final sent = state is FriendsLoaded ? state.sentRequests : <SuggestFreindModel>[];
+              final received = state is FriendsLoaded ? state.receivedRequests : <FriendSuggestEntity>[];
+              final sent = state is FriendsLoaded ? state.sentRequests : <FriendSuggestEntity>[];
               final isLoading = state is FriendsLoading;
 
               return Column(
@@ -315,7 +315,7 @@ class _RequestsState extends State<Requests> {
     );
   }
 
-  Widget _buildChatList(BuildContext context, bool isLoading, List<SuggestFreindModel> list, bool isSent) {
+  Widget _buildChatList(BuildContext context, bool isLoading, List<FriendSuggestEntity> list, bool isSent) {
     if (isLoading && list.isEmpty) {
       return ShimmerSkeletons.chatListSkeleton(isFriendsSection: true);
     }
@@ -337,7 +337,7 @@ class _RequestsState extends State<Requests> {
         final hasValidImg = _isValidImage(friend.image);
 
         void openChat() {
-          final userChat = UserChatModel(
+          final userChat = UserChatEntity(
             id: friend.id,
             name: friend.name ?? friend.username,
             image: friend.image,

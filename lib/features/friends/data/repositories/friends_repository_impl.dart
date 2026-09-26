@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart';
+import 'package:live_chat/core/errors/failures.dart';
 import 'package:live_chat/core/errors/server_exceptions.dart';
+import '../../domain/entities/friend_suggest_entity.dart';
 import '../../domain/repositories/friends_repository.dart';
 import '../datasources/friends_remote_data_source.dart';
 import '../models/friend_suggest_model.dart';
@@ -10,80 +12,80 @@ class FriendsRepositoryImpl implements FriendsRepository {
   FriendsRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<String, List<SuggestFreindModel>>> getFriends({int page = 1, int perPage = 15}) async {
+  Future<Either<Failure, List<FriendSuggestEntity>>> getFriends({int page = 1, int perPage = 15}) async {
     try {
       final response = await remoteDataSource.getFriends(page: page, perPage: perPage);
-      if (response != null && response is Map && response['data'] is List) {
+      if (response['data'] is List) {
         final list = (response['data'] as List)
-            .map((e) => SuggestFreindModel.fromJson(Map<String, dynamic>.from(e)))
+            .map((e) => SuggestFreindModel.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList();
         return Right(list);
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, List<SuggestFreindModel>>> getSuggestedFriends({int page = 1, int perPage = 15}) async {
+  Future<Either<Failure, List<FriendSuggestEntity>>> getSuggestedFriends({int page = 1, int perPage = 15}) async {
     try {
       final response = await remoteDataSource.getSuggestedFriends(page: page, perPage: perPage);
-      if (response != null && response is Map && response['data'] is List) {
+      if (response['data'] is List) {
         final list = (response['data'] as List)
-            .map((e) => SuggestFreindModel.fromJson(Map<String, dynamic>.from(e)))
+            .map((e) => SuggestFreindModel.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList();
         return Right(list);
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> sendFriendRequest({required String friendId}) async {
+  Future<Either<Failure, Unit>> sendFriendRequest({required String friendId}) async {
     try {
-      final response = await remoteDataSource.sendFriendRequest(friendId: friendId);
-      return Right(response);
+      await remoteDataSource.sendFriendRequest(friendId: friendId);
+      return const Right(unit);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> acceptOrRejectFriend({
+  Future<Either<Failure, Unit>> acceptOrRejectFriend({
     required String friendId,
     required String status,
   }) async {
     try {
-      final response = await remoteDataSource.acceptOrRejectFriend(
+      await remoteDataSource.acceptOrRejectFriend(
         friendId: friendId,
         status: status,
       );
-      return Right(response);
+      return const Right(unit);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<String, dynamic>> removeFriend({required String friendId}) async {
+  Future<Either<Failure, Unit>> removeFriend({required String friendId}) async {
     try {
-      final response = await remoteDataSource.removeFriend(friendId: friendId);
-      return Right(response);
+      await remoteDataSource.removeFriend(friendId: friendId);
+      return const Right(unit);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 }

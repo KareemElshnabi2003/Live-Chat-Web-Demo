@@ -11,12 +11,12 @@ class AuthCodeSent extends AuthState {
 }
 
 class AuthSuccess extends AuthState {
-  final dynamic userData;
+  final Map<String, dynamic>? userData;
   AuthSuccess({this.userData});
 }
 
 class AuthGuestSuccess extends AuthState {
-  final dynamic guestData;
+  final Map<String, dynamic>? guestData;
   AuthGuestSuccess({this.guestData});
 }
 

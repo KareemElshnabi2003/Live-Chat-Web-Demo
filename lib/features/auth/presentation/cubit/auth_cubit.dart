@@ -53,7 +53,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     final result = await loginUseCase(email: email);
     result.fold(
-      (error) => emit(AuthError(message: error)),
+      (failure) => emit(AuthError(message: failure.message)),
       (_) => emit(AuthCodeSent(email: email, isRegister: false)),
     );
   }
@@ -70,7 +70,7 @@ class AuthCubit extends Cubit<AuthState> {
       email: email,
     );
     result.fold(
-      (error) => emit(AuthError(message: error)),
+      (failure) => emit(AuthError(message: failure.message)),
       (_) => emit(AuthCodeSent(email: email, isRegister: true)),
     );
   }
@@ -78,7 +78,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> resendOTP({required String email}) async {
     final result = await resendOtpUseCase(email: email);
     result.fold(
-      (error) => emit(AuthError(message: error)),
+      (failure) => emit(AuthError(message: failure.message)),
       (_) {},
     );
   }
@@ -96,34 +96,33 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     result.fold(
-      (error) => emit(AuthError(message: error)),
+      (failure) => emit(AuthError(message: failure.message)),
       (response) async {
-        if (response != null && response is Map) {
-          final data = response['data'];
-          if (data != null && data is Map) {
-            await CacheHelper.saveData(key: AppConstants.nameKey, value: data['name'] ?? '');
-            await CacheHelper.saveData(key: AppConstants.userIdKey, value: data['id']?.toString() ?? '');
-            await CacheHelper.saveData(key: AppConstants.usernameKey, value: data['username'] ?? '');
-            await CacheHelper.saveData(key: AppConstants.userImageKey, value: data['image'] ?? '');
-            await CacheHelper.saveData(key: AppConstants.tokenKey, value: data['token'] ?? '');
-            await CacheHelper.saveData(key: 'bio', value: data['bio'] ?? '');
-            await CacheHelper.saveData(key: 'stars', value: data['number_of_stars']?.toString() ?? '0');
-            await CacheHelper.saveData(key: AppConstants.pageKey, value: 'Home');
+        final data = response['data'];
+        if (data != null && data is Map) {
+          final dataMap = data is Map<String, dynamic> ? data : Map<String, dynamic>.from(data);
+          await CacheHelper.saveData(key: AppConstants.nameKey, value: dataMap['name'] ?? '');
+          await CacheHelper.saveData(key: AppConstants.userIdKey, value: dataMap['id']?.toString() ?? '');
+          await CacheHelper.saveData(key: AppConstants.usernameKey, value: dataMap['username'] ?? '');
+          await CacheHelper.saveData(key: AppConstants.userImageKey, value: dataMap['image'] ?? '');
+          await CacheHelper.saveData(key: AppConstants.tokenKey, value: dataMap['token'] ?? '');
+          await CacheHelper.saveData(key: 'bio', value: dataMap['bio'] ?? '');
+          await CacheHelper.saveData(key: 'stars', value: dataMap['number_of_stars']?.toString() ?? '0');
+          await CacheHelper.saveData(key: AppConstants.pageKey, value: 'Home');
 
-            if (data['user_power'] != null) {
-              await CacheHelper.saveData(
-                key: 'powermodel',
-                value: jsonEncode(data['user_power']),
-              );
-            }
-
-            // Remove Guest data
-            await CacheHelper.removeData(key: 'idGust');
-            await CacheHelper.removeData(key: 'usernameGust');
-
-            emit(AuthSuccess(userData: data));
-            return;
+          if (dataMap['user_power'] != null) {
+            await CacheHelper.saveData(
+              key: 'powermodel',
+              value: jsonEncode(dataMap['user_power']),
+            );
           }
+
+          // Remove Guest data
+          await CacheHelper.removeData(key: 'idGust');
+          await CacheHelper.removeData(key: 'usernameGust');
+
+          emit(AuthSuccess(userData: dataMap));
+          return;
         }
         emit(AuthError(message: "بيانات التحقق غير صحيحة"));
       },
@@ -134,17 +133,16 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     final result = await verifyGuestUseCase();
     result.fold(
-      (error) => emit(AuthError(message: error)),
+      (failure) => emit(AuthError(message: failure.message)),
       (response) async {
-        if (response != null && response is Map) {
-          final data = response['data'];
-          if (data != null && data is Map) {
-            await CacheHelper.saveData(key: 'idGust', value: data['id']?.toString() ?? '');
-            await CacheHelper.saveData(key: 'usernameGust', value: data['name'] ?? '');
-            await CacheHelper.saveData(key: AppConstants.isGuestKey, value: true);
-            emit(AuthGuestSuccess(guestData: data));
-            return;
-          }
+        final data = response['data'];
+        if (data != null && data is Map) {
+          final dataMap = data is Map<String, dynamic> ? data : Map<String, dynamic>.from(data);
+          await CacheHelper.saveData(key: 'idGust', value: dataMap['id']?.toString() ?? '');
+          await CacheHelper.saveData(key: 'usernameGust', value: dataMap['name'] ?? '');
+          await CacheHelper.saveData(key: AppConstants.isGuestKey, value: true);
+          emit(AuthGuestSuccess(guestData: dataMap));
+          return;
         }
         emit(AuthError(message: "فشل التحقق كزائر"));
       },

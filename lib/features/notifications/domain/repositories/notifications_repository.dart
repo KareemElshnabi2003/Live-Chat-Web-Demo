@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
-import '../../data/models/notify_model.dart';
+import 'package:live_chat/core/errors/failures.dart';
+import '../entities/notify_entity.dart';
 
 abstract class NotificationsRepository {
-  Future<Either<String, List<NotifyModel>>> getNotifications();
+  Future<Either<Failure, List<NotifyEntity>>> getNotifications();
 }

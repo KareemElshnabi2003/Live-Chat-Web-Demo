@@ -1,30 +1,25 @@
 import 'package:live_chat/features/market/data/models/power_model.dart';
+import '../../domain/entities/friend_suggest_entity.dart';
 
-class SuggestFreindModel {
-  int? id;
-  String? name;
-  String? username;
-  String? image;
-  String? requestStatus;
-  PowerModel? power;
+class SuggestFreindModel extends FriendSuggestEntity {
+  const SuggestFreindModel({
+    super.id,
+    super.name,
+    super.username,
+    super.image,
+    super.requestStatus,
+    super.power,
+  });
 
-  SuggestFreindModel(
-      {this.id,
-      this.name,
-      this.username,
-      this.image,
-      this.requestStatus,
-      this.power});
-
-  SuggestFreindModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    username = json['username'];
-    
-    image = json['image'];
-
-    requestStatus = json['request_status'];
-    power = json['power'] != null ? PowerModel.fromJson(json['power']) : null;
+  factory SuggestFreindModel.fromJson(Map<String, dynamic> json) {
+    return SuggestFreindModel(
+      id: json['id'],
+      name: json['name'],
+      username: json['username'],
+      image: json['image'],
+      requestStatus: json['request_status'],
+      power: json['power'] != null ? PowerModel.fromJson(json['power']) : null,
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -34,8 +29,8 @@ class SuggestFreindModel {
     data['username'] = username;
     data['image'] = image;
     data['request_status'] = requestStatus;
-    if (power != null) {
-      data['power'] = power!.toJson();
+    if (power != null && power is PowerModel) {
+      data['power'] = (power as PowerModel).toJson();
     }
     return data;
   }

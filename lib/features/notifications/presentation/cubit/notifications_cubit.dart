@@ -12,7 +12,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     emit(NotificationsLoading());
     final result = await notificationsRepository.getNotifications();
     result.fold(
-      (error) => emit(NotificationsError(message: error)),
+      (failure) => emit(NotificationsError(message: failure.message)),
       (notifications) => emit(NotificationsLoaded(notifications: notifications)),
     );
   }

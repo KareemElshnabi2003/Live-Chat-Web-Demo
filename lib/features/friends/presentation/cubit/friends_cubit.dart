@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:live_chat/core/di/service_locator.dart';
 import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/chat/domain/repositories/chat_repository.dart';
-import '../../data/models/friend_suggest_model.dart';
+import '../../domain/entities/friend_suggest_entity.dart';
 import '../../domain/repositories/friends_repository.dart';
 import 'friends_state.dart';
 
@@ -18,8 +18,8 @@ class FriendsCubit extends Cubit<FriendsState> {
       friendsRepository.getSuggestedFriends(),
     ]);
 
-    List<SuggestFreindModel> allItems = [];
-    List<SuggestFreindModel> suggestions = [];
+    List<FriendSuggestEntity> allItems = [];
+    List<FriendSuggestEntity> suggestions = [];
 
     results[0].fold((_) {}, (r) => allItems = r);
     results[1].fold((_) {}, (r) => suggestions = r);
@@ -47,7 +47,7 @@ class FriendsCubit extends Cubit<FriendsState> {
   Future<void> sendRequest(String friendId) async {
     final result = await friendsRepository.sendFriendRequest(friendId: friendId);
     result.fold(
-      (error) => emit(FriendsError(message: error)),
+      (error) => emit(FriendsError(message: error.message)),
       (_) {
         emit(FriendsActionSuccess(message: "تم إرسال الطلب بنجاح"));
         loadFriendsAndSuggestions();
@@ -61,7 +61,7 @@ class FriendsCubit extends Cubit<FriendsState> {
       status: status,
     );
     result.fold(
-      (error) => emit(FriendsError(message: error)),
+      (error) => emit(FriendsError(message: error.message)),
       (_) {
         emit(FriendsActionSuccess(message: status == "accept" ? "تم قبول الصداقة" : "تم رفض الطلب"));
         loadFriendsAndSuggestions();
@@ -72,7 +72,7 @@ class FriendsCubit extends Cubit<FriendsState> {
   Future<void> deleteFriend(String friendId) async {
     final result = await friendsRepository.removeFriend(friendId: friendId);
     result.fold(
-      (error) => emit(FriendsError(message: error)),
+      (error) => emit(FriendsError(message: error.message)),
       (_) {
         emit(FriendsActionSuccess(message: "تم حذف الصديق"));
         loadFriendsAndSuggestions();

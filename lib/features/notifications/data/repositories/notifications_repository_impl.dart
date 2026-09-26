@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart';
+import 'package:live_chat/core/errors/failures.dart';
 import 'package:live_chat/core/errors/server_exceptions.dart';
+import '../../domain/entities/notify_entity.dart';
 import '../../domain/repositories/notifications_repository.dart';
 import '../datasources/notifications_remote_data_source.dart';
 import '../models/notify_model.dart';
@@ -10,20 +12,20 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   NotificationsRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<String, List<NotifyModel>>> getNotifications() async {
+  Future<Either<Failure, List<NotifyEntity>>> getNotifications() async {
     try {
       final response = await remoteDataSource.getNotifications();
-      if (response != null && response is Map && response['data'] is List) {
+      if (response['data'] is List) {
         final list = (response['data'] as List)
-            .map((e) => NotifyModel.fromJson(Map<String, dynamic>.from(e)))
+            .map((e) => NotifyModel.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList();
         return Right(list);
       }
       return const Right([]);
     } on ServerException catch (e) {
-      return Left(e.errorModel.errorMessage);
+      return Left(ServerFailure.fromServerException(e));
     } catch (e) {
-      return Left(e.toString());
+      return Left(ServerFailure(e.toString()));
     }
   }
 }
