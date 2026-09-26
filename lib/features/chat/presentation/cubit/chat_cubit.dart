@@ -30,6 +30,8 @@ class ChatCubit extends Cubit<ChatState> {
   final PusherService pusherService;
   final AudioService audioService;
 
+  static const int maxInMemoryMessages = 150;
+
   String? _currentChatId;
   StreamSubscription<PusherEvent>? _pusherSub;
   final Set<String> _messageIdSet = {};
@@ -122,8 +124,27 @@ class ChatCubit extends Cubit<ChatState> {
             _messageIdSet.add(newMsg.messageId);
           }
 
-          final updatedMessages = [newMsg, ...current.messages];
-          emit(current.copyWith(messages: updatedMessages));
+          // Bounded in-memory window: evict oldest messages from memory when exceeding threshold
+          final bool isOverLimit = current.messages.length >= maxInMemoryMessages;
+          final baseList = isOverLimit
+              ? current.messages.sublist(0, maxInMemoryMessages - 1)
+              : current.messages;
+
+          // Evict removed IDs from deduplication set to avoid memory growth and allow re-fetch
+          if (isOverLimit) {
+            for (int i = maxInMemoryMessages - 1; i < current.messages.length; i++) {
+              final evictedId = current.messages[i].messageId;
+              if (evictedId.isNotEmpty) {
+                _messageIdSet.remove(evictedId);
+              }
+            }
+          }
+
+          final updatedMessages = [newMsg, ...baseList];
+          emit(current.copyWith(
+            messages: updatedMessages,
+            hasMoreMessages: isOverLimit ? true : current.hasMoreMessages,
+          ));
         }
       } catch (e) {
         debugPrint("Error parsing pusher message: $e");
