@@ -122,7 +122,7 @@ class ChatCubit extends Cubit<ChatState> {
             _messageIdSet.add(newMsg.messageId);
           }
 
-          final updatedMessages = List<ChatMessageEntity>.from(current.messages)..insert(0, newMsg);
+          final updatedMessages = [newMsg, ...current.messages];
           emit(current.copyWith(messages: updatedMessages));
         }
       } catch (e) {
@@ -162,7 +162,7 @@ class ChatCubit extends Cubit<ChatState> {
           }
         }
 
-        final allMessages = List<ChatMessageEntity>.from(current.messages)..addAll(uniqueNew);
+        final allMessages = [...current.messages, ...uniqueNew];
         emit(current.copyWith(
           messages: allMessages,
           currentPage: nextPage,

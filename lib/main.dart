@@ -37,6 +37,10 @@ set pref(bool? value) {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Bounded image cache for web memory optimization
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024; // 50 MB
+  PaintingBinding.instance.imageCache.maximumSize = 250;
+
   // 1. Initialize Clean Architecture Service Locator (GetIt & SharedPreferences singleton)
   await initServiceLocator();
 

@@ -354,7 +354,7 @@ class _HomeViewState extends State<HomeView> {
             padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
             child: Column(
               children: [
-                for (int index = 0; index < systemChats.length; index++) ...[
+                for (int index = 0; index < (systemChats.length > 5 ? 5 : systemChats.length); index++) ...[
                   if (index > 0) SizedBox(height: 2.h),
                   Builder(
                     builder: (context) {
@@ -610,7 +610,7 @@ class _HomeViewState extends State<HomeView> {
                 padding: EdgeInsets.only(right: isRtl ? 4.w : 0, left: isRtl ? 0 : 4.w, bottom: 2.h),
                 child: Column(
                   children: [
-                    for (int index = 0; index < suggested.length; index++) ...[
+                    for (int index = 0; index < (suggested.length > 5 ? 5 : suggested.length); index++) ...[
                       if (index > 0) SizedBox(height: 2.h),
                       Builder(
                         builder: (context) {
