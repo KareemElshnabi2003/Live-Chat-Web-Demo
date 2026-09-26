@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:live_chat/core/constant/app_constant.dart';
 import 'package:live_chat/core/errors/failures.dart';
@@ -26,7 +27,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, List<ChatMessageEntity>>> getMessages({required String chatId, int page = 1}) async {
     try {
       final response = await remoteDataSource.getMessages(chatId: chatId, page: page);
-      if (response != null && response is Map && response['data'] is List) {
+      if (response['data'] is List) {
         final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
         final list = (response['data'] as List).map((item) {
           if (item is Map<String, dynamic>) {
@@ -100,7 +101,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, List<MemberEntity>>> getMembers({required String chatId, int page = 1}) async {
     try {
       final response = await remoteDataSource.getMembers(chatId: chatId, page: page);
-      if (response != null && response is Map && response['data'] is List) {
+      if (response['data'] is List) {
         final list = (response['data'] as List).map((item) {
           if (item is Map<String, dynamic>) {
             return MemberOfChatModel.fromJson(item);
@@ -123,7 +124,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, List<RadioEntity>>> getRadios() async {
     try {
       final response = await remoteDataSource.getRadios();
-      if (response != null && response is Map && response['data'] is List) {
+      if (response['data'] is List) {
         final list = (response['data'] as List).map((item) {
           if (item is Map<String, dynamic>) {
             return RadioModel.fromJson(item);
@@ -146,7 +147,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, List<ChatThemeEntity>>> getThemes() async {
     try {
       final response = await remoteDataSource.getThemes();
-      if (response != null && response is Map && response['data'] is List) {
+      if (response['data'] is List) {
         final list = (response['data'] as List).map((item) {
           if (item is Map<String, dynamic>) {
             return ChatThemeModel.fromJson(item);
@@ -253,7 +254,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, UserChatEntity>> createChatFriend({required int friendId}) async {
     try {
       final response = await remoteDataSource.createChatFriend(friendId: friendId);
-      if (response != null && response is Map && response['data'] != null) {
+      if (response['data'] != null) {
         final data = response['data'] is Map<String, dynamic>
             ? response['data'] as Map<String, dynamic>
             : Map<String, dynamic>.from(response['data'] as Map);
@@ -265,5 +266,25 @@ class ChatRepositoryImpl implements ChatRepository {
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
+  }
+
+  @override
+  ChatMessageEntity? parsePusherMessage(dynamic rawData) {
+    try {
+      final dynamic raw = rawData is String ? jsonDecode(rawData) : rawData;
+      if (raw is Map) {
+        final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
+        final map = raw is Map<String, dynamic> ? raw : Map<String, dynamic>.from(raw);
+        final messageMap = (map['message'] is Map)
+            ? (map['message'] is Map<String, dynamic>
+                ? map['message'] as Map<String, dynamic>
+                : Map<String, dynamic>.from(map['message'] as Map))
+            : map;
+        return ChatMessageModel.fromJson(messageMap, currentUserId: currentUserId);
+      }
+    } catch (e) {
+      // Return null if parsing fails
+    }
+    return null;
   }
 }

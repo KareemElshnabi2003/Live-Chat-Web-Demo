@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
-import 'package:live_chat/core/constant/app_constant.dart';
-import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/core/services/audio/audio_service.dart';
 import 'package:live_chat/core/services/pusher/pusher_service.dart';
 import '../../domain/entities/chat_attachment.dart';
@@ -12,7 +9,6 @@ import '../../domain/entities/chat_message_entity.dart';
 import '../../domain/entities/member_entity.dart';
 import '../../domain/entities/radio_entity.dart';
 import '../../domain/entities/chat_theme_entity.dart';
-import '../../data/models/chat_message_model.dart';
 import '../../domain/usecases/chat_use_cases.dart';
 import 'chat_state.dart';
 
@@ -30,6 +26,7 @@ class ChatCubit extends Cubit<ChatState> {
   final AcceptMemberToChatUseCase acceptMemberToChatUseCase;
   final BlockOrUnBlockUseCase blockOrUnBlockUseCase;
   final CreateChatFriendUseCase createChatFriendUseCase;
+  final ParsePusherMessageUseCase parsePusherMessageUseCase;
   final PusherService pusherService;
   final AudioService audioService;
 
@@ -51,6 +48,7 @@ class ChatCubit extends Cubit<ChatState> {
     required this.acceptMemberToChatUseCase,
     required this.blockOrUnBlockUseCase,
     required this.createChatFriendUseCase,
+    required this.parsePusherMessageUseCase,
     required this.pusherService,
     required this.audioService,
   }) : super(ChatInitial());
@@ -111,12 +109,10 @@ class ChatCubit extends Cubit<ChatState> {
     if (event.eventName == "message-created" &&
         event.channelName == "live-chat-ngoum-$_currentChatId") {
       try {
-        final dynamic raw = event.data is String ? jsonDecode(event.data.toString()) : event.data;
-        if (raw is Map && state is ChatLoaded) {
+        if (state is ChatLoaded) {
           final current = state as ChatLoaded;
-          final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
-          final map = raw is Map<String, dynamic> ? raw : Map<String, dynamic>.from(raw);
-          final newMsg = ChatMessageModel.fromJson(map, currentUserId: currentUserId);
+          final newMsg = parsePusherMessageUseCase(event.data);
+          if (newMsg == null) return;
 
           // Fast O(1) deduplication using Set
           if (newMsg.messageId.isNotEmpty) {

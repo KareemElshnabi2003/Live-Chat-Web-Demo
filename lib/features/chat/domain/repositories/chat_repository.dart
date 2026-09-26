@@ -46,4 +46,5 @@ abstract class ChatRepository {
     required String userId,
   });
   Future<Either<Failure, UserChatEntity>> createChatFriend({required int friendId});
+  ChatMessageEntity? parsePusherMessage(dynamic rawData);
 }

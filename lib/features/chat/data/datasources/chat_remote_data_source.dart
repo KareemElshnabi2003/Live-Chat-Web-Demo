@@ -6,44 +6,44 @@ import 'package:live_chat/core/helper/cache_helper.dart';
 import '../../domain/entities/chat_attachment.dart';
 
 abstract class ChatRemoteDataSource {
-  Future<dynamic> getMessages({required String chatId, int page = 1});
-  Future<dynamic> sendMessage({
+  Future<Map<String, dynamic>> getMessages({required String chatId, int page = 1});
+  Future<Map<String, dynamic>> sendMessage({
     required String chatId,
     required String message,
   });
-  Future<dynamic> sendMessageWithFile({
+  Future<Map<String, dynamic>> sendMessageWithFile({
     required String chatId,
     required String messageType,
     ChatAttachment? file,
   });
-  Future<dynamic> sendReaction({
+  Future<Map<String, dynamic>> sendReaction({
     required String messageId,
     required String react,
   });
-  Future<dynamic> getMembers({required String chatId, int page = 1});
-  Future<dynamic> getRadios();
-  Future<dynamic> getThemes();
-  Future<dynamic> createGeneralChat({
+  Future<Map<String, dynamic>> getMembers({required String chatId, int page = 1});
+  Future<Map<String, dynamic>> getRadios();
+  Future<Map<String, dynamic>> getThemes();
+  Future<Map<String, dynamic>> createGeneralChat({
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
   });
-  Future<dynamic> updateGeneralChat({
+  Future<Map<String, dynamic>> updateGeneralChat({
     required String chatId,
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
   });
-  Future<dynamic> deleteChat({required String chatId});
-  Future<dynamic> acceptMemberToChat({
+  Future<Map<String, dynamic>> deleteChat({required String chatId});
+  Future<Map<String, dynamic>> acceptMemberToChat({
     required String chatId,
     required String userId,
   });
-  Future<dynamic> blockOrUnBlock({
+  Future<Map<String, dynamic>> blockOrUnBlock({
     required int status,
     required String userId,
   });
-  Future<dynamic> createChatFriend({required int friendId});
+  Future<Map<String, dynamic>> createChatFriend({required int friendId});
 }
 
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
@@ -59,19 +59,26 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     return MultipartFile.fromBytes(attachment.bytes, filename: attachment.filename);
   }
 
-  @override
-  Future<dynamic> getMessages({required String chatId, int page = 1}) async {
-    return await api.get(
-      "${EndPoints.getMessagesChatUrl}?conversation_id=$chatId&page=$page&per_page=20&device_id=$_deviceId",
-    );
+  Map<String, dynamic> _toMap(dynamic response) {
+    if (response is Map<String, dynamic>) return response;
+    if (response is Map) return Map<String, dynamic>.from(response);
+    return <String, dynamic>{};
   }
 
   @override
-  Future<dynamic> sendMessage({
+  Future<Map<String, dynamic>> getMessages({required String chatId, int page = 1}) async {
+    final response = await api.get(
+      "${EndPoints.getMessagesChatUrl}?conversation_id=$chatId&page=$page&per_page=20&device_id=$_deviceId",
+    );
+    return _toMap(response);
+  }
+
+  @override
+  Future<Map<String, dynamic>> sendMessage({
     required String chatId,
     required String message,
   }) async {
-    return await api.post(
+    final response = await api.post(
       EndPoints.sendMessagesUrl,
       data: {
         "conversation_id": chatId,
@@ -80,10 +87,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         "device_id": _deviceId,
       },
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> sendMessageWithFile({
+  Future<Map<String, dynamic>> sendMessageWithFile({
     required String chatId,
     required String messageType,
     ChatAttachment? file,
@@ -97,19 +105,20 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     if (multipart != null) {
       data["message"] = multipart;
     }
-    return await api.post(
+    final response = await api.post(
       EndPoints.sendMessagesUrl,
       data: data,
       isFormData: true,
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> sendReaction({
+  Future<Map<String, dynamic>> sendReaction({
     required String messageId,
     required String react,
   }) async {
-    return await api.post(
+    final response = await api.post(
       EndPoints.reactToMessageUrl,
       data: {
         "message_id": messageId,
@@ -117,31 +126,35 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         "device_id": _deviceId,
       },
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> getMembers({required String chatId, int page = 1}) async {
-    return await api.get(
+  Future<Map<String, dynamic>> getMembers({required String chatId, int page = 1}) async {
+    final response = await api.get(
       "${EndPoints.getMemberChatUrl}/$chatId?per_page=20&page=$page&device_id=$_deviceId",
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> getRadios() async {
-    return await api.get(
+  Future<Map<String, dynamic>> getRadios() async {
+    final response = await api.get(
       "${EndPoints.getRadiosUrl}?device_id=$_deviceId",
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> getThemes() async {
-    return await api.get(
+  Future<Map<String, dynamic>> getThemes() async {
+    final response = await api.get(
       "${EndPoints.getThemesUrl}?device_id=$_deviceId",
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> createGeneralChat({
+  Future<Map<String, dynamic>> createGeneralChat({
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
     ChatAttachment? bgChat,
@@ -152,15 +165,16 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     final bgPart = _toMultipart(bgChat);
     if (imgPart != null) map['image'] = imgPart;
     if (bgPart != null) map['bg_image'] = bgPart;
-    return await api.post(
+    final response = await api.post(
       "${EndPoints.conversations}?device_id=$_deviceId",
       data: map,
       isFormData: true,
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> updateGeneralChat({
+  Future<Map<String, dynamic>> updateGeneralChat({
     required String chatId,
     required Map<String, dynamic> data,
     ChatAttachment? imgChat,
@@ -173,54 +187,59 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     final bgPart = _toMultipart(bgChat);
     if (imgPart != null) map['image'] = imgPart;
     if (bgPart != null) map['bg_image'] = bgPart;
-    return await api.post(
+    final response = await api.post(
       "${EndPoints.conversations}/$chatId?device_id=$_deviceId",
       data: map,
       isFormData: true,
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> deleteChat({required String chatId}) async {
-    return await api.delete(
+  Future<Map<String, dynamic>> deleteChat({required String chatId}) async {
+    final response = await api.delete(
       "${EndPoints.conversations}/$chatId?device_id=$_deviceId",
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> acceptMemberToChat({
+  Future<Map<String, dynamic>> acceptMemberToChat({
     required String chatId,
     required String userId,
   }) async {
-    return await api.post(
+    final response = await api.post(
       "${EndPoints.acceptMemberToChat}?device_id=$_deviceId",
       data: {
         "conversation_id": chatId,
         "user_id": userId,
       },
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> blockOrUnBlock({
+  Future<Map<String, dynamic>> blockOrUnBlock({
     required int status,
     required String userId,
   }) async {
-    return await api.post(
+    final response = await api.post(
       "${EndPoints.blockUrl}/$userId/block?device_id=$_deviceId",
       data: {
         "block": status,
       },
     );
+    return _toMap(response);
   }
 
   @override
-  Future<dynamic> createChatFriend({required int friendId}) async {
-    return await api.post(
+  Future<Map<String, dynamic>> createChatFriend({required int friendId}) async {
+    final response = await api.post(
       "${EndPoints.createChatFriendUrl}?device_id=$_deviceId",
       data: {
         "member": friendId,
       },
     );
+    return _toMap(response);
   }
 }

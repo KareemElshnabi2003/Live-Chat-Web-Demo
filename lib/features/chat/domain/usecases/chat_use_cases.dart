@@ -152,3 +152,12 @@ class CreateChatFriendUseCase {
     return repository.createChatFriend(friendId: friendId);
   }
 }
+
+class ParsePusherMessageUseCase {
+  final ChatRepository repository;
+  ParsePusherMessageUseCase(this.repository);
+
+  ChatMessageEntity? call(dynamic rawData) {
+    return repository.parsePusherMessage(rawData);
+  }
+}

@@ -159,6 +159,7 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton<AcceptMemberToChatUseCase>(() => AcceptMemberToChatUseCase(sl<ChatRepository>()));
   sl.registerLazySingleton<BlockOrUnBlockUseCase>(() => BlockOrUnBlockUseCase(sl<ChatRepository>()));
   sl.registerLazySingleton<CreateChatFriendUseCase>(() => CreateChatFriendUseCase(sl<ChatRepository>()));
+  sl.registerLazySingleton<ParsePusherMessageUseCase>(() => ParsePusherMessageUseCase(sl<ChatRepository>()));
 
   sl.registerFactory<ChatCubit>(
     () => ChatCubit(
@@ -175,6 +176,7 @@ Future<void> initServiceLocator() async {
       acceptMemberToChatUseCase: sl<AcceptMemberToChatUseCase>(),
       blockOrUnBlockUseCase: sl<BlockOrUnBlockUseCase>(),
       createChatFriendUseCase: sl<CreateChatFriendUseCase>(),
+      parsePusherMessageUseCase: sl<ParsePusherMessageUseCase>(),
       pusherService: sl<PusherService>(),
       audioService: sl<AudioService>(),
     ),
