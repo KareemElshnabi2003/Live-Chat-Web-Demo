@@ -1,5 +1,9 @@
+import 'package:flutter/foundation.dart';
+
 class EndPoints {
-  static const String baseUrl = "https://api.mayo.live/api/v1";
+  static const String baseUrl = kIsWeb
+      ? "https://live-chat-web-demo.kelsayed2012003.workers.dev/api/v1"
+      : "https://api.mayo.live/api/v1";
 
   // Ads & Pages
   static const String getAds = "$baseUrl/admin_ads";
