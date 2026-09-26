@@ -14,9 +14,23 @@ class ChatMessageModel extends ChatMessageEntity {
     super.isPending = false,
   });
 
-  factory ChatMessageModel.fromJson(Map<String, dynamic> json, {String? currentUserId}) {
+  factory ChatMessageModel.fromJson(Map<String, dynamic> json, {String? currentUserId, String? currentUserName}) {
     final senderId = json['sender_id']?.toString() ?? json['senderId']?.toString() ?? '';
-    final isMe = currentUserId != null && currentUserId.isNotEmpty && senderId == currentUserId;
+    final senderName = json['sender_name']?.toString() ?? json['senderName']?.toString() ?? '';
+
+    final isMeById = currentUserId != null &&
+        currentUserId.isNotEmpty &&
+        currentUserId != 'null' &&
+        senderId.isNotEmpty &&
+        senderId == currentUserId;
+
+    final isMeByName = currentUserName != null &&
+        currentUserName.isNotEmpty &&
+        currentUserName != 'null' &&
+        senderName.trim().isNotEmpty &&
+        senderName.trim().toLowerCase() == currentUserName.trim().toLowerCase();
+
+    final isMe = isMeById || isMeByName;
 
     List<MessageReactionEntity> reactions = [];
     if (json['message_reactions'] != null && json['message_reactions'] is List) {
@@ -32,7 +46,7 @@ class ChatMessageModel extends ChatMessageEntity {
     }
 
     return ChatMessageModel(
-      senderName: json['sender_name']?.toString() ?? json['senderName']?.toString() ?? '',
+      senderName: senderName,
       message: json['message']?.toString() ?? '',
       isFromSender: isMe,
       timestamp: json['created_at']?.toString() ?? json['timestamp']?.toString() ?? '',
@@ -44,12 +58,26 @@ class ChatMessageModel extends ChatMessageEntity {
     );
   }
 
-  factory ChatMessageModel.fromModel(MessageModel model, {String? currentUserId}) {
+  factory ChatMessageModel.fromModel(MessageModel model, {String? currentUserId, String? currentUserName}) {
     final senderId = model.senderId?.toString() ?? '';
-    final isMe = currentUserId != null && currentUserId.isNotEmpty && senderId == currentUserId;
+    final senderName = model.senderName ?? '';
+
+    final isMeById = currentUserId != null &&
+        currentUserId.isNotEmpty &&
+        currentUserId != 'null' &&
+        senderId.isNotEmpty &&
+        senderId == currentUserId;
+
+    final isMeByName = currentUserName != null &&
+        currentUserName.isNotEmpty &&
+        currentUserName != 'null' &&
+        senderName.trim().isNotEmpty &&
+        senderName.trim().toLowerCase() == currentUserName.trim().toLowerCase();
+
+    final isMe = isMeById || isMeByName;
 
     return ChatMessageModel(
-      senderName: model.senderName ?? '',
+      senderName: senderName,
       message: model.message ?? '',
       isFromSender: isMe,
       timestamp: model.createdAt ?? '',

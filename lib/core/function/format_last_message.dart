@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/generated/l10n.dart';
 import 'package:live_chat/core/constant/app_constant.dart';
@@ -10,8 +10,12 @@ String formatLastMessage(BuildContext context, UserChatEntity chat) {
   }
 
   final isRtl = Directionality.of(context) == TextDirection.rtl;
-  final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
-  final isMe = chat.lastMessage?.senderId?.toString() == currentUserId;
+  final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey) ??
+      CacheHelper.getData(key: 'idGust')?.toString();
+  final currentUserName = CacheHelper.getString(key: AppConstants.nameKey) ??
+      CacheHelper.getData(key: 'usernameGust')?.toString();
+  final isMe = (currentUserId != null && currentUserId.isNotEmpty && chat.lastMessage?.senderId?.toString() == currentUserId) ||
+      (currentUserName != null && currentUserName.isNotEmpty && chat.lastMessage?.senderName?.toString() == currentUserName);
   final prefix = isMe ? "${S.of(context).you}: " : "";
   
   String msgType = chat.lastMessage?.messageType?.toString() ?? "text";

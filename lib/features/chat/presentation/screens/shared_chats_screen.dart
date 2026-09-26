@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +7,8 @@ import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/Constant/app_images.dart';
 import 'package:live_chat/core/di/service_locator.dart';
 import 'package:live_chat/core/routing/routes.dart';
+import 'package:live_chat/core/Constant/app_constant.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
 import 'package:live_chat/core/widgets/chat_card_widget.dart';
 import 'package:live_chat/core/widgets/dialog_img.dart';
 import 'package:live_chat/core/widgets/no_data.dart';
@@ -147,12 +149,15 @@ class _SharedChatsScreenState extends State<SharedChatsScreen> {
       }
     }
     if (mounted) {
+      final token = CacheHelper.getString(key: AppConstants.tokenKey);
+      final isGuest = (token == null || token.isEmpty || token == 'null') ||
+          (CacheHelper.getBool(key: AppConstants.isGuestKey) ?? false);
       context.push(
         Routes.chatScreen,
         extra: {
           'userChatModel': chat,
           'isPin': false,
-          'isGust': false,
+          'isGust': isGuest,
         },
       );
     }
@@ -195,12 +200,25 @@ class _SharedChatsScreenState extends State<SharedChatsScreen> {
     return Row(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       children: [
-        GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: Icon(
-            isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
-            size: kIsWeb ? 24.0 : 5.5.w,
-            color: pref ? AppColors.whiteColor : AppColors.blackTextColor,
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                final token = CacheHelper.getString(key: AppConstants.tokenKey);
+                final isGuest = (token == null || token.isEmpty || token == 'null') ||
+                    (CacheHelper.getBool(key: AppConstants.isGuestKey) ?? false);
+                context.go(isGuest ? Routes.startPageScreen : Routes.homeScreen);
+              }
+            },
+            child: Icon(
+              isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
+              size: kIsWeb ? 24.0 : 5.5.w,
+              color: pref ? AppColors.whiteColor : AppColors.blackTextColor,
+            ),
           ),
         ),
         SizedBox(width: 2.w),

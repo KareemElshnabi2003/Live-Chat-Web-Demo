@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+﻿// ignore_for_file: avoid_print
 
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -682,6 +682,7 @@ class _HomeViewState extends State<HomeView> {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding),

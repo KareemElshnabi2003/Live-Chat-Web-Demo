@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +18,8 @@ import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:live_chat/core/utils/responsive_nums.dart';
 import 'package:live_chat/generated/l10n.dart';
+import 'package:live_chat/core/helper/cache_helper.dart';
+import '../cubit/auth_cubit.dart';
 
 class PageStart extends StatefulWidget {
   const PageStart({super.key});
@@ -31,6 +33,10 @@ class _PageStartState extends State<PageStart> {
   void initState() {
     super.initState();
     context.read<HomeCubit>().loadHomeData();
+    final guestId = CacheHelper.getString(key: 'idGust');
+    if (guestId == null || guestId.isEmpty || guestId == 'null') {
+      context.read<AuthCubit>().verifyGuest();
+    }
   }
 
   bool _isValidImage(String? url) {
@@ -213,22 +219,41 @@ class _PageStartState extends State<PageStart> {
                   // ==============================
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 4.w),
-                    child: Row(
-                      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-                      children: [
-                        textNormal(
-                          S.of(context).latest_chats,
-                          pref ? AppColors.whiteColor : AppColors.blackColor,
-                          4.w,
-                          FontWeight.w400,
+                    child: Align(
+                      alignment: isRtl ? Alignment.centerRight : Alignment.centerLeft,
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            context.push(
+                              Routes.sharedChatsScreen,
+                              extra: {
+                                'title': S.of(context).latest_chats,
+                                'type': 'recent',
+                              },
+                            );
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                            children: [
+                              textNormal(
+                                S.of(context).latest_chats,
+                                pref ? AppColors.whiteColor : AppColors.blackColor,
+                                4.w,
+                                FontWeight.w400,
+                              ),
+                              SizedBox(width: 2.w),
+                              Icon(
+                                isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300,
+                                color: AppColors.secondaryColor,
+                                size: kIsWeb ? 28.0 : 7.w,
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 2.w),
-                        Icon(
-                          isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300,
-                          color: AppColors.secondaryColor,
-                          size: kIsWeb ? 28.0 : 7.w,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                   SizedBox(height: 2.h),
@@ -283,22 +308,41 @@ class _PageStartState extends State<PageStart> {
                   // ==============================
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 4.w),
-                    child: Row(
-                      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-                      children: [
-                        textNormal(
-                          S.of(context).other_chats,
-                          pref ? AppColors.whiteColor : AppColors.blackColor,
-                          4.5.w,
-                          FontWeight.w400,
+                    child: Align(
+                      alignment: isRtl ? Alignment.centerRight : Alignment.centerLeft,
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            context.push(
+                              Routes.sharedChatsScreen,
+                              extra: {
+                                'title': S.of(context).other_chats,
+                                'type': 'system',
+                              },
+                            );
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                            children: [
+                              textNormal(
+                                S.of(context).other_chats,
+                                pref ? AppColors.whiteColor : AppColors.blackColor,
+                                4.5.w,
+                                FontWeight.w400,
+                              ),
+                              SizedBox(width: 2.w),
+                              Icon(
+                                isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300,
+                                color: AppColors.secondaryColor,
+                                size: kIsWeb ? 28.0 : 7.w,
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 2.w),
-                        Icon(
-                          isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300,
-                          color: AppColors.secondaryColor,
-                          size: kIsWeb ? 28.0 : 7.w,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                   SizedBox(height: 2.h),

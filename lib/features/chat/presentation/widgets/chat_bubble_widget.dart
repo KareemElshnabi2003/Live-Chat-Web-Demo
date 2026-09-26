@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,36 @@ class ChatBubbleWidget extends StatelessWidget {
     required this.name,
     required this.img, required this.pref,
   });
+
+  String _formatMessageTime(String rawTimestamp, BuildContext context) {
+    if (rawTimestamp.trim().isEmpty) return '';
+    try {
+      DateTime? dt = DateTime.tryParse(rawTimestamp);
+      if (dt == null) {
+        final parts = rawTimestamp.trim().split(RegExp(r'\s+'));
+        for (final p in parts) {
+          if (p.contains(':')) {
+            final timeParts = p.split(':');
+            if (timeParts.length >= 2) {
+              final h = int.tryParse(timeParts[0]);
+              final m = int.tryParse(timeParts[1]);
+              if (h != null && m != null) {
+                final now = DateTime.now();
+                dt = DateTime(now.year, now.month, now.day, h, m);
+                break;
+              }
+            }
+          }
+        }
+      }
+      if (dt != null) {
+        final local = dt.isUtc ? dt.toLocal() : dt;
+        final locale = Localizations.localeOf(context).languageCode;
+        return DateFormat('h:mm a', locale).format(local);
+      }
+    } catch (_) {}
+    return rawTimestamp;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +137,7 @@ class ChatBubbleWidget extends StatelessWidget {
                               child: Text(
                                 name,
                                 style: TextStyle(
-                                  color: Colors.grey.shade400,
+                                  color: AppColors.buttoncolor,
                                   fontSize: 2.8.w,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -120,16 +151,30 @@ class ChatBubbleWidget extends StatelessWidget {
                             message.isFromSender,
                             isRtl
                           ),
-                          const SizedBox(height: 5),
-                          Text(
-                            message.timestamp.toString(),
-                            style: TextStyle(
-                              color: message.isFromSender
-                                  ? AppColors.whiteColor
-                                  : AppColors.blackTextColor,
-                              fontSize: 2.5.w,
-                              fontWeight: FontWeight.w400,
-                            ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                            children: [
+                              Text(
+                                _formatMessageTime(message.timestamp, context),
+                                style: TextStyle(
+                                  color: message.isFromSender
+                                      ? AppColors.whiteColor.withOpacity(0.7)
+                                      : AppColors.black2TextColor.withOpacity(0.65),
+                                  fontSize: 2.4.w,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              if (message.isFromSender && message.isPending) ...[
+                                SizedBox(width: 1.w),
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  size: 2.8.w,
+                                  color: AppColors.whiteColor.withOpacity(0.7),
+                                ),
+                              ],
+                            ],
                           ),
                         ],
                       ),
@@ -504,6 +549,13 @@ class ChatBubbleWidget extends StatelessWidget {
     // 🌟 فحص دقيق يمنع كراش الصورة تماماً
     bool hasValidImage = img != null && img.trim().isNotEmpty && img.trim() != "null" && img.trim() != "image";
 
+    String initial = '';
+    if (name.trim().isNotEmpty) {
+      initial = name.trim()[0].toUpperCase();
+    } else if (isSender) {
+      initial = 'G';
+    }
+
     return SizedBox(
       width: 10.w,
       height: 8.w,
@@ -519,7 +571,7 @@ class ChatBubbleWidget extends StatelessWidget {
               : null,
           child: !hasValidImage
               ? Text(
-            name.isNotEmpty ? name[0].toUpperCase() : '',
+            initial,
             style: TextStyle(
               color: isSender
                   ? AppColors.whiteColor

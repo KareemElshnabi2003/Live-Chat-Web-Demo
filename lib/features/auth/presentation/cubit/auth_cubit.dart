@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import 'package:live_chat/core/constant/app_constant.dart';
@@ -32,7 +33,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> initDeviceIdAndToken() async {
     try {
       String? deviceId = CacheHelper.getString(key: AppConstants.deviceIdKey);
-      if (deviceId == null || deviceId.isEmpty) {
+      if (deviceId == null || deviceId.isEmpty || deviceId == 'null') {
         const uuid = Uuid();
         deviceId = uuid.v4();
         await CacheHelper.saveData(key: AppConstants.deviceIdKey, value: deviceId);
@@ -46,6 +47,19 @@ class AuthCubit extends Cubit<AuthState> {
       }
     } catch (_) {
       await CacheHelper.saveData(key: "deviceToken", value: "web_dummy_token");
+    }
+
+    // Auto-verify guest if not logged in
+    try {
+      final token = CacheHelper.getString(key: AppConstants.tokenKey);
+      if (token == null || token.isEmpty || token == 'null') {
+        final guestId = CacheHelper.getString(key: 'idGust');
+        if (guestId == null || guestId.isEmpty || guestId == 'null') {
+          await verifyGuest();
+        }
+      }
+    } catch (e) {
+      debugPrint("Auto verify guest error: $e");
     }
   }
 
@@ -124,7 +138,7 @@ class AuthCubit extends Cubit<AuthState> {
           emit(AuthSuccess(userData: dataMap));
           return;
         }
-        emit(AuthError(message: "بيانات التحقق غير صحيحة"));
+        emit(AuthError(message: "Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„ØªØ­Ù‚Ù‚ ØºÙŠØ± ØµØ­ÙŠØ­Ø©"));
       },
     );
   }
@@ -138,13 +152,15 @@ class AuthCubit extends Cubit<AuthState> {
         final data = response['data'];
         if (data != null && data is Map) {
           final dataMap = data is Map<String, dynamic> ? data : Map<String, dynamic>.from(data);
-          await CacheHelper.saveData(key: 'idGust', value: dataMap['id']?.toString() ?? '');
-          await CacheHelper.saveData(key: 'usernameGust', value: dataMap['name'] ?? '');
+          final guestId = dataMap['id']?.toString() ?? '';
+          final guestName = dataMap['username']?.toString() ?? dataMap['name']?.toString() ?? '';
+          await CacheHelper.saveData(key: 'idGust', value: guestId);
+          await CacheHelper.saveData(key: 'usernameGust', value: guestName);
           await CacheHelper.saveData(key: AppConstants.isGuestKey, value: true);
           emit(AuthGuestSuccess(guestData: dataMap));
           return;
         }
-        emit(AuthError(message: "فشل التحقق كزائر"));
+        emit(AuthError(message: "ÙØ´Ù„ Ø§Ù„ØªØ­Ù‚Ù‚ ÙƒØ²Ø§Ø¦Ø±"));
       },
     );
   }
@@ -152,8 +168,12 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logOut() async {
     emit(AuthLoading());
     await logoutUseCase();
+    final savedDeviceId = CacheHelper.getString(key: AppConstants.deviceIdKey);
     await CacheHelper.clearData();
     // Keep deviceId after logout
+    if (savedDeviceId != null && savedDeviceId.isNotEmpty && savedDeviceId != 'null') {
+      await CacheHelper.saveData(key: AppConstants.deviceIdKey, value: savedDeviceId);
+    }
     await initDeviceIdAndToken();
     emit(AuthLoggedOut());
   }

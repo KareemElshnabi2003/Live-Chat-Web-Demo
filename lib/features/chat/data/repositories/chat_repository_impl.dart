@@ -23,17 +23,54 @@ class ChatRepositoryImpl implements ChatRepository {
 
   ChatRepositoryImpl({required this.remoteDataSource});
 
+  String? get _currentUserId {
+    final uid = CacheHelper.getString(key: AppConstants.userIdKey);
+    if (uid != null && uid.isNotEmpty && uid != 'null') return uid;
+    final gid = CacheHelper.getString(key: 'idGust') ?? CacheHelper.getData(key: 'idGust')?.toString();
+    if (gid != null && gid.isNotEmpty && gid != 'null') return gid;
+    return null;
+  }
+
+  String? get _currentUserName {
+    final name = CacheHelper.getString(key: AppConstants.nameKey);
+    if (name != null && name.isNotEmpty && name != 'null') return name;
+    final uname = CacheHelper.getString(key: AppConstants.usernameKey);
+    if (uname != null && uname.isNotEmpty && uname != 'null') return uname;
+    final gname = CacheHelper.getString(key: 'usernameGust') ?? CacheHelper.getData(key: 'usernameGust')?.toString();
+    if (gname != null && gname.isNotEmpty && gname != 'null') return gname;
+    return null;
+  }
+
+  void _autoSaveGuestCredentials(Map<String, dynamic> response) {
+    if (response['data'] is Map) {
+      final data = response['data'] as Map;
+      final senderId = data['sender_id']?.toString();
+      final senderName = data['sender_name']?.toString() ?? data['username']?.toString();
+      final currentUid = CacheHelper.getString(key: AppConstants.userIdKey);
+      if (currentUid == null || currentUid.isEmpty || currentUid == 'null') {
+        if (senderId != null && senderId.isNotEmpty && senderId != 'null') {
+          CacheHelper.saveData(key: 'idGust', value: senderId);
+        }
+        if (senderName != null && senderName.isNotEmpty && senderName != 'null') {
+          CacheHelper.saveData(key: 'usernameGust', value: senderName);
+        }
+        CacheHelper.saveData(key: AppConstants.isGuestKey, value: true);
+      }
+    }
+  }
+
   @override
   Future<Either<Failure, List<ChatMessageEntity>>> getMessages({required String chatId, int page = 1}) async {
     try {
       final response = await remoteDataSource.getMessages(chatId: chatId, page: page);
       if (response['data'] is List) {
-        final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
+        final currentUserId = _currentUserId;
+        final currentUserName = _currentUserName;
         final list = (response['data'] as List).map((item) {
           if (item is Map<String, dynamic>) {
-            return ChatMessageModel.fromJson(item, currentUserId: currentUserId);
+            return ChatMessageModel.fromJson(item, currentUserId: currentUserId, currentUserName: currentUserName);
           } else if (item is Map) {
-            return ChatMessageModel.fromJson(Map<String, dynamic>.from(item), currentUserId: currentUserId);
+            return ChatMessageModel.fromJson(Map<String, dynamic>.from(item), currentUserId: currentUserId, currentUserName: currentUserName);
           }
           return null;
         }).whereType<ChatMessageEntity>().toList();
@@ -53,7 +90,8 @@ class ChatRepositoryImpl implements ChatRepository {
     required String message,
   }) async {
     try {
-      await remoteDataSource.sendMessage(chatId: chatId, message: message);
+      final response = await remoteDataSource.sendMessage(chatId: chatId, message: message);
+      _autoSaveGuestCredentials(response);
       return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
@@ -69,11 +107,12 @@ class ChatRepositoryImpl implements ChatRepository {
     ChatAttachment? file,
   }) async {
     try {
-      await remoteDataSource.sendMessageWithFile(
+      final response = await remoteDataSource.sendMessageWithFile(
         chatId: chatId,
         messageType: messageType,
         file: file,
       );
+      _autoSaveGuestCredentials(response);
       return const Right(unit);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromServerException(e));
@@ -273,14 +312,15 @@ class ChatRepositoryImpl implements ChatRepository {
     try {
       final dynamic raw = rawData is String ? jsonDecode(rawData) : rawData;
       if (raw is Map) {
-        final currentUserId = CacheHelper.getString(key: AppConstants.userIdKey);
+        final currentUserId = _currentUserId;
+        final currentUserName = _currentUserName;
         final map = raw is Map<String, dynamic> ? raw : Map<String, dynamic>.from(raw);
         final messageMap = (map['message'] is Map)
             ? (map['message'] is Map<String, dynamic>
                 ? map['message'] as Map<String, dynamic>
                 : Map<String, dynamic>.from(map['message'] as Map))
             : map;
-        return ChatMessageModel.fromJson(messageMap, currentUserId: currentUserId);
+        return ChatMessageModel.fromJson(messageMap, currentUserId: currentUserId, currentUserName: currentUserName);
       }
     } catch (e) {
       // Return null if parsing fails

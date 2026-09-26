@@ -138,8 +138,8 @@ class User extends MessageReactionUserEntity {
         numberOfStars = json['number_of_stars'],
         super(
           id: json['id'],
-          name: json['name'],
-          username: json['username'],
+          name: json['name'] ?? json['username'],
+          username: json['username'] ?? json['name'],
           image: json['image'],
         );
 
