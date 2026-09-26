@@ -6,11 +6,10 @@ The project was refactored from a legacy controller-based implementation into a 
 
 Note: The application consumes an existing backend API. Because browser requests are subject to CORS restrictions, the production Web deployment uses a same-origin proxy layer where required.
 
-🌐 Live Demo
+🌐 API Proxy & Web Demo
 
-Live Demo: ADD_YOUR_CLOUDFLARE_URL_HERE
-
-The Live Demo link can be added here after the final Cloudflare deployment URL is confirmed.
+- **Cloudflare Worker Proxy:** `https://live-chat-web-demo.kelsayed2012003.workers.dev`
+- Enables full CORS-free communication with the external backend API for Flutter Web.
 
 ✨ Features
 
@@ -273,9 +272,11 @@ Access to the backend API / required services
 
 Installation
 
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+```bash
+git clone https://github.com/KareemElshnabi2003/Live-Chat-Web-Demo.git
 cd Live-Chat-Web-Demo
 flutter pub get
+```
 
 Run on Web
 
@@ -319,22 +320,6 @@ The project currently includes a Flutter smoke test and has been verified with:
 flutter test
 
 All existing tests pass in the current verified build.
-
-🖼️ Screenshots
-
-Add the final screenshots to a screenshots/ directory and reference them here.
-
-Example:
-
-## Screenshots
-
-| Login | Home |
-|---|---|
-| ![Login](screenshots/login.png) | ![Home](screenshots/home.png) |
-
-| Chat | Responsive Web |
-|---|---|
-| ![Chat](screenshots/chat.png) | ![Responsive](screenshots/responsive.png) |
 
 📌 Development Notes
 
