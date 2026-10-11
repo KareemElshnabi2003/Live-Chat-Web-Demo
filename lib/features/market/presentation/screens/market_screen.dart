@@ -84,17 +84,22 @@ class _MarketPageState extends State<MarketPage> {
           if (isLoading && storePowers.isEmpty) {
             return SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                children: [
-                  _headerPage(
-                    numOfStars: numOfStars,
-                    onPress: () => showBottomSheetPinChatWidget(context: context),
-                    onTapCharge: () => showBottomSheetMarketBuyChargeWidget(context: context),
-                    isRtl: isRtl,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: Column(
+                    children: [
+                      _headerPage(
+                        numOfStars: numOfStars,
+                        onPress: () => showBottomSheetPinChatWidget(context: context),
+                        onTapCharge: () => showBottomSheetMarketBuyChargeWidget(context: context),
+                        isRtl: isRtl,
+                      ),
+                      SizedBox(height: 5.h),
+                      Padding(padding: EdgeInsets.all(4.w), child: ShimmerSkeletons.marketGridSkeleton()),
+                    ],
                   ),
-                  SizedBox(height: 5.h),
-                  Padding(padding: EdgeInsets.all(4.w), child: ShimmerSkeletons.marketGridSkeleton()),
-                ],
+                ),
               ),
             );
           }
@@ -106,34 +111,39 @@ class _MarketPageState extends State<MarketPage> {
             child: SingleChildScrollView(
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                children: [
-                  _headerPage(
-                    numOfStars: numOfStars,
-                    onPress: () => showBottomSheetPinChatWidget(context: context),
-                    onTapCharge: () => showBottomSheetMarketBuyChargeWidget(context: context),
-                    isRtl: isRtl,
-                  ),
-                  SizedBox(height: 5.h),
-                  _buildStore(isRtl),
-                  _buildStoreInformation(storePowers, isRtl),
-                  if (hasMore)
-                    Padding(
-                      padding: EdgeInsets.all(4.w),
-                      child: const Center(child: CircularProgressIndicator()),
-                    )
-                  else if (storePowers.isNotEmpty)
-                    Padding(
-                      padding: EdgeInsets.all(4.w),
-                      child: textNormal(
-                        isRtl ? "لا يوجد المزيد" : "No more items",
-                        pref ? AppColors.inActiveColor : AppColors.blackColor.withOpacity(0.6),
-                        3.w,
-                        FontWeight.w500,
-                        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: Column(
+                    children: [
+                      _headerPage(
+                        numOfStars: numOfStars,
+                        onPress: () => showBottomSheetPinChatWidget(context: context),
+                        onTapCharge: () => showBottomSheetMarketBuyChargeWidget(context: context),
+                        isRtl: isRtl,
                       ),
-                    ),
-                ],
+                      SizedBox(height: 5.h),
+                      _buildStore(isRtl),
+                      _buildStoreInformation(storePowers, isRtl),
+                      if (hasMore)
+                        Padding(
+                          padding: EdgeInsets.all(4.w),
+                          child: const Center(child: CircularProgressIndicator()),
+                        )
+                      else if (storePowers.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.all(4.w),
+                          child: textNormal(
+                            isRtl ? "لا يوجد المزيد" : "No more items",
+                            pref ? AppColors.inActiveColor : AppColors.blackColor.withOpacity(0.6),
+                            3.w,
+                            FontWeight.w500,
+                            textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
           );
@@ -156,12 +166,10 @@ class _MarketPageState extends State<MarketPage> {
           bottomRight: Radius.circular(12),
         ),
       ),
-      padding: EdgeInsets.only(
-        left: isRtl ? 0 : 4.w,
-        right: isRtl ? 4.w : 0,
-        top: 6.h,
-        bottom: 2.h,
-      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: 4.w,
+        vertical: 2.h,
+      ).copyWith(top: 5.h),
       child: Column(
         children: [
           _buildAppBar(onPress: onPress, isRtl: isRtl),

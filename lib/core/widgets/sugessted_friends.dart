@@ -1,9 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/features/market/data/models/power_model.dart';
 import 'package:live_chat/core/widgets/storetext.dart';
-import 'package:live_chat/core/widgets/text_click_widget.dart';
 import 'package:live_chat/core/widgets/text_normal_widget.dart';
 import 'package:live_chat/main.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -23,144 +23,107 @@ Widget SuggestedFriends({
   required bool requestSend,
   bool isRtl = true,
 }) {
+  final double avatarSize = kIsWeb ? 52.0 : 14.w;
 
-  return SizedBox(
-    height: 10.h,
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       children: [
-        Row(
-          children: [
-            imgUrl
-                ? InkWell(
-                    onTap: onPressImg,
-                    child: Container(
-                      width: 19.w,
-                      height: 19.w,
-                      decoration: BoxDecoration(
-                        color: pref ? AppColors.darkcolor : null,
-                        image: DecorationImage(
-                          image: img,
-                          fit: BoxFit.fill,
-                        ),
-                        borderRadius: BorderRadius.circular(80),
-                      ),
-                    ),
-                  )
-                : InkWell(
-                    onTap: onPressImg,
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: 19.w,
-                      height: 19.w,
-                      decoration: BoxDecoration(
-                        color: pref
-                            ? AppColors.darkcolor
-                            : AppColors.black2TextColor,
-                        borderRadius: BorderRadius.circular(80),
-                      ),
-                      child: textNormal(ttitle[0], AppColors.whiteColor, 7.w,
-                          FontWeight.bold),
-                    ),
-                  ),
-            SizedBox(width: 3.w),
-            InkWell(
-              onTap: requestSend ? removeRequest : sendRequest,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 40.w,
-                    // height: 5.h,
-                    child: power.toString() == "null"
-                        ? textNormal(
-                            multi: true,
-                            numOfRow: 1,
-                            ttitle,
-                            pref
-                                ? AppColors.whiteColor
-                                : AppColors.blackTextColor,
-                            3.5.w,
-                            FontWeight.w400,
-                          )
-                        : PowerTextWidget(
-                            powerModel: power!,
-                            displyText: ttitle,
-                          ),
-                  ),
-                  // const Spacer(flex: 1),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  textNormal(
-                    body,
-                    requestSend
-                        ? AppColors.secondaryColor
-                        : pref
-                            ? AppColors.inActiveColor
-                            : AppColors.black2TextColor,
-                    3.w,
-                    FontWeight.w500,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  // const Spacer(flex: 2),
-                  textClick(
-                    requestSend
-                        ? "الغاء"
-                        : "ارسال",
-                    false,
-                    sendRequest,
-                    requestSend
-                        ? AppColors.redColor
-                        : pref
-                            ? AppColors.secondaryColor
-                            : AppColors.primaryColor,
-                    3.w,
-                  ),
-                ],
-              ),
+        // Avatar
+        InkWell(
+          onTap: onPressImg,
+          borderRadius: BorderRadius.circular(80),
+          child: Container(
+            width: avatarSize,
+            height: avatarSize,
+            decoration: BoxDecoration(
+              color: pref ? AppColors.darkcolor : AppColors.black2TextColor,
+              image: imgUrl
+                  ? DecorationImage(
+                      image: img,
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+              borderRadius: BorderRadius.circular(80),
             ),
-          ],
+            alignment: Alignment.center,
+            child: !imgUrl
+                ? textNormal(
+                    ttitle.isNotEmpty ? ttitle[0] : '',
+                    AppColors.whiteColor,
+                    kIsWeb ? 22.0 : 6.w,
+                    FontWeight.bold,
+                  )
+                : null,
+          ),
         ),
-        Container(
-          padding: EdgeInsets.only(
-              right: isRtl ? 1.3.w : 5.w, left: isRtl ? 5.w : 1.3.w),
-          height: 14.w,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: pref ? AppColors.darkcolor : AppColors.whiteColor,
-            borderRadius: BorderRadius.only(
-              topLeft:
-                  isRtl ? const Radius.circular(0) : const Radius.circular(25),
-              bottomLeft:
-                  isRtl ? const Radius.circular(0) : const Radius.circular(25),
-              topRight:
-                  isRtl ? const Radius.circular(25) : const Radius.circular(0),
-              bottomRight:
-                  isRtl ? const Radius.circular(25) : const Radius.circular(0),
+        SizedBox(width: kIsWeb ? 12 : 3.w),
+        // Friend Info
+        Expanded(
+          child: InkWell(
+            onTap: requestSend ? removeRequest : sendRequest,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                power.toString() == "null" || power == null
+                    ? textNormal(
+                        ttitle,
+                        pref ? AppColors.whiteColor : AppColors.blackTextColor,
+                        kIsWeb ? 15.0 : 3.5.w,
+                        FontWeight.w600,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    : PowerTextWidget(
+                        powerModel: power,
+                        displyText: ttitle,
+                      ),
+                const SizedBox(height: 4),
+                textNormal(
+                  body,
+                  requestSend
+                      ? AppColors.secondaryColor
+                      : (pref
+                          ? AppColors.inActiveColor
+                          : AppColors.black2TextColor),
+                  kIsWeb ? 13.0 : 3.w,
+                  FontWeight.w500,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
+        ),
+        const SizedBox(width: 8),
+        // Action Buttons
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          decoration: BoxDecoration(
+            color: pref ? AppColors.darkcolor : AppColors.whiteColor,
+            borderRadius: BorderRadius.circular(25),
+          ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
             children: [
               GestureDetector(
                 onTap: requestSend ? sendRequest : removeRequest,
                 child: Container(
-                  height: 12.w,
-                  width: 12.w,
+                  height: kIsWeb ? 34.0 : 9.w,
+                  width: kIsWeb ? 34.0 : 9.w,
                   decoration: ShapeDecoration(
                     color: pref ? AppColors.blackColor : AppColors.bgColor,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: Center(
                     child: Icon(
                       requestSend ? Icons.close : LucideIcons.plus,
-                      size: 4.w,
+                      size: kIsWeb ? 18.0 : 4.w,
                       color: pref
                           ? AppColors.secondaryColor
                           : AppColors.blackColor,
@@ -168,31 +131,29 @@ Widget SuggestedFriends({
                   ),
                 ),
               ),
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(width: 8),
               InkWell(
                 onTap: chat,
                 child: Container(
-                  height: 12.w,
-                  width: 12.w,
+                  height: kIsWeb ? 34.0 : 9.w,
+                  width: kIsWeb ? 34.0 : 9.w,
                   decoration: ShapeDecoration(
                     color: pref ? AppColors.blackColor : AppColors.bgColor,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: Center(
                     child: Icon(
                       LucideIcons.messageCircle300,
-                      size: 4.w,
+                      size: kIsWeb ? 18.0 : 4.w,
                       color: pref
                           ? AppColors.secondaryColor
                           : AppColors.blackColor,
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

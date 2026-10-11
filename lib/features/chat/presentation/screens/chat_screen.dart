@@ -7,6 +7,7 @@ import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/theme/theme_cubit.dart';
 import 'package:live_chat/core/di/service_locator.dart';
 import 'package:live_chat/core/routing/routes.dart';
+import 'package:live_chat/features/home/presentation/cubit/home_cubit.dart';
 import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_state.dart';
@@ -23,8 +24,15 @@ class ChatView extends StatefulWidget {
   final UserChatEntity? userChatModel;
   final bool isPin;
   final bool isGust;
+  final VoidCallback? onClose;
 
-  const ChatView({super.key, required this.userChatModel, required this.isPin, required this.isGust});
+  const ChatView({
+    super.key,
+    required this.userChatModel,
+    required this.isPin,
+    required this.isGust,
+    this.onClose,
+  });
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -70,6 +78,13 @@ class _ChatViewState extends State<ChatView> {
         canPop: false,
         onPopInvoked: (didPop) {
           if (didPop) return;
+          if (widget.onClose != null) {
+            widget.onClose!();
+            return;
+          }
+          try {
+            context.read<HomeCubit>().clearSelectedChat();
+          } catch (_) {}
           Future.microtask(() {
             if (Navigator.canPop(context)) {
               Navigator.pop(context);
@@ -112,6 +127,7 @@ class _ChatViewState extends State<ChatView> {
                               userChatModel: widget.userChatModel!,
                               isGust: widget.isGust,
                               isRtl: isRtl,
+                              onClose: widget.onClose,
                             ),
                             if (widget.isPin && ChatHelpers.hasAd(widget.userChatModel!))
                               PinnedAdWidget(

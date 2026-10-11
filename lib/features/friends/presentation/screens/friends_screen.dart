@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -38,7 +39,7 @@ Widget friendsChatCard({
   final isRtl = Directionality.of(context) == TextDirection.rtl;
 
   return SizedBox(
-    height: 19.w,
+    height: kIsWeb ? 68.0 : 19.w,
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -49,7 +50,7 @@ Widget friendsChatCard({
             textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
             children: [
               _buildProfileImage(img, ttitle, imgUrl, isFriendsSection, onPressImg),
-              SizedBox(width: 2.w),
+              SizedBox(width: kIsWeb ? 12 : 2.w),
               _buildChatDetails(context, power, ttitle, body, isFriend, onPressJoin),
             ],
           ),
@@ -61,17 +62,18 @@ Widget friendsChatCard({
 }
 
 Widget _buildProfileImage(ImageProvider img, String ttitle, bool imgUrl, bool isFriendsSection, VoidCallback onPressImg) {
+  final double avatarSize = kIsWeb ? 54.0 : 19.w;
   return InkWell(
     onTap: onPressImg,
     child: Container(
-      width: 19.w,
-      height: 19.w,
+      width: avatarSize,
+      height: avatarSize,
       decoration: BoxDecoration(
         color: pref ? AppColors.darkcolor : AppColors.black2TextColor,
-        image: imgUrl ? DecorationImage(image: img, fit: BoxFit.fill) : null,
+        image: imgUrl ? DecorationImage(image: img, fit: BoxFit.cover) : null,
         borderRadius: BorderRadius.circular(isFriendsSection ? 80 : 20),
       ),
-      child: imgUrl ? null : Center(child: textNormal(ttitle.isNotEmpty ? ttitle[0] : '', AppColors.whiteColor, 7.w, FontWeight.bold)),
+      child: imgUrl ? null : Center(child: textNormal(ttitle.isNotEmpty ? ttitle[0] : '', AppColors.whiteColor, kIsWeb ? 22.0 : 7.w, FontWeight.bold)),
     ),
   );
 }
@@ -79,14 +81,15 @@ Widget _buildProfileImage(ImageProvider img, String ttitle, bool imgUrl, bool is
 Widget _buildChatDetails(BuildContext context, PowerModel? power, String ttitle, String body, bool isFriend, VoidCallback onPressJoin) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.center,
     children: [
       power != null
           ? PowerTextWidget(powerModel: power, displyText: ttitle)
-          : textNormal(ttitle, pref ? AppColors.whiteColor : AppColors.blackTextColor, 3.5.w, FontWeight.w400),
-      const Spacer(flex: 1),
-      textNormal(body, isFriend ? (pref ? AppColors.inActiveColor : AppColors.black2TextColor) : AppColors.secondaryColor, 3.w, FontWeight.w500),
-      const Spacer(flex: 2),
-      textClick(isFriend ? S.of(context).correspondent : S.of(context).cancel, false, onPressJoin, isFriend ? (pref ? AppColors.secondaryColor : AppColors.primaryColor) : AppColors.redColor, 3.w),
+          : textNormal(ttitle, pref ? AppColors.whiteColor : AppColors.blackTextColor, kIsWeb ? 15.0 : 3.5.w, FontWeight.w500),
+      const SizedBox(height: 3),
+      textNormal(body, isFriend ? (pref ? AppColors.inActiveColor : AppColors.black2TextColor) : AppColors.secondaryColor, kIsWeb ? 13.0 : 3.w, FontWeight.w500),
+      const SizedBox(height: 4),
+      textClick(isFriend ? S.of(context).correspondent : S.of(context).cancel, false, onPressJoin, isFriend ? (pref ? AppColors.secondaryColor : AppColors.primaryColor) : AppColors.redColor, kIsWeb ? 13.0 : 3.w),
     ],
   );
 }
@@ -96,7 +99,7 @@ Widget _buildActionButton(bool isEditing, bool isFriend, VoidCallback onPressRem
     onTap: onPressRemove,
     child: Container(
       padding: EdgeInsets.only(right: isRtl ? 2.w : 6.w, left: isRtl ? 6.w : 2.w),
-      height: 14.w,
+      height: kIsWeb ? 44.0 : 14.w,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: isEditing ? (pref ? AppColors.darkcolor : AppColors.bgColor) : (pref ? AppColors.blackColor : AppColors.whiteColor),
@@ -108,14 +111,14 @@ Widget _buildActionButton(bool isEditing, bool isFriend, VoidCallback onPressRem
         ),
       ),
       child: Container(
-        height: 12.w,
-        width: 12.w,
+        height: kIsWeb ? 38.0 : 12.w,
+        width: kIsWeb ? 38.0 : 12.w,
         decoration: ShapeDecoration(color: pref ? AppColors.blackColor : AppColors.bgColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
         child: Center(
           child: Icon(
             isEditing ? (isFriend ? IconsaxPlusLinear.profile_delete : Icons.close) : (isFriend ? (isRtl ? IconsaxPlusLinear.arrow_left : IconsaxPlusLinear.arrow_right) : Icons.close),
             color: isEditing ? Colors.red : (pref ? AppColors.whiteColor : AppColors.blackColor),
-            size: 6.w,
+            size: kIsWeb ? 20.0 : 6.w,
           ),
         ),
       ),

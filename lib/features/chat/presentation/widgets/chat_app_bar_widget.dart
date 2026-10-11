@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:live_chat/core/theme/app_colors.dart';
 import 'package:live_chat/core/routing/routes.dart';
+import 'package:live_chat/features/home/presentation/cubit/home_cubit.dart';
 import 'package:live_chat/features/chat/domain/entities/user_chat_entity.dart';
 import 'package:live_chat/features/chat/data/models/user_chat_model.dart';
 import 'package:live_chat/features/chat/presentation/cubit/chat_cubit.dart';
@@ -22,12 +24,14 @@ class ChatAppBarWidget extends StatelessWidget {
   final UserChatEntity userChatModel;
   final bool isGust;
   final bool isRtl;
+  final VoidCallback? onClose;
 
   const ChatAppBarWidget({
     super.key,
     required this.userChatModel,
     required this.isGust,
     required this.isRtl,
+    this.onClose,
   });
 
   @override
@@ -38,7 +42,7 @@ class ChatAppBarWidget extends StatelessWidget {
         color: AppColors.bgColor,
         borderRadius: BorderRadius.circular(15),
       ),
-      padding: EdgeInsets.all(2.w),
+      padding: EdgeInsets.all(kIsWeb ? 10.0 : 2.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -48,6 +52,13 @@ class ChatAppBarWidget extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
+                  if (onClose != null) {
+                    onClose!();
+                    return;
+                  }
+                  try {
+                    context.read<HomeCubit>().clearSelectedChat();
+                  } catch (_) {}
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   } else {
@@ -56,11 +67,11 @@ class ChatAppBarWidget extends StatelessWidget {
                 },
                 child: Icon(
                   isRtl ? IconsaxPlusLinear.arrow_right_3 : IconsaxPlusLinear.arrow_left_1,
-                  size: 5.w,
+                  size: kIsWeb ? 24 : 5.w,
                   color: pref ? AppColors.blackColor : AppColors.blackTextColor,
                 ),
               ),
-              SizedBox(width: 2.w),
+              SizedBox(width: kIsWeb ? 10 : 2.w),
               CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.grey.shade300,
@@ -78,16 +89,16 @@ class ChatAppBarWidget extends StatelessWidget {
                       )
                     : null,
               ),
-              SizedBox(width: 2.w),
-              SizedBox(
-                width: 35.w,
+              SizedBox(width: kIsWeb ? 10 : 2.w),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: kIsWeb ? 220 : 35.w),
                 child: Text(
                   userChatModel.name ?? '',
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(
                     color: pref ? AppColors.blackColor : AppColors.blackTextColor,
-                    fontSize: 4.5.w,
+                    fontSize: kIsWeb ? 16.0 : 4.5.w,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

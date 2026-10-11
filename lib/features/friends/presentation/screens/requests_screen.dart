@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -39,10 +40,12 @@ Widget friendsRequestCard({
   bool isSentRequest = false,
 }) {
   final isRtl = Directionality.of(context) == TextDirection.rtl;
+  final double avatarSize = kIsWeb ? 54.0 : 19.w;
+
   return Padding(
-    padding: EdgeInsets.only(left: isRtl ? 0.w : 4.w, right: isRtl ? 4.w : 0.w),
+    padding: EdgeInsets.symmetric(horizontal: isRtl ? (kIsWeb ? 16 : 4.w) : (kIsWeb ? 16 : 4.w), vertical: 4),
     child: SizedBox(
-      height: 19.w,
+      height: kIsWeb ? 68.0 : 19.w,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
@@ -54,11 +57,11 @@ Widget friendsRequestCard({
                   ? InkWell(
                       onTap: onPressImg,
                       child: Container(
-                        width: 19.w,
-                        height: 19.w,
+                        width: avatarSize,
+                        height: avatarSize,
                         decoration: BoxDecoration(
                           color: pref ? AppColors.darkcolor : null,
-                          image: DecorationImage(image: img, fit: BoxFit.fill),
+                          image: DecorationImage(image: img, fit: BoxFit.cover),
                           borderRadius: BorderRadius.circular(80),
                         ),
                       ),
@@ -67,8 +70,8 @@ Widget friendsRequestCard({
                       onTap: onPressImg,
                       child: Container(
                         alignment: Alignment.center,
-                        width: 19.w,
-                        height: 19.w,
+                        width: avatarSize,
+                        height: avatarSize,
                         decoration: BoxDecoration(
                           color: pref ? AppColors.darkcolor : AppColors.black2TextColor,
                           borderRadius: BorderRadius.circular(80),
@@ -76,23 +79,23 @@ Widget friendsRequestCard({
                         child: textNormal(
                           ttitle.isNotEmpty ? ttitle[0] : '',
                           AppColors.whiteColor,
-                          7.w,
+                          kIsWeb ? 22.0 : 7.w,
                           FontWeight.bold,
                         ),
                       ),
                     ),
-              SizedBox(width: 2.w),
+              SizedBox(width: kIsWeb ? 12 : 2.w),
               InkWell(
                 onTap: onPressChat,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     power != null
                         ? PowerTextWidget(powerModel: power, displyText: ttitle)
-                        : textNormal(ttitle, pref ? AppColors.whiteColor : AppColors.blackTextColor, 3.5.w, FontWeight.w400),
-                    const Spacer(flex: 1),
-                    textNormal(body, pref ? AppColors.inActiveColor : AppColors.black2TextColor, 3.w, FontWeight.w500),
-                    const Spacer(flex: 1),
+                        : textNormal(ttitle, pref ? AppColors.whiteColor : AppColors.blackTextColor, kIsWeb ? 15.0 : 3.5.w, FontWeight.w500),
+                    const SizedBox(height: 4),
+                    textNormal(body, pref ? AppColors.inActiveColor : AppColors.black2TextColor, kIsWeb ? 13.0 : 3.w, FontWeight.w500),
                   ],
                 ),
               ),
@@ -100,13 +103,13 @@ Widget friendsRequestCard({
           ),
           Row(
             children: [
-              if (!isRtl) SizedBox(width: 4.w),
+              if (!isRtl) SizedBox(width: kIsWeb ? 16 : 4.w),
               if (isSentRequest)
                 InkWell(
                   onTap: onPressCancel,
                   child: Container(
-                    height: 10.w,
-                    padding: EdgeInsets.symmetric(horizontal: 4.w),
+                    height: kIsWeb ? 36.0 : 10.w,
+                    padding: EdgeInsets.symmetric(horizontal: kIsWeb ? 16 : 4.w),
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -118,7 +121,7 @@ Widget friendsRequestCard({
                         S.of(context).cancel,
                         style: TextStyle(
                           color: AppColors.redColor,
-                          fontSize: 3.w,
+                          fontSize: kIsWeb ? 13.0 : 3.w,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -129,8 +132,8 @@ Widget friendsRequestCard({
                 InkWell(
                   onTap: onPressAccept,
                   child: Container(
-                    height: 12.w,
-                    width: 12.w,
+                    height: kIsWeb ? 40.0 : 12.w,
+                    width: kIsWeb ? 40.0 : 12.w,
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
                         side: BorderSide(color: pref ? AppColors.whiteColor : AppColors.blackColor),
@@ -141,7 +144,7 @@ Widget friendsRequestCard({
                       child: Icon(
                         Icons.check,
                         color: pref ? AppColors.whiteColor : AppColors.blackColor,
-                        size: 6.w,
+                        size: kIsWeb ? 20.0 : 6.w,
                       ),
                     ),
                   ),
@@ -150,8 +153,8 @@ Widget friendsRequestCard({
                 InkWell(
                   onTap: onPressReject,
                   child: Container(
-                    height: 12.w,
-                    width: 12.w,
+                    height: kIsWeb ? 40.0 : 12.w,
+                    width: kIsWeb ? 40.0 : 12.w,
                     decoration: ShapeDecoration(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -162,13 +165,13 @@ Widget friendsRequestCard({
                       child: Icon(
                         Icons.close,
                         color: AppColors.redColor,
-                        size: 6.w,
+                        size: kIsWeb ? 20.0 : 6.w,
                       ),
                     ),
                   ),
                 ),
               ],
-              if (isRtl) SizedBox(width: 4.w),
+              if (isRtl) SizedBox(width: kIsWeb ? 16 : 4.w),
             ],
           ),
         ],
@@ -194,21 +197,28 @@ class _RequestsState extends State<Requests> {
   Widget _buildTabBadge(String title, int count) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         if (count > 0) ...[
-          SizedBox(width: 2.w),
+          const SizedBox(width: 8),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: AppColors.redColor,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               "$count",
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
-                fontSize: 2.8.w,
+                fontSize: 13,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -250,9 +260,18 @@ class _RequestsState extends State<Requests> {
                   _buildHeader(context, isRtl),
                   SizedBox(height: 2.h),
                   TabBar(
-                    labelColor: AppColors.primaryColor,
-                    unselectedLabelColor: pref ? AppColors.whiteColor : AppColors.blackTextColor,
-                    indicatorColor: AppColors.primaryColor,
+                    labelColor: pref ? AppColors.secondaryColor : AppColors.primaryColor,
+                    unselectedLabelColor: pref ? AppColors.inActiveColor : AppColors.black2TextColor,
+                    indicatorColor: pref ? AppColors.secondaryColor : AppColors.primaryColor,
+                    indicatorWeight: 3,
+                    labelStyle: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                     dividerColor: Colors.transparent,
                     tabs: [
                       Tab(child: _buildTabBadge(isRtl ? 'مستلمة' : 'Received', received.length)),

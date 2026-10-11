@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
@@ -22,12 +22,15 @@ class SettingView extends StatelessWidget {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Scaffold(
       backgroundColor: pref ? AppColors.blackColor : AppColors.bgColor,
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: isRtl ? 4.w : 4.w, vertical: 2.h),
-        child: Directionality(
-          textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
-          child: ListView(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 850),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: isRtl ? 4.w : 4.w, vertical: 2.h),
+            child: Directionality(
+              textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+              child: ListView(
             children: [
               _buildSectionTitle(S.of(context).settings, 4.5.w),
               SizedBox(height: 6.h),
@@ -113,7 +116,9 @@ class SettingView extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _buildSectionTitle(String title, double fontSize) {

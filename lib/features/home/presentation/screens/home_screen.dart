@@ -1,7 +1,8 @@
-﻿// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print
 
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -107,6 +108,10 @@ class _HomeViewState extends State<HomeView> {
         return PopScope(
           canPop: false,
           onPopInvoked: (didPop) {
+            if (selectedChat != null) {
+              context.read<HomeCubit>().clearSelectedChat();
+              return;
+            }
             if (selectedIndex != 0) {
               context.read<HomeCubit>().changeNavIndex(0);
             } else {
@@ -125,12 +130,12 @@ class _HomeViewState extends State<HomeView> {
                       context.read<HomeCubit>().changeNavIndex(i);
                     },
                   ),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
+                  if (selectedChat != null && (selectedIndex == 0 || selectedIndex == 1)) ...[
+                    Container(
+                      width: 420,
                       decoration: BoxDecoration(
-                        border: Border(
-                          right: BorderSide(
+                        border: BorderDirectional(
+                          end: BorderSide(
                             color: pref ? AppColors.darkcolor : Colors.grey.shade300,
                             width: 1,
                           ),
@@ -138,24 +143,19 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       child: _buildBodyForIndex(selectedIndex, homeState),
                     ),
-                  ),
-                  Expanded(
-                    flex: 5,
-                    child: selectedChat == null
-                        ? Center(
-                            child: textNormal(
-                              S.of(context).noChat,
-                              pref ? AppColors.whiteColor : AppColors.blackColor,
-                              4.w,
-                              FontWeight.w500,
-                            ),
-                          )
-                        : ChatView(
-                            userChatModel: selectedChat,
-                            isPin: isSelectedChatPin,
-                            isGust: isSelectedChatGust,
-                          ),
-                  ),
+                    Expanded(
+                      child: ChatView(
+                        userChatModel: selectedChat,
+                        isPin: isSelectedChatPin,
+                        isGust: isSelectedChatGust,
+                        onClose: () => context.read<HomeCubit>().clearSelectedChat(),
+                      ),
+                    ),
+                  ] else ...[
+                    Expanded(
+                      child: _buildBodyForIndex(selectedIndex, homeState),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -203,34 +203,39 @@ class _HomeViewState extends State<HomeView> {
       },
       color: AppColors.secondaryColor,
       backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Padding(
-          padding: EdgeInsets.only(bottom: 7.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(
-                  right: 4.w,
-                  left: 4.w,
-                  top: 5.h,
-                  bottom: 2.h,
-                ),
-                child: Column(
-                  children: [
-                    _buildAppBar(onPress: () => showBottomSheetPinChatWidget(context: context)),
-                    if (ads.isNotEmpty) SizedBox(height: 2.h),
-                    if (ads.isNotEmpty) _sliderImg(ads),
-                    if (ads.isNotEmpty) SizedBox(height: 2.h),
-                    if (pinnedChat != null) _buildPinnedChat(pinnedChat),
-                  ],
-                ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 7.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      right: kIsWeb ? 16.0 : 4.w,
+                      left: kIsWeb ? 16.0 : 4.w,
+                      top: kIsWeb ? 16.0 : 5.h,
+                      bottom: kIsWeb ? 10.0 : 2.h,
+                    ),
+                    child: Column(
+                      children: [
+                        _buildAppBar(onPress: () => showBottomSheetPinChatWidget(context: context)),
+                        if (ads.isNotEmpty) SizedBox(height: kIsWeb ? 12.0 : 2.h),
+                        if (ads.isNotEmpty) _sliderImg(ads),
+                        if (ads.isNotEmpty) SizedBox(height: kIsWeb ? 12.0 : 2.h),
+                        if (pinnedChat != null) _buildPinnedChat(pinnedChat),
+                      ],
+                    ),
+                  ),
+                  _buildPrivateChatsSection(userChats),
+                  _buildFriendsSection(),
+                  _buildSuggestedFriendsSection(),
+                ],
               ),
-              _buildPrivateChatsSection(userChats),
-              _buildFriendsSection(),
-              _buildSuggestedFriendsSection(),
-            ],
+            ),
           ),
         ),
       ),
@@ -248,26 +253,36 @@ class _HomeViewState extends State<HomeView> {
       },
       color: AppColors.secondaryColor,
       backgroundColor: pref ? AppColors.darkcolor : AppColors.whiteColor,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Padding(
-          padding: EdgeInsets.only(bottom: 7.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(right: 4.w, left: 4.w, top: 5.h, bottom: 2.h),
-                child: Column(
-                  children: [
-                    _buildAppBar(onPress: () => showBottomSheetPinChatWidget(context: context)),
-                    if (ads.isNotEmpty) SizedBox(height: 2.h),
-                    if (ads.isNotEmpty) _sliderImg(ads),
-                    if (ads.isNotEmpty) SizedBox(height: 2.h),
-                  ],
-                ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 7.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      right: kIsWeb ? 16.0 : 4.w,
+                      left: kIsWeb ? 16.0 : 4.w,
+                      top: kIsWeb ? 16.0 : 5.h,
+                      bottom: kIsWeb ? 10.0 : 2.h,
+                    ),
+                    child: Column(
+                      children: [
+                        _buildAppBar(onPress: () => showBottomSheetPinChatWidget(context: context)),
+                        if (ads.isNotEmpty) SizedBox(height: kIsWeb ? 12.0 : 2.h),
+                        if (ads.isNotEmpty) _sliderImg(ads),
+                        if (ads.isNotEmpty) SizedBox(height: kIsWeb ? 12.0 : 2.h),
+                      ],
+                    ),
+                  ),
+                  _buildOtherConversationSection(systemChats),
+                ],
               ),
-              _buildOtherConversationSection(systemChats),
-            ],
+            ),
           ),
         ),
       ),
@@ -289,18 +304,18 @@ class _HomeViewState extends State<HomeView> {
             textNormal(
               S.of(context).positive_chat,
               pref ? AppColors.whiteColor : AppColors.blackColor,
-              4.w,
+              kIsWeb ? 15.0 : 4.w,
               FontWeight.w400,
             ),
-            SizedBox(width: 2.w),
+            SizedBox(width: kIsWeb ? 8.0 : 2.w),
             Icon(
               LucideIcons.pin300,
-              size: 5.w,
+              size: kIsWeb ? 18.0 : 5.w,
               color: pref ? AppColors.whiteColor : AppColors.blackColor,
             ),
           ],
         ),
-        SizedBox(height: 2.h),
+        SizedBox(height: kIsWeb ? 10.0 : 2.h),
         chatCardWidget(
           power: null,
           imageUrl: hasValidImage,
@@ -330,15 +345,13 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildOtherConversationSection(List<UserChatEntity> systemChats) {
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 3.h),
+        SizedBox(height: kIsWeb ? 16.0 : 3.h),
         _buildSectionHeader(
           title: S.of(context).otherChats,
-          horizontalPadding: 4.w,
+          horizontalPadding: kIsWeb ? 16.0 : 4.w,
           onTap: () {
             context.push(
               Routes.sharedChatsScreen,
@@ -346,12 +359,12 @@ class _HomeViewState extends State<HomeView> {
             );
           },
         ),
-        SizedBox(height: 2.h),
+        SizedBox(height: kIsWeb ? 12.0 : 2.h),
         if (systemChats.isEmpty)
           Center(child: noData(S.of(context).noChat))
         else
           Padding(
-            padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
+            padding: EdgeInsets.symmetric(horizontal: kIsWeb ? 16.0 : 4.w),
             child: Column(
               children: [
                 for (int index = 0; index < (systemChats.length > 5 ? 5 : systemChats.length); index++) ...[
@@ -399,15 +412,13 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildPrivateChatsSection(List<UserChatEntity> userChats) {
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 3.h),
+        SizedBox(height: kIsWeb ? 16.0 : 3.h),
         _buildSectionHeader(
           title: S.of(context).yourPrivateChats,
-          horizontalPadding: 4.w,
+          horizontalPadding: kIsWeb ? 16.0 : 4.w,
           counterValue: userChats.length,
           showCounter: userChats.isNotEmpty,
           onTap: () {
@@ -417,9 +428,9 @@ class _HomeViewState extends State<HomeView> {
             );
           },
         ),
-        SizedBox(height: 2.h),
+        SizedBox(height: kIsWeb ? 12.0 : 2.h),
         Padding(
-          padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
+          padding: EdgeInsets.symmetric(horizontal: kIsWeb ? 16.0 : 4.w),
           child: Column(
             children: [
               for (int index = 0;
@@ -490,28 +501,27 @@ class _HomeViewState extends State<HomeView> {
       builder: (context, friendsState) {
         final friends = friendsState is FriendsLoaded ? friendsState.friends : [];
         final receivedCount = friendsState is FriendsLoaded ? friendsState.pendingRequestsCount : 0;
-        final isRtl = Directionality.of(context) == TextDirection.rtl;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 3.h),
+            SizedBox(height: kIsWeb ? 16.0 : 3.h),
             _buildSectionHeader(
               title: S.of(context).yourFriends,
-              horizontalPadding: 4.w,
+              horizontalPadding: kIsWeb ? 16.0 : 4.w,
               counterValue: friends.length,
               showCounter: friends.isNotEmpty,
               hasNotificationDot: receivedCount > 0,
               onTap: () => context.push(Routes.friendsScreen),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: kIsWeb ? 12.0 : 2.h),
             if (friendsState is FriendsLoading)
-              loading(10.h)
+              loading(kIsWeb ? 60.0 : 10.h)
             else if (friends.isEmpty)
               Center(child: noData(S.of(context).noChat))
             else
               Padding(
-                padding: EdgeInsets.only(left: isRtl ? 0 : 4.w, right: isRtl ? 4.w : 0),
+                padding: EdgeInsets.symmetric(horizontal: kIsWeb ? 16.0 : 4.w),
                 child: Column(
                   children: [
                     for (int index = 0; index < (friends.length > 2 ? 2 : friends.length); index++) ...[
@@ -589,7 +599,6 @@ class _HomeViewState extends State<HomeView> {
     return BlocBuilder<FriendsCubit, FriendsState>(
       builder: (context, friendsState) {
         final suggested = friendsState is FriendsLoaded ? friendsState.suggestedFriends : [];
-        final isRtl = Directionality.of(context) == TextDirection.rtl;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -607,7 +616,7 @@ class _HomeViewState extends State<HomeView> {
               Center(child: noData(S.of(context).noChat))
             else
               Padding(
-                padding: EdgeInsets.only(right: isRtl ? 4.w : 0, left: isRtl ? 0 : 4.w, bottom: 2.h),
+                padding: EdgeInsets.symmetric(horizontal: 4.w).copyWith(bottom: 2.h),
                 child: Column(
                   children: [
                     for (int index = 0; index < (suggested.length > 5 ? 5 : suggested.length); index++) ...[
@@ -693,7 +702,7 @@ class _HomeViewState extends State<HomeView> {
             textNormal(
               title,
               pref ? AppColors.whiteColor : AppColors.blackColor,
-              4.5.w,
+              kIsWeb ? 16.0 : 4.5.w,
               FontWeight.w400,
             ),
             Row(
@@ -701,14 +710,14 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 if (hasNotificationDot) ...[
                   Container(
-                    width: 2.5.w,
-                    height: 2.5.w,
+                    width: kIsWeb ? 8.0 : 2.5.w,
+                    height: kIsWeb ? 8.0 : 2.5.w,
                     decoration: const BoxDecoration(
                       color: AppColors.redColor,
                       shape: BoxShape.circle,
                     ),
                   ),
-                  SizedBox(width: 2.w),
+                  SizedBox(width: kIsWeb ? 6.0 : 2.w),
                 ],
                 if (showCounter) ...[
                   Container(
@@ -720,16 +729,16 @@ class _HomeViewState extends State<HomeView> {
                     child: textNormal(
                       "$counterValue",
                       pref ? AppColors.blackColor : Colors.white,
-                      3.5.w,
+                      kIsWeb ? 12.0 : 3.5.w,
                       FontWeight.bold,
                     ),
                   ),
-                  SizedBox(width: 2.w),
+                  SizedBox(width: kIsWeb ? 6.0 : 2.w),
                 ],
                 Icon(
                   isRtl ? LucideIcons.moveLeft300 : LucideIcons.moveRight300,
                   color: AppColors.secondaryColor,
-                  size: 7.w,
+                  size: kIsWeb ? 22.0 : 7.w,
                 ),
               ],
             ),
@@ -745,7 +754,8 @@ class _HomeViewState extends State<HomeView> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       children: [
-        _buildUserGreeting(),
+        Expanded(child: _buildUserGreeting()),
+        const SizedBox(width: 8),
         _buildActionButtons(onPress: onPress),
       ],
     );
@@ -772,7 +782,7 @@ class _HomeViewState extends State<HomeView> {
         displayWidget = textNormal(
           username ?? "User",
           pref ? AppColors.whiteColor : AppColors.blackColor,
-          3.5.w,
+          kIsWeb ? 15.0 : 3.5.w,
           FontWeight.w400,
         );
       }
@@ -780,7 +790,7 @@ class _HomeViewState extends State<HomeView> {
       displayWidget = textNormal(
         username ?? "User",
         pref ? AppColors.whiteColor : AppColors.blackColor,
-        3.5.w,
+        kIsWeb ? 15.0 : 3.5.w,
         FontWeight.w400,
       );
     }
@@ -791,19 +801,20 @@ class _HomeViewState extends State<HomeView> {
         userImage != "image";
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       children: [
         hasValidImage
             ? CircleAvatar(
-                radius: 4.w,
+                radius: kIsWeb ? 20.0 : 4.w,
                 backgroundImage: CachedNetworkImageProvider(userImage.trim()),
               )
             : CircleAvatar(
-                radius: 4.w,
+                radius: kIsWeb ? 20.0 : 4.w,
                 backgroundColor: Colors.grey,
               ),
-        SizedBox(width: 3.w),
-        displayWidget,
+        SizedBox(width: kIsWeb ? 8.0 : 3.w),
+        Flexible(child: displayWidget),
       ],
     );
   }
@@ -811,13 +822,14 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildActionButtons({required VoidCallback onPress}) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Row(
+      mainAxisSize: MainAxisSize.min,
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       children: [
         _buildPinChatButton(onPress: onPress),
         IconButton(
           icon: Icon(
             LucideIcons.bell,
-            size: 5.w,
+            size: kIsWeb ? 22.0 : 5.w,
             color: pref ? AppColors.inActiveColor : AppColors.blackColor,
           ),
           onPressed: () {
@@ -832,7 +844,7 @@ class _HomeViewState extends State<HomeView> {
     return InkWell(
       onTap: onPress,
       child: Container(
-        height: 4.5.h,
+        height: kIsWeb ? 34.0 : 4.5.h,
         decoration: ShapeDecoration(
           color: pref ? AppColors.secondaryColor : AppColors.primaryColor,
           shape: RoundedRectangleBorder(
@@ -840,14 +852,15 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 3.w),
+          padding: EdgeInsets.symmetric(horizontal: kIsWeb ? 10.0 : 3.w),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Icon(
                 LucideIcons.keyRound,
                 color: pref ? AppColors.blackColor : Colors.white,
-                size: 4.w,
+                size: kIsWeb ? 18.0 : 4.w,
               ),
             ],
           ),
